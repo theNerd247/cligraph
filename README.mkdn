@@ -1,0 +1,26 @@
+-----------------------------
+cligraph
+
+version: 0.0.1
+author: Noah Harvey
+lisence: Gnu Public License 2
+-----------------------------
+
+cligraph is a free and open-source console based program that graphs given functions. It is not a replacement for
+graphing calculators. 
+
+Please see http://github.com/theNerd247/cligraph for more info and source code.
+
+Comming Soon
+============
+* graphing input functions and data sets on cli
+* inputing functions via text
+* zooming on functions 
+* function data point display
+
+Todo
+====
+- fix data storage bug as void pointers - table.c 
+- redefine cells to contain x and y coordinates
+- create user interface
+- programming interface for graphing a vector of cells
