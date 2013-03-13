@@ -2,9 +2,9 @@
 
 cligraph
 
-version: 0.0.1
-author: Noah Harvey
-lisence: Gnu Public License 2
+version: 0.0.1 
+author: Noah Harvey 
+lisence: Gnu Public License 2 
 
 ---------------------------------
 
