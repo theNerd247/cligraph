@@ -1,10 +1,12 @@
-=================================
+---------------------------------
+
 cligraph
 
 version: 0.0.1
 author: Noah Harvey
 lisence: Gnu Public License 2
-=================================
+
+---------------------------------
 
 cligraph is a free and open-source console based program that graphs given functions. It is not a replacement for
 graphing calculators. 
