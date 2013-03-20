@@ -1,15 +1,16 @@
 /*
- * graph.c 
+ * graph.h 
  *
- * AUTHOR: Noah Harey
+ * AUTHOR: Noah Harvey
  *
  * VERSION: v0.0.1
  *
- * DESCRIPTION: header file for displaying the graph
+ * DESCRIPTION: header file for functions handling the graph display functions
+ *
  */
 
 /*
- * graph.c is part of cligraph.
+ * graph.h is part of cligraph.
  * 
  * cligraph is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +26,22 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "graph.h"
+#include "stdio.h"
+#include "table.h"
 
-//--TODO------------------------------
-/* Fix license in UltiSnippets plugin
-//--END TODO---------------------------
+#ifndef __GRAPH
+#define __GRAPH
 
+/*
+ * FUNCTION: pgraph
+ * 
+ * PARAMETERS: table* tble
+ *
+ * RETURNS: int - error codes: -1 - no error; 0 - tble is an invalid pointer; 1 - other
+ * 
+ * DESCRIPTION: prints the given table of values in a graph
+ *
+ */
+int pgraph(table* tble);
 
+#endif 
