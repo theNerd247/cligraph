@@ -23,12 +23,25 @@ along with sofware name.  If not, see <http://www.gnu.org/licenses/>.
  *
  * DESCRIPTION: defines the table and functions thereof
  *
+ * TODO: change table layout to columns of rows - it's more logical
  */
 
 #ifndef __TABLE
 #define __TABLE
 
-//structure that holds all the data cells of a table
+/*
+ * STRUCT: table
+ *
+ * a table is simply an array of ints with a 
+ * bit of meta-data. 
+ *
+ * Table Layout:
+ *  a table struct is stored as a row of
+ *  columns. 
+ *
+ * Getting Table Cell Value:
+ *  index of cell - x*(x_size)+y;
+ */
 struct table
 {
 	int x_size;
