@@ -1,0 +1,43 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AXIS_CHAR	include/graph.h	35;"	d
+BINDIR	Makefile	/^BINDIR=bin$/;"	m
+CC	Makefile	/^CC=gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-c -Wall #-g #uncomment for debuging with gdb$/;"	m
+EXEC	Makefile	/^EXEC=cligraph$/;"	m
+GRID_CHAR	include/graph.h	37;"	d
+IDIR	Makefile	/^IDIR=.\/include$/;"	m
+LFLAGS	Makefile	/^LFLAGS=-I$(IDIR) -I.$/;"	m
+MAIN	Makefile	/^MAIN=$(SRCDIR)\/$(MAINSRC)$/;"	m
+MAINOBJ	Makefile	/^MAINOBJ=$(patsubst %.c,$(OBJDIR)\/%.o,$(MAINSRC))$/;"	m
+MAINSRC	Makefile	/^MAINSRC= cligraph.c$/;"	m
+OBJ	Makefile	/^OBJ=$(patsubst %.c,$(OBJDIR)\/%.o,$(SRCS))$/;"	m
+OBJDIR	Makefile	/^OBJDIR=obj$/;"	m
+POINT_CHAR	include/graph.h	36;"	d
+SHELL	Makefile	/^SHELL=\/bin\/sh$/;"	m
+SRC	Makefile	/^SRC=$(patsubst %,$(SRCDIR)\/%,$(SRCS))$/;"	m
+SRCDIR	Makefile	/^SRCDIR=.\/src$/;"	m
+SRCS	Makefile	/^SRCS= graph.c table.c $/;"	m
+TSTDIR	Makefile	/^TSTDIR=.\/testing$/;"	m
+TSTOBJ	Makefile	/^TSTOBJ=$(patsubst %.c,$(OBJDIR)\/%.o,$(TSTSRC))$/;"	m
+TSTSRC	Makefile	/^TSTSRC=test.c$/;"	m
+__GRAPH	include/graph.h	32;"	d
+__TABLE	include/table.h	29;"	d
+cells	include/table.h	/^	int* cells;$/;"	m	struct:table	access:public
+get_cell	include/table.h	/^int get_cell(struct table* tble, int x, int y);$/;"	p	signature:(struct table* tble, int x, int y)
+get_cell	src/table.c	/^int get_cell(struct table* tble, int x, int y)$/;"	f	signature:(struct table* tble, int x, int y)
+init_table	include/table.h	/^struct table* init_table(int x_size, int y_size);$/;"	p	signature:(int x_size, int y_size)
+init_table	src/table.c	/^struct table* init_table(int x_size, int y_size)$/;"	f	signature:(int x_size, int y_size)
+main	src/cligraph.c	/^int main(int argc, char const *argv[])$/;"	f	signature:(int argc, char const *argv[])
+main	testing/test.c	/^int main(int argc, char const *argv[])$/;"	f	signature:(int argc, char const *argv[])
+pgraph	include/graph.h	/^int pgraph(struct table* tble);$/;"	p	signature:(struct table* tble)
+pgraph	src/graph.c	/^int pgraph(struct table* tble)$/;"	f	signature:(struct table* tble)
+set_cell	include/table.h	/^int set_cell(struct table* tble, int cell_value, int x, int y);$/;"	p	signature:(struct table* tble, int cell_value, int x, int y)
+set_cell	src/table.c	/^int set_cell(struct table* tble, int cell_value, int x, int y)$/;"	f	signature:(struct table* tble, int cell_value, int x, int y)
+table	include/table.h	/^struct table$/;"	s
+x_size	include/table.h	/^	int x_size;$/;"	m	struct:table	access:public
+y_size	include/table.h	/^	int y_size;$/;"	m	struct:table	access:public

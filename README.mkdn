@@ -26,3 +26,8 @@ Todo
 - redefine cells to contain x and y coordinates
 - create user interface
 - programming interface for graphing a vector of cells
+
+NOTE:
+=====
+directory: testing has been added to the .gitignore file. If you would like testing files please
+email harvey.coder247@gmail.com.

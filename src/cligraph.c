@@ -1,16 +1,15 @@
 /*
- * graph.h 
+ * cligrah.c 
  *
  * AUTHOR: Noah Harvey
  *
  * VERSION: v0.0.1
  *
- * DESCRIPTION: header file for functions handling the graph display functions
- *
+ * DESCRIPTION: main source for cligraph
  */
 
 /*
- * graph.h is part of cligraph.
+ * cligraph.c is part of cligraph.
  * 
  * cligraph is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,28 +25,10 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "table.h"
+#include "graph.h"
 
-#ifndef __GRAPH
-#define __GRAPH
-
-//table display config
-#define AXIS_CHAR "|"
-#define POINT_CHAR "+"
-#define GRID_CHAR "#"
-
-/*
- * FUNCTION: pgraph
- * 
- * PARAMETERS: struct table* tble
- *
- * RETURNS: int - error codes: 0 - no error; 1 - tble is an invalid pointer; 2 - other
- * 
- * DESCRIPTION: prints the given table of values in a graph. 
- *
- * NOTES: this function prints the character representation of integers. To print the values of a
- * table please store the characters as integers in the table
- */
-int pgraph(struct table* tble);
-
-#endif 
+int main(int argc, char const *argv[])
+{
+	/* code */
+	return 0;
+}

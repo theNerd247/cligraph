@@ -26,9 +26,27 @@
  */
 
 #include "graph.h"
+#include "stdio.h"
 
-//--TODO------------------------------
-/* Fix license in UltiSnippets plugin
-//--END TODO---------------------------
+int pgraph(struct table* tble)
+{
+	//--ERROR CHECK------------------------------
+	if(tble == NULL)
+		return 1;
+	//--END ERROR CHECK---------------------------
 
+	int i,j;
+	//--Print Table------------------------------
+	for (i = 0; i < tble->y_size; i++)
+	{
+		for (j = 0; j < tble->x_size; j++)
+		{
+			int cell = *(tble->cells+(j*(tble->y_size)+i));
+			printf("%c",cell);
+		}
+		printf("\n");
+	}	
+	//--END Print Table---------------------------
 
+	return 0;
+}
