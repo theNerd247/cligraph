@@ -4,3 +4,6 @@ testing/
 #executables and objects
 bin/
 obj/
+
+#temp files
+*.swp

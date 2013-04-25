@@ -35,13 +35,15 @@ int pgraph(struct table* tble)
 		return 1;
 	//--END ERROR CHECK---------------------------
 
-	int i,j;
 	//--Print Table------------------------------
-	for (i = 0; i < tble->y_size; i++)
+	int i,j;
+	int xsize = tble->x_size;
+	int ysize = tble->y_size;
+	for (i = 0; i < xsize; i++)
 	{
-		for (j = 0; j < tble->x_size; j++)
+		for (j = 0; j < ysize; j++)
 		{
-			int cell = *(tble->cells+(j*(tble->y_size)+i));
+			int cell = get_cell(tble,i,j);
 			printf("%c",cell);
 		}
 		printf("\n");
