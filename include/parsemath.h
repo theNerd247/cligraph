@@ -1,0 +1,75 @@
+/*
+ * parsemath.h is part of cligraph.
+ * 
+ * cligraph is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * cligraph is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * parsemath.h 
+ *
+ * AUTHOR: Noah Harvey
+ *
+ * VERSION: v0.0.1
+ *
+ * DESCRIPTION: parser functions for mathmatical expressions
+ */
+
+#ifndef __PARSEMATH
+#define __PARSEMATH
+
+//operator characters
+char opchars[] = ['+','-','*','/','^'];
+
+//define what the independent variable is
+char indep_var = 'x';
+
+/*
+ * FUNCTION: eval
+ * 
+ * PARAMETERS: char* expr, int value
+ *
+ * RETURNS: int - value of evaluated expression
+ * 
+ * DESCRIPTION: evaluates the given expression with the given value for the independent variable
+ */
+int eval(char* expr, int value);
+
+/*
+ * FUNCTION: expndexpr
+ * 
+ * PARAMETERS: char* expr
+ *
+ * RETURNS: char*  - expanded expression
+ * 
+ * DESCRIPTION: takes a mathmatical expression and expands the implied operations for easier
+ * computation
+ *
+ * EXAMPLE: expndexpr("4x^2(3x-2)") returns "(4*(x^2))*((3*x)-2)"
+ *
+ */
+char*  expndexpr(char* expr);
+
+/*
+ * FUNCTION: replaceops
+ * 
+ * PARAMETERS: char* expr, const char* regexpr, const char op
+ *
+ * RETURNS: char*  - new expression with replaced operation
+ * 
+ * DESCRIPTION: replaces all regular expressions found in expr with the given mathematical operation
+ */
+char*  replaceops(char* expr, const char* regexpr, const char op);
+#endif 
+
+
