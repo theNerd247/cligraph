@@ -23,6 +23,10 @@
  * VERSION: v0.0.1
  *
  * DESCRIPTION: code file for parsemath.h
+ *
+ * TODO: -put strins() and strsub() in strutils header
+ *       -cleanup expndcoef()
+ *       -update parsemath.h to reflect code changes
  */
 
 #include "parsemath.h"
@@ -48,27 +52,41 @@ char* strins(char* dest, const char* source, const int index)
 	return newstr;
 }
 
-char* replaceops(char* expr, const char* regexpr, const char op)
+//return new string with chars from start to end indexes
+char* strsub(char* expr, const int start, const int end)
 {
-	char* newexpr;
-	int len = strlen(expr);
+	char* newstr = (char*)malloc(sizeof(char)*(end-start+2));
+
+	int i;
+	
+	for (i = 0; i < end-start+1; i++)
+	{
+		newstr[i] = expr[i+start]; 
+	}
+
+	newstr[strlen(newstr)] = '\0';
+
+	return newstr;
+}
+
+char* expndcoef(char* expr, const char op)
+{
+	if (expr == NULL || *expr == '\0')
+		return expr;
 
 	//possibly replace with switch statement
-	if(op = '*')
-	{
-		//find indep var	
-		char* indeppos = (char*)memchr(expr, indep_var, len);
-		
-		//check for coe
-		if(indeppos != expr)
-		{
-			if(strpbrk(indeppos-1,"0123456789") != NULL)
-			{
-				newexpr = strins(expr, "*", indeppos-1);
-				printf("%s\n", newexpr);
-			}
-		}
-	}
+	char* tok1;
+	//find indep var
+	char* indeppos = (char*)memchr(expr, indep_var, strlen(expr));
+
+	//check for coe
+	tok1 = strsub(expr,0,indeppos-expr);
+	if(strpbrk(indeppos-1,"0123456789") != NULL)
+		tok1 = strins(tok1, "*", indeppos-expr);
+	char* tok2 = replaceops(indeppos+1,'*');
+	strcat(tok1,tok2);
+
+	return tok1;
 }
 
 char* expndexpr(char* expr)
