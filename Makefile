@@ -13,7 +13,7 @@ IDIR=./include
 LFLAGS=-I$(IDIR) -I.
 CFLAGS=-c -Wall #-g #uncomment for debuging with gdb
 
-SRCS= graph.c table.c 
+SRCS= graph.c table.c parsemath.c
 SRCDIR=./src
 SRC=$(patsubst %,$(SRCDIR)/%,$(SRCS))
 

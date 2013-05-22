@@ -28,9 +28,6 @@
 #ifndef __PARSEMATH
 #define __PARSEMATH
 
-//operator characters
-char opchars[] = ['+','-','*','/','^'];
-
 //define what the independent variable is
 char indep_var = 'x';
 
@@ -61,15 +58,41 @@ int eval(char* expr, int value);
 char*  expndexpr(char* expr);
 
 /*
- * FUNCTION: replaceops
+ * FUNCTION: strins
  * 
- * PARAMETERS: char* expr, const char* regexpr, const char op
+ * PARAMETERS: char* dest, const char* source, const int index
  *
- * RETURNS: char*  - new expression with replaced operation
+ * RETURNS: char*  - cstring w/. inserted characters
  * 
- * DESCRIPTION: replaces all regular expressions found in expr with the given mathematical operation
+ * DESCRIPTION: inserts source into dest at the given index (with 0 being the first character in
+ * dest)
  */
-char*  replaceops(char* expr, const char* regexpr, const char op);
+char*  strins(char* dest, const char* source, const int index);
+
+/*
+ * FUNCTION: strsub
+ * 
+ * PARAMETERS: char* expr, const int start, const int end
+ *
+ * RETURNS: char* - sub cstring
+ * 
+ * DESCRIPTION: returns a substring (cstring style) within given expr. 
+ */
+char* strsub(char* expr, const int start, const int end);
+
+/*
+ * FUNCTION: expndcoef
+ * 
+ * PARAMETERS: char* expr
+ *
+ * RETURNS: char* - expanded cstring
+ * 
+ * DESCRIPTION: expands the multiplication coefficients with operators
+ *
+ * EXAMPLE: expndcoef("3x^2+2x") returns "3*x^2+2*x"
+ *
+ * NOTE: recursive function
+ */
+char* expndcoef(char* expr);
+
 #endif 
-
-
