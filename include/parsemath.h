@@ -70,6 +70,19 @@ char*  expndexpr(char* expr);
 char*  strins(char* dest, const char* source, const int index);
 
 /*
+ * FUNCTION: inspare
+ * 
+ * PARAMETERS: char* expr
+ *
+ * RETURNS: char* - new string containing parenthesis
+ * 
+ * DESCRIPTION: expands the given mathematical expression with parenthesis
+ * to override order of operations
+ *
+ */
+char* inspare(char* expr);
+
+/*
  * FUNCTION: strsub
  * 
  * PARAMETERS: char* expr, const int start, const int end

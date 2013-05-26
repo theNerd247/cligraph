@@ -84,18 +84,49 @@ char* expndcoef(char* expr)
 	return tok1;
 }
 
+char* inspare(char* expr)
+{	
+	//insert at begining and end of string	
+	char* newexpr;
+	newexpr = strins(expr,"(",0);
+	newexpr =	strins(newexpr,")",strlen(newexpr));
+
+	//insert around pre-existing parenthesis
+	int para_flag = ((char*)memchr(newexpr+1,'(',strlen(newexpr)))-newexpr;	
+	int epara_flag = 0;
+
+	while(para_flag >= 0 )
+	{
+		newexpr = strins(newexpr,"(",para_flag);
+
+		epara_flag = ((char*)memchr(newexpr+para_flag,')',strlen(newexpr+para_flag+1)))-newexpr;
+
+		if(epara_flag >= 0)
+			newexpr = strins(newexpr,")",epara_flag);
+
+		para_flag = ((char*)memchr(newexpr+epara_flag,'(',strlen(newexpr)))-newexpr;	
+	}
+
+	//insert before and after '+' and/or '-'
+	int p_flag = strpbrk(newexpr,"+-")-newexpr;
+	
+	while(p_flag >= 0)
+	{
+		newexpr = strins(newexpr,")",p_flag);
+		newexpr = strins(newexpr,"(",p_flag+2);
+
+		p_flag = strpbrk(newexpr+p_flag+2,"+-")-newexpr;
+	}
+
+	return newexpr;
+}
+
 char* expndexpr(char* expr)
 {
 	char* newexpr;
-	//--Outline------------------------------
-	/*
- 	 * 1. replace number-letter pairs with multiplication
- 	 * 2. put parenthesis around all operations to declare order
- 	 * 3. 
- 	 */
-	//--END Outline---------------------------
-	
+
 	newexpr = expndcoef(expr);
+	newexpr = inspare(newexpr);
 
 	return newexpr;
 }
