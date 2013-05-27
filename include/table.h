@@ -39,8 +39,8 @@ along with sofware name.  If not, see <http://www.gnu.org/licenses/>.
  *  a table struct is stored as a row of
  *  columns. 
  *
- * Getting Table Cell Value:
- *  index of cell - x*(x_size)+y;
+ * Fetching Table Cell Value:
+ *  index of cell - x*(y_size)+y;
  */
 struct table
 {
