@@ -1,5 +1,5 @@
 #Testing Files
-testing/
+testing/*
 
 #executables and objects
 bin/
