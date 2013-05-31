@@ -26,40 +26,13 @@
  *
  */
 
+//from c std libraries
 #include "parsemath.h"
 #include "string.h"
 #include "stdlib.h"
 
-int eval(char* expr, int value);
-
-char* strins(char* dest, const char* source, const int index)
-{
-	int len = strlen(source)+strlen(dest)+1;
-
-	char* newstr = (char*)malloc(sizeof(char)*len);
-
-	strncpy(newstr, dest, index);
-	strcpy(newstr+index, source);
-	strcpy(newstr+index+strlen(source), dest+index);
-
-	newstr[len-1] = '\0';
-
-	return newstr;
-}
-
-char* strsub(char* expr, const int start, const int end)
-{
-	char* newstr = (char*)malloc(sizeof(char)*(end-start+2));
-
-	int i;
-	
-	for (i = 0; i < end-start+1; i++)
-		newstr[i] = expr[i+start]; 
-
-	newstr[strlen(newstr)] = '\0';
-
-	return newstr;
-}
+//from project libraries
+#include "strlib.h"
 
 char* expndcoef(char* expr)
 {

@@ -58,18 +58,6 @@ int eval(char* expr, int value);
 char*  expndexpr(char* expr);
 
 /*
- * FUNCTION: strins
- * 
- * PARAMETERS: char* dest, const char* source, const int index
- *
- * RETURNS: char*  - cstring w/. inserted characters
- * 
- * DESCRIPTION: inserts source into dest at the given index (with 0 being the first character in
- * dest)
- */
-char*  strins(char* dest, const char* source, const int index);
-
-/*
  * FUNCTION: inspare
  * 
  * PARAMETERS: char* expr
@@ -81,17 +69,6 @@ char*  strins(char* dest, const char* source, const int index);
  *
  */
 char* inspare(char* expr);
-
-/*
- * FUNCTION: strsub
- * 
- * PARAMETERS: char* expr, const int start, const int end
- *
- * RETURNS: char* - sub cstring
- * 
- * DESCRIPTION: returns a substring (cstring style) within given expr. 
- */
-char* strsub(char* expr, const int start, const int end);
 
 /*
  * FUNCTION: expndcoef
