@@ -171,17 +171,26 @@ int getvalue(char* expr)
 	char* op = strpbrk(expr,"+-");
 	if(op == NULL)
 		op = strpbrk(expr,"*/");
+	if(op == NULL)
+		op = strpbrk(expr,"^");
 	
 	int val, lftval, rhtval;
 	if(op != NULL)
 	{
-		char* lftexpr = strsub(mtchpar(op-1,-1),0,op-expr-1);
-		char* rhtexpr = strsub(op+1,0,mtchpar(op+1,1)-op+1);
+		char* lftexpr = strsub(expr,0,op-expr-1);
+		char* rhtexpr = strsub(expr,op-expr+1,strlen(expr)-1);
 
-		if(strpbrk(lftexpr,"()") != NULL)
-			lftexpr = strsub(lftexpr,1,strlen(lftexpr)-2);	
-		if(strpbrk(rhtexpr,"()") != NULL)
-			rhtexpr = strsub(rhtexpr,1,strlen(rhtexpr)-2);
+		if(strpbrk(lftexpr,")") != NULL)
+		{
+			int pindex = lftexpr-mtchpar(lftexpr+strlen(lftexpr)-1,-1);
+			lftexpr = strsub(lftexpr,pindex+1,strlen(lftexpr)-2);
+		}
+
+		if(strpbrk(rhtexpr,"(") != NULL)
+		{
+			int pindex = mtchpar(rhtexpr,1)-rhtexpr;
+			rhtexpr = strsub(rhtexpr,1,pindex-1);
+		}
 
 		lftval = getvalue(lftexpr);
 		rhtval = getvalue(rhtexpr);
@@ -199,6 +208,9 @@ int getvalue(char* expr)
 				break;
 			case '/':
 				val = (int)lftval/rhtval;
+				break;
+			case '^':
+				val = (int)pow(lftval,rhtval);
 				break;
 			default:
 				val = lftval;
@@ -225,7 +237,7 @@ int strtonum(char* expr)
 
 int main(int argc, char const *argv[])
 {
-	char tststr[] = "2x+3";
+	char tststr[] = "2x^2+3";
 
 	char* tmp = expndcoef(tststr);
 	tmp = inspare(tmp);
