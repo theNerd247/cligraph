@@ -1,0 +1,12 @@
+/mnt/C/cygwin/usr/include/math.h
+/mnt/C/mcc18/h/math.h
+/mnt/C/Program Files/MinGW/include/math.h
+/mnt/C/Program Files/MinGW/lib/gcc/mingw32/4.7.0/include/c++/tr1/math.h
+/usr/avr/include/math.h
+/usr/share/arduino/hardware/tools/avr/lib/avr/include/math.h
+/usr/include/libreoffice/rtl/math.h
+/usr/include/mpcdec/math.h
+/usr/include/c++/4.8.0/tr1/math.h
+/usr/include/math.h
+/home/noah/src/com/linux/drivers/gpu/drm/nouveau/core/include/core/math.h
+/home/noah/src/com/linux/fs/btrfs/math.h
