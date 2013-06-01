@@ -25,8 +25,33 @@
  * DESCRIPTION: source file for stringmath.h
  */
 
-table getvalues(char*  expr, double strt, double end, const double step)
+table getvalues(char* expr, double strt, double end, const double step)
 {
+	int N = (int)((end-strt)/step);
+	table values = init_table(N,1);
+
+	double val;
+	int i;
+	for (i = 0; i < N; i++)
+	{
+			
+		char* exprn = insindpvar(expr,ival);	
+	}
+}
+
+char* insindpvar(char* expr, char* value)
+{
+	//replace indepvar with value
+	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
+
+	char* tmp;
+	while(iindx >= 0)
+	{
+		tmp = strrep(expr,iindx,iindx,value);	
+		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
+	}
+
+	return tmp;
 }
 
 char* mtchpar(char* expr, short pcnt)
@@ -154,4 +179,3 @@ int getvalue(char* expr)
 
 	return val;
 }
-
