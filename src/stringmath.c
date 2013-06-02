@@ -25,18 +25,25 @@
  * DESCRIPTION: source file for stringmath.h
  */
 
+//warning: untested
 table getvalues(char* expr, double strt, double end, const double step)
 {
 	int N = (int)((end-strt)/step);
 	table values = init_table(N,1);
 
-	double val;
 	int i;
+
+	double val;
 	for (i = 0; i < N; i++)
 	{
-			
-		char* exprn = insindpvar(expr,ival);	
+		int ival = strt+step*i;
+		char* exprn = insindpvar(expr,ival);
+		val = getvalue(exprn);
+		set_cell(values,ival,i,0);
+		set_cell(values,val,i,1);	
 	}
+
+	return values;
 }
 
 char* insindpvar(char* expr, char* value)
