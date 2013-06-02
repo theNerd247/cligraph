@@ -41,17 +41,6 @@
 char*  strins(char* dest, const char* source, const int index);
 
 /*
- * FUNCTION: strsub
- * 
- * PARAMETERS: char* expr, const int start, const int end
- *
- * RETURNS: char* - sub cstring
- * 
- * DESCRIPTION: returns a substring (cstring style) within given expr. 
- */
-char* strsub(char* expr, const int start, const int end);
-
-/*
  * FUNCTION: strrpl
  * 
  * PARAMETERS: char* haystack, int strt, int end, char* needle
@@ -61,6 +50,17 @@ char* strsub(char* expr, const int start, const int end);
  * DESCRIPTION: replaces "needle" in "expr" from "str" to "end" indeces
  */
 char*  strrpl(char* expr, int strt, int end, char* needle);
+
+/*
+ * FUNCTION: strsub
+ * 
+ * PARAMETERS: char* expr, const int start, const int end
+ *
+ * RETURNS: char* - sub cstring
+ * 
+ * DESCRIPTION: returns a substring (cstring style) within given expr. 
+ */
+char* strsub(char* expr, const int start, const int end);
 
 /*
  * FUNCTION: strtonum

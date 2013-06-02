@@ -32,15 +32,19 @@
 char indep_var = 'x';
 
 /*
- * FUNCTION: eval
+ * FUNCTION: expndcoef
  * 
- * PARAMETERS: char* expr, int value
+ * PARAMETERS: char* expr
  *
- * RETURNS: int - value of evaluated expression
+ * RETURNS: char* - expanded cstring
  * 
- * DESCRIPTION: evaluates the given expression with the given value for the independent variable
+ * DESCRIPTION: expands the multiplication coefficients with operators
+ *
+ * EXAMPLE: expndcoef("3x^2+2x") returns "3*x^2+2*x"
+ *
+ * NOTE: recursive function
  */
-int eval(char* expr, int value);
+char* expndcoef(char* expr);
 
 /*
  * FUNCTION: expndexpr
@@ -58,6 +62,17 @@ int eval(char* expr, int value);
 char*  expndexpr(char* expr);
 
 /*
+ * FUNCTION: insindpvar
+ * 
+ * PARAMETERS: char* expr, char* value
+ *
+ * RETURNS: char* - new cstring containing the inserted value
+ * 
+ * DESCRIPTION: inserts a value in the string for the independent variable
+ */
+char* insindpvar(char* expr, char* value);
+
+/*
  * FUNCTION: inspare
  * 
  * PARAMETERS: char* expr
@@ -71,18 +86,18 @@ char*  expndexpr(char* expr);
 char* inspare(char* expr);
 
 /*
- * FUNCTION: expndcoef
+ * FUNCTION: mtchpar
  * 
- * PARAMETERS: char* expr
+ * PARAMETERS: char* expr, short pcnt
  *
- * RETURNS: char* - expanded cstring
+ * RETURNS: char* - pointer to the matching parenthesis
  * 
- * DESCRIPTION: expands the multiplication coefficients with operators
+ * DESCRIPTION: finds the matching parenthesis given a pointer to an initial parenthesis.
  *
- * EXAMPLE: expndcoef("3x^2+2x") returns "3*x^2+2*x"
- *
- * NOTE: recursive function
+ * NOTE: the second argument is either a 1 if the first argument is a pointer to a '('
+ * and a -1 if it is a pointer to a ')'. If the given cstring doesn't contain any 
+ * parenthesis then it will return the first argument
  */
-char* expndcoef(char* expr);
+char* mtchpar(char* expr, short pcnt);
 
 #endif 

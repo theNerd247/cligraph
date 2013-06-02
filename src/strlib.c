@@ -48,6 +48,19 @@ char* strins(char* dest, const char* source, const int index)
 	return newstr;
 }
 
+char* strrpl(char* expr,const int strt, const int end, char* needle)
+{
+	int len = strlen(expr)+strlen(needle)-end+strt;
+	char* newexpr = (char*)malloc(sizeof(char)*len);
+	newexpr = strsub(expr,0,strt-1);
+	char* tok1 = strsub(expr,end+1,strlen(expr)-1);
+	
+	strcat(newexpr,needle);
+	strcat(newexpr,tok1);
+
+	return newexpr;
+}
+
 char* strsub(char* expr, const int start, const int end)
 {
 	char* newstr = (char*)malloc(sizeof(char)*(end-start+2));
@@ -60,19 +73,6 @@ char* strsub(char* expr, const int start, const int end)
 	newstr[strlen(newstr)] = '\0';
 
 	return newstr;
-}
-
-char* strrpl(char* expr,const int strt, const int end, char* needle)
-{
-	int len = strlen(expr)+strlen(needle)-end+strt;
-	char* newexpr = (char*)malloc(sizeof(char)*len);
-	newexpr = strsub(expr,0,strt-1);
-	char* tok1 = strsub(expr,end+1,strlen(expr)-1);
-	
-	strcat(newexpr,needle);
-	strcat(newexpr,tok1);
-
-	return newexpr;
 }
 
 double strtonum(char* expr)

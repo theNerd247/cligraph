@@ -25,76 +25,10 @@
  * DESCRIPTION: source file for stringmath.h
  */
 
-//warning: untested
-table getvalues(char* expr, double strt, double end, const double step)
-{
-	int N = (int)((end-strt)/step);
-	table values = init_table(N,1);
-
-	int i;
-
-	double val;
-	for (i = 0; i < N; i++)
-	{
-		int ival = strt+step*i;
-		char* exprn = insindpvar(expr,ival);
-		val = getvalue(exprn);
-		set_cell(values,ival,i,0);
-		set_cell(values,val,i,1);	
-	}
-
-	return values;
-}
-
-char* insindpvar(char* expr, char* value)
-{
-	//replace indepvar with value
-	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
-
-	char* tmp;
-	while(iindx >= 0)
-	{
-		tmp = strrep(expr,iindx,iindx,value);	
-		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
-	}
-
-	return tmp;
-}
-
-char* mtchpar(char* expr, short pcnt)
-{
-	if(strpbrk(expr,"()") == NULL)
-		return expr;
-
-	char* pindex = pcnt > 0 ? expr+1 : expr-1;
-	while(pcnt != 0)
-	{
-		if(*pindex == '(')
-			pcnt+=1;
-		else if(*pindex == ')')
-			pcnt-=1;
-
-		if(pcnt == 0 || *(pindex+1) == '\0')
-			break;
-		pindex = pcnt > 0 ? pindex+1 : pindex-1;
-	}
-	
-	return pindex;
-}
-
-char* strsub(char* expr, const int start, const int end)
-{
-	char* newstr = (char*)malloc(sizeof(char)*(end-start+2));
-
-	int i;
-	
-	for (i = 0; i < end-start+1; i++)
-		newstr[i] = expr[i+start]; 
-
-	newstr[strlen(newstr)] = '\0';
-
-	return newstr;
-}
+//from project libs
+#include "table.h"
+#include "strlib.h"
+#include "parsemath.h"
 
 char chknum(char* expr)
 {
@@ -113,25 +47,11 @@ char chknum(char* expr)
 	return val;
 }
 
-int strtonum(char* expr)
-{
-	int pwr = 0;
-	int i = strlen(expr)-1;
-	int value = 0;
-	for (; i >= 0; i--)
-	{
-		value = (*(expr+i)-48)*(pow(10,pwr))+value;
-		pwr++;
-	}
-	
-	return value;
-}
-
 int getvalue(char* expr)
 {
 	//check if expression is numbers only
 	if(chknum(expr) == 1)
-		return strtonum(expr);
+		return (int)strtonum(expr);
 
 	//if not then check for operations
 	char* op = strpbrk(expr,"+-");
@@ -186,3 +106,26 @@ int getvalue(char* expr)
 
 	return val;
 }
+
+//warning: untested
+table getvalues(char* expr, double strt, double end, const double step)
+{
+	int N = (int)((end-strt)/step);
+	table values = init_table(N,1);
+
+	int i;
+
+	double val;
+	for (i = 0; i < N; i++)
+	{
+		int ival = strt+step*i;
+		char* exprn = insindpvar(expr,ival);
+		val = getvalue(exprn);
+		set_cell(values,ival,i,0);
+		set_cell(values,val,i,1);	
+	}
+
+	return values;
+}
+
+

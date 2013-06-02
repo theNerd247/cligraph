@@ -34,6 +34,8 @@
 //from project libraries
 #include "strlib.h"
 
+const char indep_var = 'x';
+
 char* expndcoef(char* expr)
 {
 	if (expr == NULL || *expr == '\0')
@@ -55,6 +57,31 @@ char* expndcoef(char* expr)
 	strcat(tok1,tok2);
 
 	return tok1;
+}
+
+char* expndexpr(char* expr)
+{
+	char* newexpr;
+
+	newexpr = expndcoef(expr);
+	newexpr = inspare(newexpr);
+
+	return newexpr;
+}
+
+char* insindpvar(char* expr, char* value)
+{
+	//replace indepvar with value
+	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
+
+	char* tmp;
+	while(iindx >= 0)
+	{
+		tmp = strrep(expr,iindx,iindx,value);	
+		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
+	}
+
+	return tmp;
 }
 
 char* inspare(char* expr)
@@ -94,12 +121,24 @@ char* inspare(char* expr)
 	return newexpr;
 }
 
-char* expndexpr(char* expr)
+char* mtchpar(char* expr, short pcnt)
 {
-	char* newexpr;
+	if(strpbrk(expr,"()") == NULL)
+		return expr;
 
-	newexpr = expndcoef(expr);
-	newexpr = inspare(newexpr);
+	char* pindex = pcnt > 0 ? expr+1 : expr-1;
+	while(pcnt != 0)
+	{
+		if(*pindex == '(')
+			pcnt+=1;
+		else if(*pindex == ')')
+			pcnt-=1;
 
-	return newexpr;
+		if(pcnt == 0 || *(pindex+1) == '\0')
+			break;
+		pindex = pcnt > 0 ? pindex+1 : pindex-1;
+	}
+	
+	return pindex;
 }
+
