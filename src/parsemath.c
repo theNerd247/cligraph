@@ -26,15 +26,13 @@
  *
  */
 
-//from c std libraries
-#include "parsemath.h"
-#include "string.h"
-#include "stdlib.h"
+//from  std libraries
+#include <string.h>
+#include <stdlib.h>
 
 //from project libraries
+#include "parsemath.h"
 #include "strlib.h"
-
-const char indep_var = 'x';
 
 char* expndcoef(char* expr)
 {
@@ -69,20 +67,22 @@ char* expndexpr(char* expr)
 	return newexpr;
 }
 
-char* insindpvar(char* expr, char* value)
-{
-	//replace indepvar with value
-	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
-
-	char* tmp;
-	while(iindx >= 0)
-	{
-		tmp = strrep(expr,iindx,iindx,value);	
-		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
-	}
-
-	return tmp;
-}
+/*
+ * char* insindpvar(char* expr, char* value)
+ * {
+ * 	//replace indepvar with value
+ * 	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
+ * 
+ * 	char* tmp;
+ * 	while(iindx >= 0)
+ * 	{
+ * 		tmp = strrpl(expr,iindx,iindx,value);	
+ * 		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
+ * 	}
+ * 
+ * 	return tmp;
+ * }
+ *  */
 
 char* inspare(char* expr)
 {	

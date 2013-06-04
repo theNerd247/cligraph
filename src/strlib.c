@@ -26,9 +26,9 @@
  */
 
 //from c std libs
-#include "stdlib.h"
-#include "stdio.h"
-#include "math.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 //from project libs
 #include "strlib.h"
@@ -77,14 +77,22 @@ char* strsub(char* expr, const int start, const int end)
 
 double strtonum(char* expr)
 {
-	int pwr = 0;
+
+	double pwr = 0.0;
+	double value = 0.0;
 	int i = strlen(expr)-1;
-	int value = 0;
+
+	char* decindex = strpbrk(expr,".");
+	if(decindex != NULL)
+		pwr = (double)(decindex-(expr+i));
+
 	for (; i >= 0; i--)
 	{
+		if(*(expr+i) == '.')
+			continue;
 		value = (*(expr+i)-48)*(pow(10,pwr))+value;
 		pwr++;
 	}
 	
-	return (double)value;
+	return value;
 }

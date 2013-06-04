@@ -29,7 +29,9 @@
 #define __PARSEMATH
 
 //define what the independent variable is
-char indep_var = 'x';
+#ifndef indep_var
+#define indep_var 'x'
+#endif
 
 /*
  * FUNCTION: expndcoef
@@ -70,7 +72,7 @@ char*  expndexpr(char* expr);
  * 
  * DESCRIPTION: inserts a value in the string for the independent variable
  */
-char* insindpvar(char* expr, char* value);
+//char* insindpvar(char* expr, char* value);
 
 /*
  * FUNCTION: inspare

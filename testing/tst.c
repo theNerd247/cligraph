@@ -113,10 +113,11 @@ char* insindpvar(char* expr, char* value)
 	//replace indepvar with value
 	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
 
-	char* tmp;
+	char* tmp = (char*)malloc(sizeof(char)*strlen(expr));
+	strcpy(tmp,expr);
 	while(iindx >= 0)
 	{
-		tmp = strrep(expr,iindx,iindx,value);	
+		tmp = strrep(tmp,iindx,iindx,value);	
 		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
 	}
 
@@ -161,11 +162,13 @@ char* mtchpar(char* expr, short pcnt)
 	return pindex;
 }
 
-int getvalue(char* expr)
+double getvalue(char* expr, double value)
 {
 	//check if expression is numbers only
 	if(chknum(expr) == 1)
 		return strtonum(expr);
+	else if(*expr == indep_var && strlen(expr) == 1)
+		return value;
 
 	//if not then check for operations
 	char* op = strpbrk(expr,"+-");
@@ -174,26 +177,28 @@ int getvalue(char* expr)
 	if(op == NULL)
 		op = strpbrk(expr,"^");
 	
-	int val, lftval, rhtval;
+	double val;
+	int lftval, rhtval;
 	if(op != NULL)
 	{
 		char* lftexpr = strsub(expr,0,op-expr-1);
 		char* rhtexpr = strsub(expr,op-expr+1,strlen(expr)-1);
 
-		if(strpbrk(lftexpr,")") != NULL)
+		//rm () on ends of str
+		if(strpbrk(lftexpr,"()") != NULL)
 		{
 			int pindex = lftexpr-mtchpar(lftexpr+strlen(lftexpr)-1,-1);
 			lftexpr = strsub(lftexpr,pindex+1,strlen(lftexpr)-2);
 		}
 
-		if(strpbrk(rhtexpr,"(") != NULL)
+		if(strpbrk(rhtexpr,"()") != NULL)
 		{
 			int pindex = mtchpar(rhtexpr,1)-rhtexpr;
 			rhtexpr = strsub(rhtexpr,1,pindex-1);
 		}
 
-		lftval = getvalue(lftexpr);
-		rhtval = getvalue(rhtexpr);
+		lftval = getvalue(lftexpr,value);
+		rhtval = getvalue(rhtexpr,value);
 
 		switch(*op)
 		{
@@ -241,9 +246,9 @@ int main(int argc, char const *argv[])
 
 	char* tmp = expndcoef(tststr);
 	tmp = inspare(tmp);
-  tmp = insindpvar(tmp,"45");
-	int val = getvalue(tmp);
-	printf("%i\n", val);
+//  tmp = insindpvar(tmp,"5");
+	double val = getvalue(tmp,4.0);
+	printf("%f\n", val);
 
 	return 0;
 }

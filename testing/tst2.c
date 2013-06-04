@@ -1,7 +1,7 @@
-#include "string.h"
-#include "stdlib.h"
-#include "stdio.h"
-#include "math.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 
 char* mtchpar(char* expr, short pcnt)
 {
@@ -55,13 +55,21 @@ char chknum(char* expr)
 	return val;
 }
 
-int strtonum(char* expr)
+double strtonum(char* expr)
 {
-	int pwr = 0;
+
+	double pwr = 0.0;
+	double value = 0.0;
 	int i = strlen(expr)-1;
-	int value = 0;
+
+	char* decindex = strpbrk(expr,".");
+	if(decindex != NULL)
+		pwr = (double)(decindex-(expr+i));
+
 	for (; i >= 0; i--)
 	{
+		if(*(expr+i) == '.')
+			continue;
 		value = (*(expr+i)-48)*(pow(10,pwr))+value;
 		pwr++;
 	}
@@ -119,13 +127,10 @@ int getvalue(char* expr)
 
 int main(int argc, char const *argv[])
 {
-//	char* rtrn = popen("echo \"scale=6; 2*3\" | /usr/bin/bc -q","r");
-//	int val = '+';
-//	printf("%i\n",val );
 
-	char* tst = "(2*3)-(4)";
+	char* tst = "23.45";
 
-	int chr = getvalue(tst);
+	double chr = strtonum(tst);
 
-	printf("%i\n",chr);
+	printf("%f\n",chr);
 }

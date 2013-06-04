@@ -25,10 +25,16 @@
  * DESCRIPTION: source file for stringmath.h
  */
 
+//from std libs
+#include <string.h>
+#include <strlib.h>
+#include <math.h>
+
 //from project libs
 #include "table.h"
 #include "strlib.h"
 #include "parsemath.h"
+#include "stringmath.h"
 
 char chknum(char* expr)
 {
@@ -47,11 +53,13 @@ char chknum(char* expr)
 	return val;
 }
 
-int getvalue(char* expr)
+double getvalue(char* expr, double value)
 {
 	//check if expression is numbers only
 	if(chknum(expr) == 1)
-		return (int)strtonum(expr);
+		return strtonum(expr);
+	else if(*expr == indep_var && strlen(expr) == 1)
+		return value;
 
 	//if not then check for operations
 	char* op = strpbrk(expr,"+-");
@@ -60,26 +68,28 @@ int getvalue(char* expr)
 	if(op == NULL)
 		op = strpbrk(expr,"^");
 	
-	int val, lftval, rhtval;
+	double val;
+	int lftval, rhtval;
 	if(op != NULL)
 	{
 		char* lftexpr = strsub(expr,0,op-expr-1);
 		char* rhtexpr = strsub(expr,op-expr+1,strlen(expr)-1);
 
-		if(strpbrk(lftexpr,")") != NULL)
+		//rm () on ends of str
+		if(strpbrk(lftexpr,"()") != NULL)
 		{
 			int pindex = lftexpr-mtchpar(lftexpr+strlen(lftexpr)-1,-1);
 			lftexpr = strsub(lftexpr,pindex+1,strlen(lftexpr)-2);
 		}
 
-		if(strpbrk(rhtexpr,"(") != NULL)
+		if(strpbrk(rhtexpr,"()") != NULL)
 		{
 			int pindex = mtchpar(rhtexpr,1)-rhtexpr;
 			rhtexpr = strsub(rhtexpr,1,pindex-1);
 		}
 
-		lftval = getvalue(lftexpr);
-		rhtval = getvalue(rhtexpr);
+		lftval = getvalue(lftexpr,value);
+		rhtval = getvalue(rhtexpr,value);
 
 		switch(*op)
 		{
@@ -108,10 +118,10 @@ int getvalue(char* expr)
 }
 
 //warning: untested
-table getvalues(char* expr, double strt, double end, const double step)
+struct table* getvalues(char* expr, double strt, double end, const double step)
 {
 	int N = (int)((end-strt)/step);
-	table values = init_table(N,1);
+	struct table* values = init_table(N,1);
 
 	int i;
 
@@ -119,8 +129,8 @@ table getvalues(char* expr, double strt, double end, const double step)
 	for (i = 0; i < N; i++)
 	{
 		int ival = strt+step*i;
-		char* exprn = insindpvar(expr,ival);
-		val = getvalue(exprn);
+//		char* exprn = insindpvar(expr,ival);
+		val = getvalue(expr,ival);
 		set_cell(values,ival,i,0);
 		set_cell(values,val,i,1);	
 	}
