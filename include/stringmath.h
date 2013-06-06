@@ -31,14 +31,25 @@
 #include "table.h"
 
 /*
+ * FUNCTION: chknum
+ * 
+ * PARAMETERS: char* expr
+ *
+ * RETURNS: char - bool value (0 or 1)
+ * 
+ * DESCRIPTION: checks if the given cstring is a number (contains only numeric characters)
+ */
+char chknum(char* expr);
+
+/*
  * FUNCTION: getvalue
  * 
- * PARAMETERS: char* expr, int value
+ * PARAMETERS: char* expr
  *
- * RETURNS: double - function value 
+ * RETURNS: double - evaluated expression value
  *
- * DESCRIPTION: computes the value of the function given the independent variable value
-
+ * DESCRIPTION: computes the value of the given mathematical expression (with indep var replaced
+ * with a value
  */
 double getvalue(char* expr, double value);
 
@@ -47,11 +58,10 @@ double getvalue(char* expr, double value);
  * 
  * PARAMETERS: char*  expr, double strt, double end, const double step
  *
- * RETURNS: table - table of function values
+ * RETURNS: struct table* - pointer to table of function values
  * 
  * DESCRIPTION: computes function values starting at "str" and ending at "end" with step size of "step"
  */
-table getvalues(char*  expr, double strt, double end, const double step);
+struct table* getvalues(char*  expr, double strt, double end, const double step);
 
 #endif 
-
