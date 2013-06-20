@@ -26,15 +26,33 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "graphconfig.h"
 #include "table.h"
 
 #ifndef __GRAPH
 #define __GRAPH
 
-//table display config
-#define AXIS_CHAR "|"
-#define POINT_CHAR "+"
-#define GRID_CHAR "#"
+/*
+ * FUNCTION: normalize
+ * 
+ * PARAMETERS: struct table* tble
+ *
+ * RETURNS: struct *table - normalized points
+ * 
+ * DESCRIPTION: normalizes the given points with a curve
+ */
+struct table* normalize(struct table* tble);
+
+/*
+ * FUNCTION: frmtgraph
+ * 
+ * PARAMETERS: struct table* tble
+ *
+ * RETURNS: struct table* - newly formatted table
+ * 
+ * DESCRIPTION: formats the given table to look pretty (inserts axis, grid, etc..)
+ */
+struct table* frmtgraph(struct table* tble);
 
 /*
  * FUNCTION: pgraph

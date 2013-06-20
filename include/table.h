@@ -50,6 +50,19 @@ struct table
 };
 
 /*
+ * FUNCTION: get_cell
+ * 
+ * PARAMETERS: struct table* tble, int x, int y
+ *
+ * RETURNS: int - integer value of the cell
+ * 
+ * DESCRIPTION: returns a cell at the given index
+ *
+ * ERROR CODES: 0 - tble is invalid pointer; 1 < x or y is invalid index;
+ */
+int getcell(struct table* tble, int x, int y);
+
+/*
  * FUNCTION: init_table
  * 
  * PARAMETERS: int x_size, int y_size
@@ -60,7 +73,18 @@ struct table
  * 
  * ERROR CODES: NULL pointer (if any error occurs)
  */
-struct table* init_table(int x_size, int y_size);
+struct table* inittble(int x_size, int y_size);
+
+/*
+ * FUNCTION: inscell
+ * 
+ * PARAMETERS: struct table*, int val, const int x, const int y
+ *
+ * RETURNS: struct table* - new table with inserted cell
+ * 
+ * DESCRIPTION: inserts a value in the table
+ */
+struct table* inscell(struct table* tble, int val, const int x, const int y);
 
 /*
  * FUNCTION: set_cell
@@ -74,19 +98,6 @@ struct table* init_table(int x_size, int y_size);
  * ERROR CODES: -1 - no error; 0 - table pointer is invalid; 1 - x and/or y is an
  * invalid index
  */
-int set_cell(struct table* tble, int cell_value, int x, int y);
-
-/*
- * FUNCTION: get_cell
- * 
- * PARAMETERS: struct table* tble, int x, int y
- *
- * RETURNS: int - integer value of the cell
- * 
- * DESCRIPTION: returns a cell at the given index
- *
- * ERROR CODES: 0 - tble is invalid pointer; 1 < x or y is invalid index;
- */
-int get_cell(struct table* tble, int x, int y);
+int setcell(struct table* tble, int cell_value, int x, int y);
 
 #endif 

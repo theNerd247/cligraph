@@ -46,6 +46,21 @@ struct table* init_table(int x_size, int y_size)
 	return newtbl;
 }
 
+struct table* inscell(struct table* tble, const int val, const int x, const int y)
+{
+	;
+}
+
+int get_cell(struct table* tble, int x, int y)
+{
+	if(tble == NULL)
+		return 0;
+	else if(x >= tble->x_size || y >= tble->y_size || x < 0 || y < 0) 
+		return 1; 
+
+	return tble->cells[x*(tble->y_size)+y];
+}
+
 int set_cell(struct table* tble, int cell_value, int x, int y)
 {
 	if(tble == NULL) 
@@ -58,14 +73,4 @@ int set_cell(struct table* tble, int cell_value, int x, int y)
 	int index = x*(tble->y_size)+y;
 	*(tble->cells+(index)) = cell_value;
 	return -1;
-}
-
-int get_cell(struct table* tble, int x, int y)
-{
-	if(tble == NULL)
-		return 0;
-	else if(x >= tble->x_size || y >= tble->y_size || x < 0 || y < 0) 
-		return 1; 
-
-	return tble->cells[x*(tble->y_size)+y];
 }
