@@ -39,5 +39,3 @@ $(BINDIR):
 
 clean: 
 	rm -rf $(OBJDIR)
-
-

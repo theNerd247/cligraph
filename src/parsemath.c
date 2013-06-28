@@ -48,7 +48,7 @@ char* expndcoef(char* expr)
 
 	//check for coef where indep var is found and then add the rest. 
 	tok1 = strsub(expr,0,indeppos-expr);
-	if(strpbrk(indeppos-1,"0123456789") != NULL)
+	if(strpbrk(tok1+strlen(tok1)-2,"0123456789") != NULL)
 		tok1 = strins(tok1, "*", indeppos-expr);
 
 	char* tok2 = expndcoef(indeppos+1);
