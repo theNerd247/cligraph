@@ -29,18 +29,24 @@
 #define __PARSEMATH
 
 //define what the independent variable is
-char indep_var = 'x';
+#ifndef indep_var
+#define indep_var 'x'
+#endif
 
 /*
- * FUNCTION: eval
+ * FUNCTION: expndcoef
  * 
- * PARAMETERS: char* expr, int value
+ * PARAMETERS: char* expr
  *
- * RETURNS: int - value of evaluated expression
+ * RETURNS: char* - expanded cstring
  * 
- * DESCRIPTION: evaluates the given expression with the given value for the independent variable
+ * DESCRIPTION: expands the multiplication coefficients with operators
+ *
+ * EXAMPLE: expndcoef("3x^2+2x") returns "3*x^2+2*x"
+ *
+ * NOTE: recursive function
  */
-int eval(char* expr, int value);
+char* expndcoef(char* expr);
 
 /*
  * FUNCTION: expndexpr
@@ -58,16 +64,15 @@ int eval(char* expr, int value);
 char*  expndexpr(char* expr);
 
 /*
- * FUNCTION: strins
+ * FUNCTION: insindpvar
  * 
- * PARAMETERS: char* dest, const char* source, const int index
+ * PARAMETERS: char* expr, char* value
  *
- * RETURNS: char*  - cstring w/. inserted characters
+ * RETURNS: char* - new cstring containing the inserted value
  * 
- * DESCRIPTION: inserts source into dest at the given index (with 0 being the first character in
- * dest)
+ * DESCRIPTION: inserts a value in the string for the independent variable
  */
-char*  strins(char* dest, const char* source, const int index);
+//char* insindpvar(char* expr, char* value);
 
 /*
  * FUNCTION: inspare
@@ -83,29 +88,18 @@ char*  strins(char* dest, const char* source, const int index);
 char* inspare(char* expr);
 
 /*
- * FUNCTION: strsub
+ * FUNCTION: mtchpar
  * 
- * PARAMETERS: char* expr, const int start, const int end
+ * PARAMETERS: char* expr, short pcnt
  *
- * RETURNS: char* - sub cstring
+ * RETURNS: char* - pointer to the matching parenthesis
  * 
- * DESCRIPTION: returns a substring (cstring style) within given expr. 
+ * DESCRIPTION: finds the matching parenthesis given a pointer to an initial parenthesis.
+ *
+ * NOTE: the second argument is either a 1 if the first argument is a pointer to a '('
+ * and a -1 if it is a pointer to a ')'. If the given cstring doesn't contain any 
+ * parenthesis then it will return the first argument
  */
-char* strsub(char* expr, const int start, const int end);
-
-/*
- * FUNCTION: expndcoef
- * 
- * PARAMETERS: char* expr
- *
- * RETURNS: char* - expanded cstring
- * 
- * DESCRIPTION: expands the multiplication coefficients with operators
- *
- * EXAMPLE: expndcoef("3x^2+2x") returns "3*x^2+2*x"
- *
- * NOTE: recursive function
- */
-char* expndcoef(char* expr);
+char* mtchpar(char* expr, short pcnt);
 
 #endif 

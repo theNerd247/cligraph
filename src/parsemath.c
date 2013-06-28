@@ -26,40 +26,13 @@
  *
  */
 
+//from  std libraries
+#include <string.h>
+#include <stdlib.h>
+
+//from project libraries
 #include "parsemath.h"
-#include "string.h"
-#include "stdlib.h"
-
-int eval(char* expr, int value);
-
-char* strins(char* dest, const char* source, const int index)
-{
-	int len = strlen(source)+strlen(dest)+1;
-
-	char* newstr = (char*)malloc(sizeof(char)*len);
-
-	strncpy(newstr, dest, index);
-	strcpy(newstr+index, source);
-	strcpy(newstr+index+strlen(source), dest+index);
-
-	newstr[len-1] = '\0';
-
-	return newstr;
-}
-
-char* strsub(char* expr, const int start, const int end)
-{
-	char* newstr = (char*)malloc(sizeof(char)*(end-start+2));
-
-	int i;
-	
-	for (i = 0; i < end-start+1; i++)
-		newstr[i] = expr[i+start]; 
-
-	newstr[strlen(newstr)] = '\0';
-
-	return newstr;
-}
+#include "strlib.h"
 
 char* expndcoef(char* expr)
 {
@@ -75,7 +48,7 @@ char* expndcoef(char* expr)
 
 	//check for coef where indep var is found and then add the rest. 
 	tok1 = strsub(expr,0,indeppos-expr);
-	if(strpbrk(indeppos-1,"0123456789") != NULL)
+	if(strpbrk(tok1+strlen(tok1)-2,"0123456789") != NULL)
 		tok1 = strins(tok1, "*", indeppos-expr);
 
 	char* tok2 = expndcoef(indeppos+1);
@@ -83,6 +56,33 @@ char* expndcoef(char* expr)
 
 	return tok1;
 }
+
+char* expndexpr(char* expr)
+{
+	char* newexpr;
+
+	newexpr = expndcoef(expr);
+	newexpr = inspare(newexpr);
+
+	return newexpr;
+}
+
+/*
+ * char* insindpvar(char* expr, char* value)
+ * {
+ * 	//replace indepvar with value
+ * 	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
+ * 
+ * 	char* tmp;
+ * 	while(iindx >= 0)
+ * 	{
+ * 		tmp = strrpl(expr,iindx,iindx,value);	
+ * 		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
+ * 	}
+ * 
+ * 	return tmp;
+ * }
+ *  */
 
 char* inspare(char* expr)
 {	
@@ -121,12 +121,24 @@ char* inspare(char* expr)
 	return newexpr;
 }
 
-char* expndexpr(char* expr)
+char* mtchpar(char* expr, short pcnt)
 {
-	char* newexpr;
+	if(strpbrk(expr,"()") == NULL)
+		return expr;
 
-	newexpr = expndcoef(expr);
-	newexpr = inspare(newexpr);
+	char* pindex = pcnt > 0 ? expr+1 : expr-1;
+	while(pcnt != 0)
+	{
+		if(*pindex == '(')
+			pcnt+=1;
+		else if(*pindex == ')')
+			pcnt-=1;
 
-	return newexpr;
+		if(pcnt == 0 || *(pindex+1) == '\0')
+			break;
+		pindex = pcnt > 0 ? pindex+1 : pindex-1;
+	}
+	
+	return pindex;
 }
+
