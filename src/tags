@@ -1,0 +1,12 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+get_cell	table.c	/^int get_cell(struct table* tble, int x, int y)$/;"	f	signature:(struct table* tble, int x, int y)
+init_table	table.c	/^struct table* init_table(int x_size, int y_size)$/;"	f	signature:(int x_size, int y_size)
+inscell	table.c	/^struct table* inscell(struct table* tble, const int val, const int x, const int y)$/;"	f	signature:(struct table* tble, const int val, const int x, const int y)
+normalize	graph.c	/^struct table* normalize(struct table* tble)$/;"	f	signature:(struct table* tble)
+pgraph	graph.c	/^int pgraph(struct table* tble)$/;"	f	signature:(struct table* tble)
+set_cell	table.c	/^int set_cell(struct table* tble, int cell_value, int x, int y)$/;"	f	signature:(struct table* tble, int cell_value, int x, int y)

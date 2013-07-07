@@ -33,15 +33,15 @@
 #define __GRAPH
 
 /*
- * FUNCTION: normalize
+ * FUNCTION: makefancy 
  * 
  * PARAMETERS: struct table* tble
  *
  * RETURNS: struct *table - normalized points
  * 
- * DESCRIPTION: normalizes the given points with a curve
+ * DESCRIPTION: takes the given points to graph and adds extra points to make curves look as curves
  */
-struct table* normalize(struct table* tble);
+struct table* makefancy(struct table* tble);
 
 /*
  * FUNCTION: frmtgraph

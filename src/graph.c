@@ -28,10 +28,12 @@
 #include "graph.h"
 #include "stdio.h"
 
-struct table* normalize(struct table* tble)
+struct table* makefancy(struct table* tble)
 {
-	//attempt one notes: try drawing a line between each point.
-	
+ /*----NOTES----
+ 	* Assume: - X = {0,1,2,...,n}
+ 	* 				- y exists for each x 
+ 	*/
 }
 
 int pgraph(struct table* tble)
