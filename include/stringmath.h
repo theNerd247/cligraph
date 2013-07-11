@@ -28,7 +28,18 @@
 #ifndef __STRINGMATH
 #define __STRINGMATH
 
-#include "table.h"
+#include <llist.h>
+
+//structure to contain function value pairs
+struct typedef funcpoint 
+{
+	double y;
+	double x;
+} POINT;
+
+#define newPOINT() (POINT*)malloc(sizeof(POINT))
+
+typedef LList FuncValues;
 
 /*
  * FUNCTION: chknum
@@ -44,9 +55,9 @@ char chknum(char* expr);
 /*
  * FUNCTION: getvalue
  * 
- * PARAMETERS: char* expr
+ * PARAMETERS: char* expr, double value
  *
- * RETURNS: double - evaluated expression value
+ * RETURNS: double - evaluated function value
  *
  * DESCRIPTION: computes the value of the given mathematical expression (with indep var replaced
  * with a value
@@ -58,10 +69,10 @@ double getvalue(char* expr, double value);
  * 
  * PARAMETERS: char*  expr, double strt, double end, const double step
  *
- * RETURNS: struct table* - pointer to table of function values
+ * RETURNS: FuncValues* - linked list of function values
  * 
  * DESCRIPTION: computes function values starting at "str" and ending at "end" with step size of "step"
  */
-struct table* getvalues(char*  expr, double strt, double end, const double step);
+FuncValues* getfuncvalues(schar*  expr, double strt, double end, const double step);
 
 #endif 

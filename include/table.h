@@ -46,7 +46,7 @@ struct table
 {
 	int x_size;
 	int y_size;
-	int* cells;
+	int* ceLLS;
 };
 
 /*

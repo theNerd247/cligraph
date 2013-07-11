@@ -31,9 +31,7 @@
 #include <math.h>
 
 //from project libs
-#include "table.h"
 #include "strlib.h"
-#include "parsemath.h"
 #include "stringmath.h"
 
 char chknum(char* expr)
@@ -53,7 +51,7 @@ char chknum(char* expr)
 	return val;
 }
 
-double getvalue(char* expr, double value)
+double getvaluechar* expr, double value)
 {
 	//check if expression is numbers only
 	if(chknum(expr) == 1)
@@ -103,10 +101,10 @@ double getvalue(char* expr, double value)
 				val = lftval*rhtval;
 				break;
 			case '/':
-				val = (int)lftval/rhtval;
+				val = lftval/rhtval;
 				break;
 			case '^':
-				val = (int)pow(lftval,rhtval);
+				val = pow(lftval,rhtval);
 				break;
 			default:
 				val = lftval;
@@ -118,21 +116,21 @@ double getvalue(char* expr, double value)
 }
 
 //warning: untested
-struct table* getvalues(char* expr, double strt, double end, const double step)
+FuncValues* getfuncvalues(char* expr, double strt, double end, const double step)
 {
 	int N = (int)((end-strt)/step);
-	struct table* values = init_table(N,1);
+	FuncValues* values = llnew();
 
 	int i;
-
 	double val;
 	for (i = 0; i < N; i++)
 	{
-		int ival = strt+step*i;
-//		char* exprn = insindpvar(expr,ival);
+		double ival = strt+(step*i);
 		val = getvalue(expr,ival);
-		set_cell(values,ival,i,0);
-		set_cell(values,val,i,1);	
+		POINT* newpoint = newPOINT();
+		newpoint->x = ival;
+		newpoint->y = val;
+		llappend(values, newpoint);
 	}
 
 	return values;
