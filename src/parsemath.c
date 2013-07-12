@@ -67,23 +67,6 @@ char* expndexpr(char* expr)
 	return newexpr;
 }
 
-/*
- * char* insindpvar(char* expr, char* value)
- * {
- * 	//replace indepvar with value
- * 	int iindx = ((char*)memchr(expr,indep_var,strlen(expr)))-expr;
- * 
- * 	char* tmp;
- * 	while(iindx >= 0)
- * 	{
- * 		tmp = strrpl(expr,iindx,iindx,value);	
- * 		iindx = ((char*)memchr(tmp,indep_var,strlen(tmp)))-tmp;
- * 	}
- * 
- * 	return tmp;
- * }
- *  */
-
 char* inspare(char* expr)
 {	
 	//insert at begining and end of string	
@@ -140,5 +123,20 @@ char* mtchpar(char* expr, short pcnt)
 	}
 	
 	return pindex;
+}
+
+char* parntrim(char* expr)
+{
+	char* newexpr = expr;
+	int len = strlen(newexpr);
+
+	if(*newexpr == '(')
+		newexpr = strsub(newexpr,1,len-1);
+
+	len = strlen(newexpr);
+	if(*(newexpr+len-1) == ')')
+		newexpr = strsub(newexpr,0,len-2);
+
+	return newexpr;
 }
 

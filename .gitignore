@@ -7,3 +7,6 @@ obj/
 
 #swp files
 *.swp
+
+#tags files
+tags

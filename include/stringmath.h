@@ -22,13 +22,54 @@
  *
  * VERSION: v0.0.1
  *
- * DESCRIPTION: math functions that works with strings
+ * DESCRIPTION: functions that mix math.h and string.h (mainly to compute mathematical string
+ * expressions). 
  */
 
 #ifndef __STRINGMATH
 #define __STRINGMATH
 
-#include "table.h"
+#include <llist.h>
+
+//structure to contain function value pairs
+typedef struct funcpoint 
+{
+	double y;
+	double x;
+} POINT;
+
+#define newPOINT() (POINT*)malloc(sizeof(POINT))
+
+typedef LList FuncValues;
+
+/*
+ * FUNCTION: getvalue
+ * 
+<<<<<<< HEAD
+ * PARAMETERS: char* expr
+ *
+ * RETURNS: double - evaluated expression value
+=======
+ * PARAMETERS: char* expr, double value
+ *
+ * RETURNS: double - evaluated function value
+>>>>>>> compute
+ *
+ * DESCRIPTION: computes the value of the given mathematical expression (with indep var replaced
+ * with a value
+ */
+double getvalue(char* expr, double value);
+
+/*
+ * FUNCTION: getvalues
+ * 
+ * PARAMETERS: char*  expr, double strt, double end, const double step
+ *
+ * RETURNS: FuncValues* - linked list of function values
+ * 
+ * DESCRIPTION: computes function values starting at "str" and ending at "end" with step size of "step"
+ */
+FuncValues* getfuncvalues(char*  expr, double strt, double end, const double step);
 
 /*
  * FUNCTION: chknum
@@ -42,26 +83,15 @@
 char chknum(char* expr);
 
 /*
- * FUNCTION: getvalue
+ * FUNCTION: strtonum
  * 
  * PARAMETERS: char* expr
  *
- * RETURNS: double - evaluated expression value
- *
- * DESCRIPTION: computes the value of the given mathematical expression (with indep var replaced
- * with a value
- */
-double getvalue(char* expr, double value);
-
-/*
- * FUNCTION: getvalues
+ * RETURNS: double - double value of numerical expression
  * 
- * PARAMETERS: char*  expr, double strt, double end, const double step
- *
- * RETURNS: struct table* - pointer to table of function values
- * 
- * DESCRIPTION: computes function values starting at "str" and ending at "end" with step size of "step"
+ * DESCRIPTION: converts a given string (assuming to contain only numbers) to the numerical
+ * expression
  */
-struct table* getvalues(char*  expr, double strt, double end, const double step);
+double strtonum(char* expr);
 
 #endif 

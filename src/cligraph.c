@@ -35,13 +35,27 @@ int main(int argc, char const *argv[])
 	char tststr[100];	
 	printf("expression:\n");
 	scanf("%s",tststr);
-	printf("indpvar:\n");
-	double val[100]; 
-	scanf("%lf",val);
-	
-	char* tmp = expndexpr(tststr);
-	double value = getvalue(tmp,*val);
 
-	printf("value is: %f\n", value);
+	printf("min:\n");
+	double min[1]; 
+	scanf("%lf",min);
+
+	printf("max:\n");
+	double max[1]; 
+	scanf("%lf",max);
+
+	printf("stp:\n");
+	double stp[1]; 
+	scanf("%lf",stp);
+
+	char* tmp = expndexpr(tststr);
+	FuncValues* values = getfuncvalues(tmp,*min,*max,*stp);
+	
+	int i;
+	for (i = 0; i < values->length; i++)
+	{
+		POINT* value = (POINT*)llgetvalue(values,i);
+		printf("%lf, %lf\n", value->x,value->y);
+	}
 	return 0;
 }

@@ -3,6 +3,51 @@
 #include <stdio.h>
 #include <math.h>
 
+double strtonum(char* expr)
+{
+	double pwr = 0.0;
+	double value = 0.0;
+	int i = strlen(expr)-1;
+
+	char* decindex = strpbrk(expr,".");
+	if(decindex != NULL)
+		pwr = (double)(decindex-(expr+i));
+
+	for (; i >= 0; i--)
+	{
+		if(*(expr+i) == '.')
+			continue;
+		value = (*(expr+i)-48)*(pow(10,pwr))+value;
+		pwr++;
+	}
+	
+	return value;
+}
+
+char chknum(char* expr)
+{
+	int i;
+	int len = strlen(expr);
+	char val = 1;	
+	for (i = 0; i < len; i++)
+	{
+		char tmp = *(expr+i);
+		if(tmp == '.')
+			continue;
+		if(tmp < 48 || tmp > 57) 	
+		{
+			val = 0;
+			break;
+		}
+	}
+	return val;
+}
+
+double ch(double value)
+{
+	return value;
+}
+
 char* mtchpar(char* expr, short pcnt)
 {
 	if(strpbrk(expr,"()") == NULL)
@@ -38,99 +83,28 @@ char* strsub(char* expr, const int start, const int end)
 	return newstr;
 }
 
-char chknum(char* expr)
+char* parntrim(char* expr)
 {
-	int i;
-	int len = strlen(expr);
-	char val = 1;	
-	for (i = 0; i < len; i++)
-	{
-		char tmp = *(expr+i);
-		if(tmp < 48 || tmp > 57) 	
-		{
-			val = 0;
-			break;
-		}
-	}
-	return val;
-}
+	char* newexpr = expr;
+	int len = strlen(newexpr);
 
-double strtonum(char* expr)
-{
+	if(*newexpr == '(')
+		newexpr = strsub(newexpr,1,len-1);
 
-	double pwr = 0.0;
-	double value = 0.0;
-	int i = strlen(expr)-1;
+	len = strlen(newexpr);
+	if(*(newexpr+len-1) == ')')
+		newexpr = strsub(newexpr,0,len-2);
 
-	char* decindex = strpbrk(expr,".");
-	if(decindex != NULL)
-		pwr = (double)(decindex-(expr+i));
-
-	for (; i >= 0; i--)
-	{
-		if(*(expr+i) == '.')
-			continue;
-		value = (*(expr+i)-48)*(pow(10,pwr))+value;
-		pwr++;
-	}
-	
-	return value;
-}
-
-int getvalue(char* expr)
-{
-	//check if expression is numbers only
-	if(chknum(expr) == 1)
-		return strtonum(expr);
-
-	//if not then check for operations
-	char* op = strpbrk(expr,"+-");
-	if(op == NULL)
-		op = strpbrk(expr,"*/");
-	
-	int val, lftval, rhtval;
-	if(op != NULL)
-	{
-		char* lftexpr = strsub(mtchpar(op-1,-1),0,op-expr-1);
-		char* rhtexpr = strsub(op+1,0,mtchpar(op+1,1)-op+1);
-
-		if(strpbrk(lftexpr,"()") != NULL)
-			lftexpr = strsub(lftexpr,1,strlen(lftexpr)-2);	
-		if(strpbrk(rhtexpr,"()") != NULL)
-			rhtexpr = strsub(rhtexpr,1,strlen(rhtexpr)-2);
-
-		lftval = getvalue(lftexpr);
-		rhtval = getvalue(rhtexpr);
-
-		switch(*op)
-		{
-			case '+':
-				val = lftval+rhtval;
-				break;
-			case '-':
-				val = lftval-rhtval;
-				break;
-			case '*':
-				val = lftval*rhtval;
-				break;
-			case '/':
-				val = (int)lftval/rhtval;
-				break;
-			default:
-				val = lftval;
-				break;	
-		}
-	}
-
-	return val;
+	return newexpr;
 }
 
 int main(int argc, char const *argv[])
 {
-
-	char* tst = "23.45";
-
-	double chr = strtonum(tst);
-
-	printf("%f\n",chr);
+	char* expr = "(x)";
+	printf("%s\n", parntrim(expr));
+	expr = "x)";
+	printf("%s\n", parntrim(expr));
+	expr = "(x";
+	printf("%s\n", parntrim(expr));
+	return 0;
 }

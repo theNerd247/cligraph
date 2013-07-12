@@ -75,24 +75,3 @@ char* strsub(char* expr, const int start, const int end)
 	return newstr;
 }
 
-double strtonum(char* expr)
-{
-
-	double pwr = 0.0;
-	double value = 0.0;
-	int i = strlen(expr)-1;
-
-	char* decindex = strpbrk(expr,".");
-	if(decindex != NULL)
-		pwr = (double)(decindex-(expr+i));
-
-	for (; i >= 0; i--)
-	{
-		if(*(expr+i) == '.')
-			continue;
-		value = (*(expr+i)-48)*(pow(10,pwr))+value;
-		pwr++;
-	}
-	
-	return value;
-}

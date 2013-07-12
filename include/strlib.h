@@ -22,7 +22,7 @@
  *
  * VERSION: v0.0.1
  *
- * DESCRIPTION: decleration file for strlib functions 
+ * DESCRIPTION: extension of string.h
  */
 
 #ifndef __STRLIB
@@ -59,19 +59,9 @@ char*  strrpl(char* expr, int strt, int end, char* needle);
  * RETURNS: char* - sub cstring
  * 
  * DESCRIPTION: returns a substring (cstring style) within given expr. 
+ *
+ * NOTE: start and end are inclusive 
  */
 char* strsub(char* expr, const int start, const int end);
-
-/*
- * FUNCTION: strtonum
- * 
- * PARAMETERS: char* expr
- *
- * RETURNS: double - double value of numerical expression
- * 
- * DESCRIPTION: converts a given string (assuming to contain only numbers) to the numerical
- * expression
- */
-double strtonum(char* expr);
 
 #endif 

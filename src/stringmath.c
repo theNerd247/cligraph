@@ -26,12 +26,11 @@
  */
 
 //from std libs
+#include <stdlib.h>
 #include <string.h>
-#include <strlib.h>
 #include <math.h>
 
 //from project libs
-#include "table.h"
 #include "strlib.h"
 #include "parsemath.h"
 #include "stringmath.h"
@@ -44,6 +43,8 @@ char chknum(char* expr)
 	for (i = 0; i < len; i++)
 	{
 		char tmp = *(expr+i);
+		if(tmp == '.')
+			continue;	
 		if(tmp < 48 || tmp > 57) 	
 		{
 			val = 0;
@@ -51,6 +52,28 @@ char chknum(char* expr)
 		}
 	}
 	return val;
+}
+
+double strtonum(char* expr)
+{
+
+	double pwr = 0.0;
+	double value = 0.0;
+	int i = strlen(expr)-1;
+
+	char* decindex = strpbrk(expr,".");
+	if(decindex != NULL)
+		pwr = (double)(decindex-(expr+i));
+
+	for (; i >= 0; i--)
+	{
+		if(*(expr+i) == '.')
+			continue;
+		value = (*(expr+i)-48)*(pow(10,pwr))+value;
+		pwr++;
+	}
+	
+	return value;
 }
 
 double getvalue(char* expr, double value)
@@ -67,9 +90,12 @@ double getvalue(char* expr, double value)
 		op = strpbrk(expr,"*/");
 	if(op == NULL)
 		op = strpbrk(expr,"^");
+	//avoid case where expr == "(x)"
+ 	if(op == NULL)
+		return getvalue(parntrim(expr),value);
 	
 	double val;
-	int lftval, rhtval;
+	double lftval, rhtval;
 	if(op != NULL)
 	{
 		char* lftexpr = strsub(expr,0,op-expr-1);
@@ -77,16 +103,10 @@ double getvalue(char* expr, double value)
 
 		//rm () on ends of str
 		if(strpbrk(lftexpr,"()") != NULL)
-		{
-			int pindex = lftexpr-mtchpar(lftexpr+strlen(lftexpr)-1,-1);
-			lftexpr = strsub(lftexpr,pindex+1,strlen(lftexpr)-2);
-		}
+			lftexpr = parntrim(lftexpr);
 
 		if(strpbrk(rhtexpr,"()") != NULL)
-		{
-			int pindex = mtchpar(rhtexpr,1)-rhtexpr;
-			rhtexpr = strsub(rhtexpr,1,pindex-1);
-		}
+			rhtexpr = parntrim(rhtexpr);
 
 		lftval = getvalue(lftexpr,value);
 		rhtval = getvalue(rhtexpr,value);
@@ -103,10 +123,10 @@ double getvalue(char* expr, double value)
 				val = lftval*rhtval;
 				break;
 			case '/':
-				val = (int)lftval/rhtval;
+				val = lftval/rhtval;
 				break;
 			case '^':
-				val = (int)pow(lftval,rhtval);
+				val = pow(lftval,rhtval);
 				break;
 			default:
 				val = lftval;
@@ -118,24 +138,22 @@ double getvalue(char* expr, double value)
 }
 
 //warning: untested
-struct table* getvalues(char* expr, double strt, double end, const double step)
+FuncValues* getfuncvalues(char* expr, double strt, double end, const double step)
 {
 	int N = (int)((end-strt)/step);
-	struct table* values = init_table(N,1);
+	FuncValues* values = llnew();
 
 	int i;
-
 	double val;
-	for (i = 0; i < N; i++)
+	for (i = 0; i <= N; i++)
 	{
-		int ival = strt+step*i;
-//		char* exprn = insindpvar(expr,ival);
+		double ival = strt+(step*i);
 		val = getvalue(expr,ival);
-		set_cell(values,ival,i,0);
-		set_cell(values,val,i,1);	
+		POINT* newpoint = newPOINT();
+		newpoint->x = ival;
+		newpoint->y = val;
+		llappend(values, newpoint);
 	}
 
 	return values;
 }
-
-

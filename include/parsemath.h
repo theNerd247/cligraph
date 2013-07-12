@@ -102,4 +102,17 @@ char* inspare(char* expr);
  */
 char* mtchpar(char* expr, short pcnt);
 
+/*
+ * FUNCTION: parntrim
+ * 
+ * PARAMETERS: char* expr
+ *
+ * RETURNS: char* - new c string
+ * 
+ * DESCRIPTION: trims off any outter parenthesis found in the given expression
+ *
+ * EXAMPLE: parntrim("(2x") --> "2x"; parntrim("(2x)") --> "2x"; parntrim("2x)") --> "2x";
+ */
+char* parntrim(char* expr);
+
 #endif 
