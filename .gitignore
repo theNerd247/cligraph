@@ -5,5 +5,8 @@ testing/
 bin/
 obj/
 
-#temp files
+#swp files
 *.swp
+
+#tags files
+tags

@@ -24,9 +24,12 @@ along with sofware name.  If not, see <http://www.gnu.org/licenses/>.
  * DESCRIPTION: c file for table.h
  */
 
+//from std libs
+#include <stdlib.h>
+#include <stdio.h>
+
+//from prjct libs
 #include "table.h"
-#include "stdlib.h"
-#include "stdio.h"
 
 struct table* init_table(int x_size, int y_size)
 {
