@@ -204,7 +204,6 @@ double getvalue(char* expr, double value)
 		{
 			int pind = mtchpar(op-1,-1)-expr;
 			lftexpr = strsub(expr,pind,op-expr-1);
-			lftexpr = parntrim(lftexpr);
 		} 	
 		else if(chknumc(*(op-1)) == 1)
 		{
@@ -221,7 +220,6 @@ double getvalue(char* expr, double value)
 		{
 			int pind = mtchpar(op+1,1)-expr;
 			rhtexpr = strsub(expr,op-expr+1,pind);
-			rhtexpr = parntrim(rhtexpr);
 		} 	
 		else if(chknumc(*(op+1)) == 1)
 		{
@@ -233,8 +231,8 @@ double getvalue(char* expr, double value)
 		else
 			rhtexpr = "x";	
 
-		double lftval = getvalue(lftexpr,value);
-		double rhtval = getvalue(rhtexpr,value);
+		double lftval = getvalue(parntrim(lftexpr),value);
+		double rhtval = getvalue(parntrim(rhtexpr),value);
 
 		switch(*op)
 		{
@@ -261,7 +259,7 @@ double getvalue(char* expr, double value)
 	
 	//TODO: replace lftexpr+op+rhtexpr in expr with val (will need numtostr func)
 	char* vl = numtostr(val);	
-	expr = strrpl(expr, op-expr-1-strlen(lftexpr),op-expr+strlen(rhtexpr),vl);
+	expr = strrpl(expr, op-expr-strlen(lftexpr),op-expr+strlen(rhtexpr),vl);
 	double vall = getvalue(expr, value);
 	return vall;
 }
