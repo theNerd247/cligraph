@@ -31,7 +31,7 @@ along with sofware name.  If not, see <http://www.gnu.org/licenses/>.
 //from prjct libs
 #include "table.h"
 
-struct table* init_table(int x_size, int y_size)
+struct table* inittble(int x_size, int y_size)
 {
 	struct table* newtbl = (struct table*)(malloc(sizeof(struct table)));
 
@@ -54,7 +54,7 @@ struct table* inscell(struct table* tble, const int val, const int x, const int 
 	;
 }
 
-int get_cell(struct table* tble, int x, int y)
+int getcell(struct table* tble, int x, int y)
 {
 	if(tble == NULL)
 		return 0;
@@ -64,7 +64,7 @@ int get_cell(struct table* tble, int x, int y)
 	return tble->cells[x*(tble->y_size)+y];
 }
 
-int set_cell(struct table* tble, int cell_value, int x, int y)
+int setcell(struct table* tble, int cell_value, int x, int y)
 {
 	if(tble == NULL) 
 		return 0;

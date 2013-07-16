@@ -28,6 +28,11 @@
 #include "graph.h"
 #include "stdio.h"
 
+extern char axischr = '|';
+extern char pntchr = '+';
+extern char gridchr = '#';
+extern char gridflg = 0;
+
 struct table* makefancy(struct table* tble)
 {
  /*----NOTES----
@@ -47,11 +52,11 @@ int pgraph(struct table* tble)
 	int i,j;
 	int xsize = tble->x_size;
 	int ysize = tble->y_size;
-	for (i = 0; i < xsize; i++)
+	for (i = ysize-1; i >= 0; i--)
 	{
-		for (j = 0; j < ysize; j++)
+		for (j = 0; j < xsize; j++)
 		{
-			int cell = get_cell(tble,i,j);
+			int cell = getcell(tble,j,i);
 			printf("%c",cell);
 		}
 		printf("\n");

@@ -61,6 +61,18 @@ typedef LList FuncValues;
 double getvalue(char* expr, double value);
 
 /*
+ * getvalue alg
+ *
+ * follow EMPDAS. 
+ *
+ * 1. find '^', a: eval lft and rht expr (trim each first); b: return lft^rht;
+ * 2. find '* / /' a: eval lft and rht expr (trim each first); b: lft*(/)rht;
+ * 3. find '+/-' a: eval lft and rht expr; b: lft+(-)rht;
+ * 4. find 'x' a: return given value;
+ *
+ */
+
+/*
  * FUNCTION: getvalues
  * 
  * PARAMETERS: char*  expr, double strt, double end, const double step

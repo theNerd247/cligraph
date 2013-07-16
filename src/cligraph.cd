@@ -30,6 +30,7 @@
 #include "stringmath.h"
 #include "parsemath.h"
 
+/*
 int main(int argc, char const *argv[])
 {
 /*
@@ -48,7 +49,7 @@ int main(int argc, char const *argv[])
  * 	printf("stp:\n");
  * 	double stp[1]; 
  * 	scanf("%lf",stp);
- * 	 */
+ * 
 	
 	char* tststr = "2x^2+3x+4";
 	double min = 0;
@@ -65,4 +66,4 @@ int main(int argc, char const *argv[])
 		printf("%i, %i\n", (int)value->x,(int)value->y);
 	}
 	return 0;
-}
+} */
