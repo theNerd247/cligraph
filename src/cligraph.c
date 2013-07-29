@@ -29,41 +29,16 @@
 
 #include "stringmath.h"
 #include "parsemath.h"
+#include "graph.h"
 
-/*
 int main(int argc, char const *argv[])
-{
-/*
- * 	char tststr[100];	
- * 	printf("expression:\n");
- * 	scanf("%s",tststr);
- * 
- * 	printf("min:\n");
- * 	double min[1]; 
- * 	scanf("%lf",min);
- * 
- * 	printf("max:\n");
- * 	double max[1]; 
- * 	scanf("%lf",max);
- * 
- * 	printf("stp:\n");
- * 	double stp[1]; 
- * 	scanf("%lf",stp);
- * 
-	
-	char* tststr = "2x^2+3x+4";
-	double min = 0;
-	double max = 100;
-	double stp = 1;
+{		
+	char* tstexpr = expndexpr("x^3");
 
-	char* tmp = expndexpr(tststr);
-	FuncValues* values = getfuncvalues(tmp,min,max,stp);
+	LList* funcvls = getfuncvalues(tstexpr,100,100,1);
+	LList* tblvals = mappnts(funcvls,108,60); 
+	Table* tbl = mkgraphtbl(tblvals,108,60);
+	pgraph(tbl);	
 	
-	int i;
-	for (i = 0; i < values->length; i++)
-	{
-		POINT* value = (POINT*)llgetvalue(values,i);
-		printf("%i, %i\n", (int)value->x,(int)value->y);
-	}
 	return 0;
-} */
+} 

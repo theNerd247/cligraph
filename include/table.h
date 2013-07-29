@@ -42,17 +42,17 @@ along with sofware name.  If not, see <http://www.gnu.org/licenses/>.
  * Fetching Table Cell Value:
  *  index of cell - x*(y_size)+y;
  */
-struct table
+typedef struct tbl_st
 {
-	int x_size;
-	int y_size;
+	int xsize;
+	int ysize;
 	int* cells;
-};
+} Table;
 
 /*
  * FUNCTION: get_cell
  * 
- * PARAMETERS: struct table* tble, int x, int y
+ * PARAMETERS: Table* tble, int x, int y
  *
  * RETURNS: int - integer value of the cell
  * 
@@ -60,31 +60,20 @@ struct table
  *
  * ERROR CODES: 0 - tble is invalid pointer; 1 < x or y is invalid index;
  */
-int getcell(struct table* tble, int x, int y);
+int getcell(Table* tble, int x, int y);
 
 /*
  * FUNCTION: init_table
  * 
  * PARAMETERS: int x_size, int y_size
  *
- * RETURNS: struct table* - a blank table
+ * RETURNS: Table* - a blank table
  * 
  * DESCRIPTION: creates and initiates a table pointer that has all data cell values to 0
  * 
  * ERROR CODES: NULL pointer (if any error occurs)
  */
-struct table* inittble(int x_size, int y_size);
-
-/*
- * FUNCTION: inscell
- * 
- * PARAMETERS: struct table*, int val, const int x, const int y
- *
- * RETURNS: struct table* - new table with inserted cell
- * 
- * DESCRIPTION: inserts a value in the table
- */
-struct table* inscell(struct table* tble, int val, const int x, const int y);
+Table* tblnew(int x_size, int y_size);
 
 /*
  * FUNCTION: set_cell
@@ -98,6 +87,6 @@ struct table* inscell(struct table* tble, int val, const int x, const int y);
  * ERROR CODES: -1 - no error; 0 - table pointer is invalid; 1 - x and/or y is an
  * invalid index
  */
-int setcell(struct table* tble, int cell_value, int x, int y);
+int setcell(Table* tble, int cell_value, int x, int y);
 
 #endif 

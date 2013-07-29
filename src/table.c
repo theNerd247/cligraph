@@ -31,49 +31,44 @@ along with sofware name.  If not, see <http://www.gnu.org/licenses/>.
 //from prjct libs
 #include "table.h"
 
-struct table* inittble(int x_size, int y_size)
+Table* tblnew(int xsize, int ysize)
 {
-	struct table* newtbl = (struct table*)(malloc(sizeof(struct table)));
+	Table* newtbl = (Table*)(malloc(sizeof(Table)));
 
 	if (newtbl == NULL) 
 		return NULL; 
 
-	newtbl->cells = (int*)calloc(x_size*y_size,sizeof(int));
+	newtbl->cells = (int*)calloc(xsize*ysize,sizeof(int));
 
 	if(newtbl->cells== NULL)
 		return NULL; 
 
-	newtbl->x_size = x_size;
-	newtbl->y_size = y_size;
+	newtbl->xsize = xsize;
+	newtbl->ysize = ysize;
 
 	return newtbl;
 }
 
-struct table* inscell(struct table* tble, const int val, const int x, const int y)
-{
-	;
-}
-
-int getcell(struct table* tble, int x, int y)
+int getcell(Table* tble, int x, int y)
 {
 	if(tble == NULL)
 		return 0;
-	else if(x >= tble->x_size || y >= tble->y_size || x < 0 || y < 0) 
+	else if(x >= tble->xsize || y >= tble->ysize || x < 0 || y < 0) 
 		return 1; 
 
-	return tble->cells[x*(tble->y_size)+y];
+	return tble->cells[x*(tble->ysize)+y];
 }
 
-int setcell(struct table* tble, int cell_value, int x, int y)
+int setcell(Table* tble, int cell_value, int x, int y)
 {
 	if(tble == NULL) 
 		return 0;
 
-	if(x >= tble->x_size || y >= tble->y_size || x < 0 || y < 0)
+	if(x >= tble->xsize || y >= tble->ysize || x < 0 || y < 0)
 		return 1; 
 
 
-	int index = x*(tble->y_size)+y;
+	int index = x*(tble->ysize)+y;
 	*(tble->cells+(index)) = cell_value;
 	return -1;
 }

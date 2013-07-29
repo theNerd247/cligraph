@@ -32,15 +32,13 @@
 #include <llist.h>
 
 //structure to contain function value pairs
-typedef struct funcpoint 
+typedef struct funcpnt_st
 {
 	double y;
 	double x;
 } POINT;
 
 #define newPOINT() (POINT*)malloc(sizeof(POINT))
-
-typedef LList FuncValues;
 
 /*
  * FUNCTION: getvalue
@@ -61,27 +59,15 @@ typedef LList FuncValues;
 double getvalue(char* expr, double value);
 
 /*
- * getvalue alg
- *
- * follow EMPDAS. 
- *
- * 1. find '^', a: eval lft and rht expr (trim each first); b: return lft^rht;
- * 2. find '* / /' a: eval lft and rht expr (trim each first); b: lft*(/)rht;
- * 3. find '+/-' a: eval lft and rht expr; b: lft+(-)rht;
- * 4. find 'x' a: return given value;
- *
- */
-
-/*
  * FUNCTION: getvalues
  * 
  * PARAMETERS: char*  expr, double strt, double end, const double step
  *
- * RETURNS: FuncValues* - linked list of function values
+ * RETURNS: LList* - linked list of function values
  * 
  * DESCRIPTION: computes function values starting at "str" and ending at "end" with step size of "step"
  */
-FuncValues* getfuncvalues(char*  expr, double strt, double end, const double step);
+LList* getfuncvalues(char*  expr, double strt, double end, const double step);
 
 /*
  * FUNCTION: chknum

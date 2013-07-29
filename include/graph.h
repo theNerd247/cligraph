@@ -27,36 +27,68 @@
  */
 
 #include "table.h"
+#include "stringmath.h"
 
 #ifndef __GRAPH
 #define __GRAPH
 
-/*
- * FUNCTION: makefancy 
- * 
- * PARAMETERS: struct table* tble
- *
- * RETURNS: struct *table - normalized points
- * 
- * DESCRIPTION: takes the given points to graph and adds extra points to make curves look as curves
- */
-struct table* makefancy(struct table* tble);
+#ifndef PNTCHAR
+#define PNTCHAR '#'
+#endif
 
 /*
- * FUNCTION: frmtgraph
- * 
- * PARAMETERS: struct table* tble
+ * STRUCT: tble_point
+ * TYPEDEF: TBLPOINT 
  *
- * RETURNS: struct table* - newly formatted table
- * 
- * DESCRIPTION: formats the given table to look pretty (inserts axis, grid, etc..)
+ * x and y coordinates of a point on the graph to display.
+ *
+ * NOTE: This is not the same as POINT found in stringmath.h
+ *
  */
-struct table* frmtgraph(struct table* tble);
+typedef struct tblpnt_st 
+{
+	int x;
+	int y;
+} TBLPOINT;
+
+typedef struct graph_st
+{
+	LList* funcvals;
+	Table* graphtbl;
+	double xmax, ymax, xmin, ymin;
+} Graph;
+
+/*
+ * FUNCTION: mappnts
+ * 
+ * PARAMETERS: LList* funcvalues, int xsize, int ysize
+ *
+ * RETURNS: LList* - newly created LList with data of nodes TBLPOINTs pointers
+ * 
+ * DESCRIPTION: maps the given graphs funcvals to a list of graph friendly
+ * points (TBLPOINT*s). 
+ *
+ * NOTE: error codes: 0 - no error; >0 - something went wrong
+ */
+LList* mappnts(LList* vals, int xsize, int ysize);
+
+/*
+ * FUNCTION: mktable
+ * 
+ * PARAMETERS: LList* tpoints, int xsize, int ysize
+ *
+ * RETURNS: Table* - newly created table with plotted points
+ * 
+ * DESCRIPTION: creates the table of printable values from the given graph info
+ *
+ * NOTE: returns NULL if error occurs 
+ */
+Table* mkgraphtbl(LList* tpoints, int xsize, int ysize);
 
 /*
  * FUNCTION: pgraph
  * 
- * PARAMETERS: struct table* tble
+ * PARAMETERS: Table* tble
  *
  * RETURNS: int - error codes: 0 - no error; 1 - tble is an invalid pointer; 2 - other
  * 
@@ -65,6 +97,19 @@ struct table* frmtgraph(struct table* tble);
  * NOTES: this function prints the character representation of integers. To print the values of a
  * table please store the characters as integers in the table
  */
-int pgraph(struct table* tble);
+int pgraph(Table* tble);
+
+/*
+ * FUNCTION: mkaxis
+ * 
+ * PARAMETERS: Table* tbl, int x, int y
+ *
+ * RETURNS: int - error code
+ * 
+ * DESCRIPTION: inserts x and y axis at given locations of the given graph
+ *
+ * NOTE: error code: 0 - no error; >0 - something bad happened
+ */
+int mkaxis(Table* tbl, int x, int y);
 
 #endif 

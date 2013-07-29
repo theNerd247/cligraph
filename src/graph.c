@@ -27,21 +27,11 @@
 
 #include "graph.h"
 #include "stdio.h"
+#include "stdlib.h"
+#include "llist.h"
+#include "table.h"
 
-extern char axischr = '|';
-extern char pntchr = '+';
-extern char gridchr = '#';
-extern char gridflg = 0;
-
-struct table* makefancy(struct table* tble)
-{
- /*----NOTES----
- 	* Assume: - X = {0,1,2,...,n}
- 	* 				- y exists for each x 
- 	*/
-}
-
-int pgraph(struct table* tble)
+int pgraph(Table* tble)
 {
 	//--ERROR CHECK------------------------------
 	if(tble == NULL)
@@ -50,8 +40,8 @@ int pgraph(struct table* tble)
 
 	//--Print Table------------------------------
 	int i,j;
-	int xsize = tble->x_size;
-	int ysize = tble->y_size;
+	int xsize = tble->xsize;
+	int ysize = tble->ysize;
 	for (i = ysize-1; i >= 0; i--)
 	{
 		for (j = 0; j < xsize; j++)
@@ -64,4 +54,75 @@ int pgraph(struct table* tble)
 	//--END Print Table---------------------------
 
 	return 0;
+}
+
+Table* mkgraphtbl(LList* tpoints, int xsize, int ysize)
+{
+	//init table with spaces
+ 	Table* newtbl = tblnew(xsize,ysize);
+	VALIDPNTR(newtbl, NULL);
+
+	int i,j;
+	for (i = 0; i < newtbl->xsize; i++)
+	{
+		for (j = 0; j < newtbl->ysize; j++)
+		{
+			setcell(newtbl,' ',i,j);
+		}
+	}
+
+	void plot(void* pnt)
+	{
+		TBLPOINT* tpnt = (TBLPOINT*)pnt;
+		int x=tpnt->x;
+		int y=tpnt->y;
+		setcell(newtbl,PNTCHAR,x,y);
+	}	
+
+	llapply(tpoints,&plot);
+
+	return newtbl;
+}
+
+//TODO: fix mapping algorithm
+LList* mappnts(LList* vals, int xsize, int ysize)
+{
+	//get the max and min values of the x and y sets 
+	//for proper zooming of the graph
+	double ymx, xmx, ymn, xmn;
+
+	ymx = ymn = ((POINT*)llgetvalue(vals,0))->y;
+	xmx = xmn = ((POINT*)llgetvalue(vals,0))->x;
+
+	void getxtrms(void* point)
+	{
+		POINT* pnt = (POINT*)point;
+		double nymx = pnt->y;
+		double nxmx = pnt->x;
+		if(nymx > ymx) ymx = nymx;
+		if(nymx < ymn) ymn = nymx;
+		if(nxmx > xmx) xmx = nxmx;
+		if(nxmx < xmn) xmn = nxmx;
+	}	
+	
+	llapply(vals,&getxtrms);
+
+	//get the zoom coeficient
+	double xcoef = xsize/(xmx-xmn);	
+	double ycoef = ysize/(ymx-ymn);	
+
+	//plot the points on the table
+	void* convert(void* point)
+	{
+		POINT* pnt = (POINT*)point;
+		VALIDPNTR(pnt,NULL);
+		TBLPOINT* tpnt = (TBLPOINT*)malloc(sizeof(TBLPOINT));
+
+		tpnt->x = (int)(xcoef*(pnt->x-xmn));
+		tpnt->y = (int)(ycoef*(pnt->y-ymn));	
+		
+		return (void*)tpnt;
+	}	
+
+	return llmap(vals, &convert);
 }

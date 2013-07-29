@@ -102,65 +102,25 @@ char* numtostr(double num)
 	return expr;
 }
 
-double ngetvalue(char* expr, double value)
+char* getOP(char* expr)
 {
-	//check if expression is numbers only
-	if(chknum(expr) == 1)
-		return strtonum(expr);
-	else if(*expr == indep_var && strlen(expr) == 1)
-		return value;
-
 	//if not then check for operations
-	char* op = strpbrk(expr,"+-");
+	char* op = strpbrk(expr,"^");
 	if(op == NULL)
 		op = strpbrk(expr,"*/");
 	if(op == NULL)
-		op = strpbrk(expr,"^");
-	//avoid case where expr == "(x)"
- 	if(op == NULL)
-		return getvalue(parntrim(expr),value);
-	
-	double val;
-	double lftval, rhtval;
-	if(op != NULL)
 	{
-		char* lftexpr = strsub(expr,0,op-expr-1);
-		char* rhtexpr = strsub(expr,op-expr+1,strlen(expr)-1);
-
-		//rm () on ends of str
-		if(strpbrk(lftexpr,"()") != NULL)
-			lftexpr = parntrim(lftexpr);
-
-		if(strpbrk(rhtexpr,"()") != NULL)
-			rhtexpr = parntrim(rhtexpr);
-
-		lftval = getvalue(lftexpr,value);
-		rhtval = getvalue(rhtexpr,value);
-
-		switch(*op)
+		op = strpbrk(expr,"+");
+	}
+	if(op == NULL)
+	{
+		op = strpbrk(expr,"-");
+		if(op && *(op-1) == '(') 
 		{
-			case '+':
-				val = lftval+rhtval;
-				break;
-			case '-':
-				val = lftval-rhtval;
-				break;
-			case '*':
-				val = lftval*rhtval;
-				break;
-			case '/':
-				val = lftval/rhtval;
-				break;
-			case '^':
-				val = pow(lftval,rhtval);
-				break;
-			default:
-				val = lftval;
-				break;	
+			op = getOP(op+1);
 		}
 	}
-
-	return val;
+	return op;
 }
 
 double getvalue(char* expr, double value)
@@ -173,19 +133,7 @@ double getvalue(char* expr, double value)
 	else if(*expr == indep_var && strlen(expr) == 1)
 		return value;
 
-	//if not then check for operations
-	char* op = strpbrk(expr,"^");
-	if(op == NULL)
-		op = strpbrk(expr,"*/");
-	if(op == NULL)
-	{
-		op = strpbrk(expr,"+");
-	}
-	if(op == NULL)
-	{
-		op = strpbrk(expr,"-");
-		if(op && *(op-1) == '(') op = NULL;
-	}
+	char* op = getOP(expr);	
 	//avoid case where expr == "(x)"
  	if(op == NULL)
 		return getvalue(parntrim(expr),value);
@@ -257,7 +205,6 @@ double getvalue(char* expr, double value)
 		}
 	}
 	
-	//TODO: replace lftexpr+op+rhtexpr in expr with val (will need numtostr func)
 	char* vl = numtostr(val);	
 	expr = strrpl(expr, op-expr-strlen(lftexpr),op-expr+strlen(rhtexpr),vl);
 	double vall = getvalue(expr, value);
@@ -265,11 +212,11 @@ double getvalue(char* expr, double value)
 }
 
 //warning: untested
-FuncValues* getfuncvalues(char* expr, double strt, double end, const double step)
+LList* getfuncvalues(char* expr, double strt, double end, const double step)
 {
 	expr = expndexpr(expr);
 	int N = (int)((end-strt)/step);
-	FuncValues* values = llnew();
+	LList* values = llnew();
 
 	int i;
 	double val;
