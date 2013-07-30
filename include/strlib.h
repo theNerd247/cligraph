@@ -37,6 +37,9 @@
  * 
  * DESCRIPTION: inserts source into dest at the given index (with 0 being the first character in
  * dest)
+ *
+ * NOTE: if dest is NULL source is returned. If source is NULL dest is returned. This means that if 
+ * both are NULL then NULL is returned
  */
 char*  strins(char* dest, const char* source, const int index);
 

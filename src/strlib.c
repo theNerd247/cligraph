@@ -35,6 +35,9 @@
 
 char* strins(char* dest, const char* source, const int index)
 {
+	if(! dest) return source;
+	if(! source) return dest; 
+
 	int len = strlen(source)+strlen(dest)+1;
 
 	char* newstr = (char*)malloc(sizeof(char)*len);
