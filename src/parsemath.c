@@ -33,27 +33,27 @@
 //from project libraries
 #include "parsemath.h"
 #include "strlib.h"
+#include "stringmath.h"
 
 char* expndcoef(char* expr)
 {
-	if (expr == NULL || *expr == '\0')
-		return expr;
-
-	//find indep var	
-	char* indeppos = (char*)memchr(expr, indep_var, strlen(expr));
-
-	if(indeppos == NULL)
-		return expr;
-
-	//check for coef where indep var is found and then add the rest. 
-	char* tok1 = strsub(expr,0,indeppos-expr);
-	if(strpbrk(tok1+strlen(tok1)-2,"0123456789") != NULL)
-		tok1 = strins(tok1, "*", indeppos-expr);
-
-	char* tok2 = expndcoef(indeppos+1);
-	strcat(tok1,tok2);
-
-	return tok1;
+ 	if(!expr || *expr == '\0') return NULL;
+	
+	char* exprcpy = (char*)malloc(sizeof(char)*strlen(expr));
+	strcpy(exprcpy, expr);
+	
+	char* indpos = strpbrk(exprcpy,"x");
+	while(indpos)
+	{
+		int indi = indpos - exprcpy;
+		if(indpos-1 >= exprcpy && chknumc(*(indpos-1)))
+		{
+			exprcpy = strins(exprcpy,"*",indi); 
+			indi++;
+		}
+		indpos = strpbrk(exprcpy+indi+1,"x"); 
+	}
+	return exprcpy;
 }
 
 char* expndexpr(char* expr)
