@@ -40,14 +40,13 @@ char* expndcoef(char* expr)
 		return expr;
 
 	//find indep var	
-	char* tok1;
 	char* indeppos = (char*)memchr(expr, indep_var, strlen(expr));
 
 	if(indeppos == NULL)
 		return expr;
 
 	//check for coef where indep var is found and then add the rest. 
-	tok1 = strsub(expr,0,indeppos-expr);
+	char* tok1 = strsub(expr,0,indeppos-expr);
 	if(strpbrk(tok1+strlen(tok1)-2,"0123456789") != NULL)
 		tok1 = strins(tok1, "*", indeppos-expr);
 
