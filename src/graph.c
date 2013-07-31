@@ -73,6 +73,7 @@ Table* mkgraphtbl(LList* tpoints, int xsize, int ysize)
 
 	void plot(void* pnt)
 	{
+		if(!pnt) return;
 		TBLPOINT* tpnt = (TBLPOINT*)pnt;
 		int x=tpnt->x;
 		int y=tpnt->y;
@@ -114,7 +115,9 @@ LList* mappnts(LList* vals, int xsize, int ysize)
 	//plot the points on the table
 	void* convert(void* point)
 	{
+		VALIDPNTR(point,NULL);
 		POINT* pnt = (POINT*)point;
+		
 		VALIDPNTR(pnt,NULL);
 		TBLPOINT* tpnt = (TBLPOINT*)malloc(sizeof(TBLPOINT));
 

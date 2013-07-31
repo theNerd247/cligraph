@@ -41,7 +41,7 @@
  * NOTE: if dest is NULL source is returned. If source is NULL dest is returned. This means that if 
  * both are NULL then NULL is returned
  */
-char*  strins(char* dest, const char* source, const int index);
+char*  strins(char* dest, char* source, const int index);
 
 /*
  * FUNCTION: strrpl

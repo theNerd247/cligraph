@@ -33,7 +33,7 @@
 //from project libs
 #include "strlib.h"
 
-char* strins(char* dest, const char* source, const int index)
+char* strins(char* dest, char* source, const int index)
 {
 	if(! dest) return source;
 	if(! source) return dest; 

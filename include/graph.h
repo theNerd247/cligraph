@@ -51,19 +51,17 @@ typedef struct tblpnt_st
 	int y;
 } TBLPOINT;
 
-typedef struct graph_st
+struct bounds_st
 {
-	LList* funcvals;
-	Table* graphtbl;
-	double xmax, ymax, xmin, ymin;
-} Graph;
+	double xmin, xmax, ymin, ymax;
+} ;
 
 /*
  * FUNCTION: mappnts
  * 
  * PARAMETERS: LList* funcvalues, int xsize, int ysize
  *
- * RETURNS: LList* - newly created LList with data of nodes TBLPOINTs pointers
+ * RETURNS: LList* - newly created LList with each node containing TBLPOINTs pointers
  * 
  * DESCRIPTION: maps the given graphs funcvals to a list of graph friendly
  * points (TBLPOINT*s). 

@@ -33,9 +33,23 @@
 
 int main(int argc, char const *argv[])
 {		
-	char* tstexpr = expndexpr("x^3");
+	char* tstexpr = "(x-10)^3";
 
-	LList* funcvls = getfuncvalues(tstexpr,100,100,1);
+	struct bounds_st bnds;
+	bnds.xmax = 1000;
+	bnds.xmin = -500;
+	LList* funcvls = getfuncvalues(tstexpr,bnds.xmin,bnds.xmax,1);
+
+/*
+ * 	void prnt(void* data)
+ * 	{
+ * 		POINT* pnt = (POINT*)data;
+ * 		printf("%lf %lf\n",pnt->x,pnt->y);
+ * 	}
+ * 
+ * 	llapply(funcvls,&prnt);
+ * 	 */
+
 	LList* tblvals = mappnts(funcvls,108,60); 
 	Table* tbl = mkgraphtbl(tblvals,108,60);
 	pgraph(tbl);	
