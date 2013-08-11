@@ -10,3 +10,6 @@ obj/
 
 #tags files
 tags
+
+#hidden files
+.*
