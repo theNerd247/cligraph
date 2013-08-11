@@ -1,17 +1,26 @@
----------------------------------
-
 cligraph
+========
+An ncurses graphing calculator. 
 
-version: 0.0.1 
-author: Noah Harvey 
-lisence: Gnu Public License 2 
+URLs
+====
+	* http: http://www.github.com/theNerd247/cligraph
+	* ssh:  git@github.com:theNerd247/libstr.git
 
----------------------------------
+Installing
+==========
+Nothing to install....yet...Although, this program will rely on GNU make.
 
-cligraph is a free and open-source console based program that graphs given functions. It is not a replacement for
-graphing calculators. 
+Documentation
+=============
+Documentation can be found in the header files of the functions used. More
+indepth documentation will be placed in soon to come man pages.
 
-Please see http://github.com/theNerd247/cligraph for more info and source code.
+Help and Bugs
+=============
+If Bugs are found please email a bug report to:
+    noah.harvey247@gmail.com
+Also, if you have a github account please open up an issue on the project.
 
 Comming Soon
 ============
@@ -19,13 +28,4 @@ Comming Soon
 * inputing functions via text
 * zooming on functions 
 * function data point display
-
-Todo
-====
-- refactor program into libraries
-- build interfacing level between GUI and control layers
-
-NOTE:
-=====
-directory: testing has been added to the .gitignore file. If you would like testing files please
-email harvey.coder247@gmail.com.
+* integrals and derivatives - both definite and indefinte calculations/solutions
