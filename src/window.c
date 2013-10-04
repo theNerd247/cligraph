@@ -19,32 +19,53 @@
  * window.c 
  *
  * AUTHOR: Noah Harvey
+ * 
+ * EMAIL: noah.harvey247 @gmail.com
  *
- * VERSION: v0.0.1
- *
- * DESCRIPTION: declaration file for window functions
+ * DESCRIPTION: definition file for prototypes in window.h
  */
 
-#include "ncurses.h"
-#include "llist.h"
+#include "window.h"
+#include <ncurses.h>
+#include "stdlib.h"
 
-//window structure
-typedef struct win_st
+WIN* winnew(size_t xsize, size_t ysize, size_t xpos, size_t ypos)
 {
-	WINDOW* window; /* ncurses window struct */
-	char* content; /* the text to show in the window */
-	int x,y; /* position of the window */
-} WIN;
+	//sanity checks
+	if(xsize > COLS || ysize > LINES || xpos > COLS || ypos > LINES) return NULL;	
 
-/*
- * FUNCTION: drawwin
- * 
- * PARAMETERS: WIN* win
- *
- * RETURNS: int - error code
- * 
- * DESCRIPTION: draws the window on the screen
- *
- * NOTE: error codes: 0 - function exited correctly; 1 - something bad happened
- */
-int drawwin(WIN* win);
+	//init structs		
+	WINDOW* newWINDOW;
+		if(!(newWINDOW = newwin(xsize, ysize, xpos, ypos))) return NULL;
+
+	char* cntnt;
+		if(!(cntnt = (char*)malloc(sizeof(char)*xsize*ysize))) return NULL;
+
+	WIN* newWIN;
+		if(!( newWIN = (WIN*)malloc(sizeof(WIN)))) return NULL;	
+
+	newWIN->content = cntnt;
+	newWIN->window = newWINDOW;
+	newWIN->display = 0;
+
+	return newWIN;
+}
+
+char windel(WIN* win)
+{
+	//sanity checks
+	if(!win) return 0;
+
+	//remove window from display
+	if(win->display > 0)
+	{
+		if(wclear(win->window) == ERR) return 1;			
+		if(wrefresh(win->window) == ERR) return 1;
+	}
+
+	//free that memory
+	free(win->content);
+	if(delwin(win->window) == ERR) return 1;
+	
+	return 0;
+}
