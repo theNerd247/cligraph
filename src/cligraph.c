@@ -29,6 +29,8 @@
 
 #include <ncurses.h>
 #include "window.h"
+#include "string.h"
+
 
 int main(int argc, char const *argv[])
 {
@@ -36,16 +38,28 @@ int main(int argc, char const *argv[])
 	initscr();
 	//--END INIT---------------------------
 
-	WIN* win1 = winnew(100,9,100,100);
+	WIN* win1 = winnew(20,9,10,10);
+	if(!win1) return 0;
 
 	//draw some stuff
-	box(win1->window,'|','-');
-	wprintw(win1->window,"HELLO WORLD!");
-	wrefresh(win1->window);
+	win1->display = 1;
+	strcpy(win1->content,"HELLO WORLD");	
 
-	windel(win1);
+	windisplay(win1);
+	doupdate();
+	wgetch(win1->window); //pause
+
+	win1->border = 0;
+	win1->display = 1;
+	strcpy(win1->content,"HELLO WORLD THIS IS MULTILINE TEXT");	
+
+	windisplay(win1);
+	doupdate();
+
+	wgetch(win1->window); //pause
+	//ending sequence
+	if(windel(win1)) return 1;
 	
-	getch(); //pause
 	endwin();
 	return 0;
 }

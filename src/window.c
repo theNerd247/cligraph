@@ -36,16 +36,17 @@ WIN* winnew(size_t xsize, size_t ysize, size_t xpos, size_t ypos)
 
 	//init structs		
 	WINDOW* newWINDOW;
-		if(!(newWINDOW = newwin(xsize, ysize, xpos, ypos))) return NULL;
+		if(!(newWINDOW = newwin(ysize,xsize, xpos, ypos))) return NULL;
 
 	char* cntnt;
 		if(!(cntnt = (char*)malloc(sizeof(char)*xsize*ysize))) return NULL;
 
 	WIN* newWIN;
-		if(!( newWIN = (WIN*)malloc(sizeof(WIN)))) return NULL;	
+		if(!(newWIN = (WIN*)malloc(sizeof(WIN)))) return NULL;	
 
 	newWIN->content = cntnt;
 	newWIN->window = newWINDOW;
+	newWIN->border = 1;
 	newWIN->display = 0;
 
 	return newWIN;
@@ -68,4 +69,28 @@ char windel(WIN* win)
 	if(delwin(win->window) == ERR) return 1;
 	
 	return 0;
+}
+
+WIN* windisplay(WIN* win)
+{
+	if(!win) return NULL;
+
+	if (win->content != NULL)
+	{
+		if(win->display == 2)
+		{
+			wclear(win->window);
+			border(win->window,'|','-');
+		}
+		if(win->border = 1)
+			mvwprintw(win->window,1,1,win->content);
+		else	
+			mvwprintw(win->window,1,1,win->content);
+	}
+
+	//add window changes to screen
+	if(wnoutrefresh(win->window) == ERR) return NULL;
+	
+	win->display = 2;
+	return win;
 }

@@ -37,8 +37,9 @@
 typedef struct win_st
 {
 	WINDOW* window; //ncurses window struct
-	char* content; //the content of the window
-	char display;  //is the window to be shown? (0 = false, 1 = yes, but the window has yet to be drawn, 2 = yes, and the window has been drawn)
+	char* content;  //the content of the window
+	char display;   //is the window to be shown? (0 = false, 1 = yes, but the window has yet to be drawn, 2 = yes, and the window has been drawn)
+	char border;    //do we want a border to exist?
 } WIN;
 
 /*
@@ -65,5 +66,17 @@ WIN* winnew(size_t xsize, size_t ysize, size_t xpos, size_t ypos);
  * 
  */
 char windel(WIN* win);
+
+/*
+ * FUNCTION: windisplay
+ * 
+ * DESCRIPTION: displays the window on the screen
+ *
+ * PARAMETERS: WIN* win
+ *
+ * RETURNS: WIN* - pointer to win
+ * 
+ */
+WIN* windisplay(WIN* win);
 
 #endif 
