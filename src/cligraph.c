@@ -43,6 +43,10 @@
 #define CATCH(a) if(!(a)) (__ERRMSG(""), exit(EXIT_FAILURE));
 #define CATCH_ASSERT(a,message) if(!(a)) (__ERRMSG(message));
 
+#ifndef NDEBUG
+#define DEBUG printf
+#endif
+
 //config stuff 
 #define PLUGIN_PATH "plugin"
 #define DL_LOAD_FLAG RTLD_LAZY
@@ -67,14 +71,14 @@ void* gethandle(char* libname)
 	size_t chck_name(void* data)
 	{
 		DLNode* dlnode = (DLNode*)data;
-		if(dlnode->libname == libname)
+		if(strcmp(dlnode->libname, libname) == 0)
 		{
 			handle = dlnode->handle;
 			return 1;
 		}
 	}
 
-	if(!(llapply(dlmap, *chck_name))) return NULL;
+	if(!(llapply(dlmap, &chck_name))) return NULL;
 
 	return handle;
 }
@@ -84,8 +88,8 @@ void* getfuncref(char* libname, char* funcname)
 	void* handle;
 	//sanity checks
 	if(!libname || !funcname) return NULL;
-	if(strpbrk(libname," ") || strcmp(libname,"")) return NULL; 
-	if(strpbrk(funcname," ") || strcmp(funcname,"")) return NULL;
+	if(strpbrk(libname," ") || strcmp(libname,"") == 0) return NULL; 
+	if(strpbrk(funcname," ") || strcmp(funcname,"") == 0) return NULL;
 
 	//find handle relating to libname
 	if(!(handle = gethandle(libname))) return NULL;
@@ -155,10 +159,21 @@ LList* getliblist()
 		{
 			//trim the d_dname to something proper
 			char* dirname = (char*)malloc(sizeof(char)*strlen(fl->d_name)+1);
-			strncpy(dirname,fl->d_name,strlen(dirname));
-			DLNode* dlnode;
-			if(dlnode) llappend(dlmap,dlnode);
-			else free(dirname);
+			strcpy(dirname,fl->d_name);
+
+			DEBUG("Attemping to load plugin \"%s\"...",dirname);
+			//create new node
+			DLNode* dlnode = compileplin(dirname);
+			if(dlnode) 
+			{
+				DEBUG("success\n");
+				llappend(dlmap,dlnode);
+			}
+			else
+			{
+				DEBUG("failed\n");
+				free(dirname);
+			}
 		}
 
 		//go to next entry in dirlist
@@ -176,14 +191,10 @@ int main(int argc, char const *argv[])
 	//load plugins
 	CATCH(getliblist());	
 	//start running TUI thread
-	size_t printnode(void* data)
-	{
-		DLNode* node = (void*)data;
-		printf("Loaded Plugin: %s\n", node->libname);
-		return 0;
-	}
-	
-	llapply(dlmap,*printnode);
+	int (*strtgui)(int,int) = getfuncref("tst","add");	
+	int reval = (*strtgui)(3,4);
+
+	printf("%i\n", reval);
 	//exit
 	lldestroy(dlmap);
 	return 0;
