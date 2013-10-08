@@ -12,10 +12,10 @@ PKGNAME=cligraph
 PKGLIST=Makefile src/ include/ testing/
 
 IDIR=./include
-LFLAGS=-I$(IDIR) -lm -lstr -lllist -g #uncomment for debuging with gdb
+LFLAGS=-I$(IDIR) -lm -ldl -lstr -lllist -g #uncomment for debuging with gdb
 CFLAGS=-c -g #uncomment for debuging with gdb
 
-SRCS=*.c 
+SRCS=cligraph.c 
 SRCDIR=./src
 SRC:=$(wildcard $(SRCDIR)/$(SRCS))
 
