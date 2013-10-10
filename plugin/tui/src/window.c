@@ -80,7 +80,7 @@ WIN* windisplay(WIN* win)
 		if(win->display == 2)
 		{
 			wclear(win->window);
-			border(win->window,'|','-');
+			box(win->window,'|','-');
 		}
 		if(win->border = 1)
 			mvwprintw(win->window,1,1,win->content);
