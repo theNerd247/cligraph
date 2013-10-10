@@ -13,7 +13,7 @@ PKGLIST=Makefile src/ include/ testing/
 
 IDIR=./include
 LFLAGS=-I$(IDIR) -lm -ldl -lstr -lllist -g #uncomment for debuging with gdb
-CFLAGS=-c -g #uncomment for debuging with gdb
+CFLAGS=-Wall -c -g #uncomment for debuging with gdb
 
 SRCS=cligraph.c 
 SRCDIR=./src

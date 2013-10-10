@@ -41,7 +41,7 @@
 #define CATCH_RUN(message) if(errno) (__ERRMSG(message), exit(EXIT_FAILURE));
 #define CATCH_ERR(message) if(errno) (__ERRMSG(message));
 #define CATCH(a) if(!(a)) (__ERRMSG(""), exit(EXIT_FAILURE));
-#define CATCH_ASSERT(a,message) if(!(a)) (__ERRMSG(message));
+#define CATCH_ASSERT(a,message) if(!(a)) (__ERRMSG(message)); //this gives a segfault....fix it.
 
 #ifndef NDEBUG
 #define DEBUG printf
@@ -76,6 +76,7 @@ void* gethandle(char* libname)
 			handle = dlnode->handle;
 			return 1;
 		}
+		return 0;
 	}
 
 	if(!(llapply(dlmap, &chck_name))) return NULL;
@@ -134,6 +135,21 @@ DLNode* compileplin(char* dirname)
 	return dlnode;
 }
 
+//free all the memory of these plugins by unloading the 
+//shared libraries
+void unloadplugins()
+{
+	size_t unloaddl(void* data)
+	{
+		DLNode* node = (DLNode*)data;
+		dlclose(node->handle);
+		return 0;
+	}	
+
+	llapply(dlmap, &unloaddl);
+}
+
+//auto detects, compiles, and loads the plugins
 LList* getliblist()
 {
 	//init dlmap
@@ -191,11 +207,9 @@ int main(int argc, char const *argv[])
 	//load plugins
 	CATCH(getliblist());	
 	//start running TUI thread
-	int (*strtgui)(int,int) = getfuncref("tst","add");	
-	int reval = (*strtgui)(3,4);
 
-	printf("%i\n", reval);
-	//exit
+	//free all memory
+	unloadplugins();
 	lldestroy(dlmap);
 	return 0;
 } 
