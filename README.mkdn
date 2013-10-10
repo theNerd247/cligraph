@@ -22,7 +22,10 @@ Comming Soon
 
 Todo
 ====
-- fix data storage bug as void pointers - table.c 
-- redefine cells to contain x and y coordinates
-- create user interface
-- programming interface for graphing a vector of cells
+- refactor program into libraries
+- build interfacing level between GUI and control layers
+
+NOTE:
+=====
+directory: testing has been added to the .gitignore file. If you would like testing files please
+email harvey.coder247@gmail.com.
