@@ -49,7 +49,7 @@
 
 //config stuff 
 #define PLUGIN_PATH "plugin"
-#define DL_LOAD_FLAG RTLD_LAZY
+#define DL_LOAD_FLAG (RTLD_LAZY || RTLD_GLOBAL)
 
 typedef struct dlmap_node_st
 {
@@ -110,18 +110,18 @@ DLNode* compileplin(char* dirname)
 	//assume dirname is a valid string because we are, of course, a helper
 	//function
 	//set up path of .so file
-	char libname[strlen(dirname)*2+strlen(PLUGIN_PATH)+6];
+	char libname[strlen(dirname)*2+strlen(PLUGIN_PATH)+9];
 	strcpy(libname,PLUGIN_PATH);
 	strcat(libname,"/");
 	strcat(libname,dirname);
-	strcat(libname,"/");
+	strcat(libname,"/lib");
 	strcat(libname,dirname);
 	strcat(libname,".so");
-	CATCH_ERR("")
+//	CATCH_ERR("")
 
 	//load library based on the dirname
 	void* handle = dlopen(libname,DL_LOAD_FLAG);
-	CATCH_ERR("");
+//	CATCH_ERR("");
 
 	//if the library is not found do stuff
 	if(!(handle)) return NULL; //for now we'll just return NULL
@@ -197,7 +197,7 @@ LList* getliblist()
 	}
 
 	closedir(dir);
-	return dlmap;
+	return dlmap->length > 0 ? dlmap : NULL;
 }
 
 int main(int argc, char const *argv[])
@@ -205,10 +205,16 @@ int main(int argc, char const *argv[])
 	//init variables 
 	//sanity checks and option parsing
 	//load plugins
-	CATCH(getliblist());	
+	if(!getliblist()) return EXIT_FAILURE;	
+
 	//start running TUI thread
+	int (*starttui)() = getfuncref("tui","starttui");
+	starttui();
 
 	//free all memory
+	void (*stoptui)() = getfuncref("tui","stoptui");
+	stoptui();
+
 	unloadplugins();
 	lldestroy(dlmap);
 	return 0;

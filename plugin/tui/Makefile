@@ -14,7 +14,8 @@ SONAME=$(LIBNAME).so
 OUTNAME=$(LIBNAME).so.$(VERSION)
 
 IDIR=include
-LFLAGS=-I$(IDIR) -fPIC -lncurses -g #uncomment for debuging with gdb
+PROJIDIR=../../include
+LFLAGS=-I$(PROJIDIR) -I$(IDIR) -fPIC -lncurses -lmenu -g #uncomment for debuging with gdb
 SHRDFLAGS= -shared -Wl,-soname,$(SONAME)
 CFLAGS=-c -g #uncomment for debuging with gdb
 
@@ -36,7 +37,6 @@ OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
 all: setup $(OBJ) $(BINDIR)
 	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) -o $(LIBDIR)/$(OUTNAME)
-	ln -s $(LIBDIR)/$(OUTNAME) -T $(SONAME)
 
 testing: setup $(TOBJ) $(OBJ)
 	$(CC) $(LFLAGS) $(TOBJ) $(OBJ) -o $(TSRCDIR)/tst
