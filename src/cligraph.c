@@ -35,6 +35,8 @@
 #include <errno.h> 
 
 #include "cligraph.h"
+
+//#define NLOG //uncomment to turn off logging 
 #include "dbg.h"
 
 //config stuff 

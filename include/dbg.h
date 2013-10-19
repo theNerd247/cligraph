@@ -13,6 +13,20 @@
 #define debug(M, ...) fprintf(stderr, "DEBUG (%s:%s:%d): " M "\n", __FILE__, __func__, __LINE__, ##__VA_ARGS__)
 #endif
 
+//added by Noah Harvey
+#ifdef NLOG
+
+#define __DO_VOID__ (void)(0)
+#define clean_errno()           __DO_VOID__
+#define log_err(M, ...)         __DO_VOID__
+#define log_warn(M, ...)        __DO_VOID__
+#define log_info(M, ...)        __DO_VOID__
+#define log_attempt(M, ...)     __DO_VOID__
+#define log_success(M, ...)     __DO_VOID__
+#define log_failure(M, ...)     __DO_VOID__
+
+#else /* not NLOG */
+
 // Say something if errno is flagged. 
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
 
@@ -22,12 +36,16 @@
 #define log_warn(M, ...) fprintf(stderr, "[WARN] (%s:%d: errno: %s) " M "\n", __FILE__, __LINE__, clean_errno(), ##__VA_ARGS__)
 // Send information to STDERR.
 #define log_info(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+
+//added by Noah Harvey
 // Send attempt info to STDERR ...
 #define log_attempt(M, ...) fprintf(stderr, "[ATTEMPT] " M "...", ##__VA_ARGS__) 
 // ...success! 
 #define log_success(M, ...) fprintf(stderr,"success: " M "\n",##__VA_ARGS__);
 // ...failure! 
 #define log_failure(M, ...) { fprintf(stderr,"failure: \n"); log_err(M, ##__VA_ARGS__); }
+
+#endif 
 
 // Check if the expression A is true. If not, say something and go to the error label.
 #define check(A, M, ...) if(!(A)) { log_err(M, ##__VA_ARGS__); errno=0; goto error; }
