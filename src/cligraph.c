@@ -35,17 +35,7 @@
 #include <errno.h> 
 
 #include "cligraph.h"
-
-//catch run-time errors
-#define __ERRMSG(message) fprintf(stderr,"In file %s:%s: %s -- %s", __FILE__, __LINE__, (strerror(errno)), message)
-#define CATCH_RUN(message) if(errno) (__ERRMSG(message), exit(EXIT_FAILURE));
-#define CATCH_ERR(message) if(errno) (__ERRMSG(message));
-#define CATCH(a) if(!(a)) (__ERRMSG(""), exit(EXIT_FAILURE));
-#define CATCH_ASSERT(a,message) if(!(a)) (__ERRMSG(message)); //this gives a segfault....fix it.
-
-#ifndef NDEBUG
-#define DEBUG printf
-#endif
+#include "dbg.h"
 
 //config stuff 
 #define PLUGIN_PATH "plugin"
@@ -86,18 +76,24 @@ void* gethandle(char* libname)
 
 void* getfuncref(char* libname, char* funcname)
 {
+	log_attempt("Loading func \"%s\" in lib \"%s\"",funcname,libname);
 	void* handle;
+	void* func;
 	//sanity checks
-	if(!libname || !funcname) return NULL;
-	if(strpbrk(libname," ") || strcmp(libname,"") == 0) return NULL; 
-	if(strpbrk(funcname," ") || strcmp(funcname,"") == 0) return NULL;
+	error_run((libname && funcname),log_failure("libname or funcname not valid")) 
+	error_run((strcmp(libname,"") != 0 && strcmp(funcname, "") != 0), log_failure("libname or funcname not valid")); 
 
 	//find handle relating to libname
-	if(!(handle = gethandle(libname))) return NULL;
+	error_run((handle = gethandle(libname)), log_failure("could not fetch handle"));
 
 	//get function refrence
-	//return function ref
-	return dlsym(handle, funcname);
+	error_run((func = dlsym(handle, funcname)), log_failure("%s",dlerror()));
+
+	log_success();
+	return func;
+
+	error:
+		return NULL;
 }
 
 /* helper function for getliblist
@@ -105,53 +101,47 @@ void* getfuncref(char* libname, char* funcname)
  * if the shared-object file cannot be found then
  * the code is attempted to be compiled.
  */
-DLNode* compileplin(char* dirname)
+DLNode* compileplin(const char* libname)
 {
+	//init vars
+	void* handle;
+	DLNode* dlnode;
+
 	//assume dirname is a valid string because we are, of course, a helper
 	//function
 	//set up path of .so file
-	char libname[strlen(dirname)*2+strlen(PLUGIN_PATH)+9];
-	strcpy(libname,PLUGIN_PATH);
-	strcat(libname,"/");
-	strcat(libname,dirname);
-	strcat(libname,"/lib");
-	strcat(libname,dirname);
-	strcat(libname,".so");
-//	CATCH_ERR("")
+	char dirname[strlen(libname)*2+strlen(PLUGIN_PATH)+9];
+	strcpy(dirname,PLUGIN_PATH);
+	strcat(dirname,"/");
+	strcat(dirname,libname);
+	strcat(dirname,"/lib");
+	strcat(dirname,libname);
+	strcat(dirname,".so");
 
 	//load library based on the dirname
-	void* handle = dlopen(libname,DL_LOAD_FLAG);
-//	CATCH_ERR("");
-
-	//if the library is not found do stuff
-	if(!(handle)) return NULL; //for now we'll just return NULL
+	error_run(handle = dlopen(dirname,DL_LOAD_FLAG),(void)"");
 
 	//if all goes well create a new DLNode to save the info 
 	//for later calling
-	DLNode* dlnode = (DLNode*)malloc(sizeof(DLNode));
+	error_run(dlnode = (DLNode*)malloc(sizeof(DLNode)), errno = ENOMEM);
 	dlnode->handle = handle;
-	dlnode->libname = dirname;
+
+	error_run(dlnode->libname = (char*)malloc(sizeof(char)*strlen(libname)+1), errno = ENOMEM);
+	strcpy(dlnode->libname,libname);
 
 	return dlnode;
-}
 
-//free all the memory of these plugins by unloading the 
-//shared libraries
-void unloadplugins()
-{
-	size_t unloaddl(void* data)
-	{
-		DLNode* node = (DLNode*)data;
-		dlclose(node->handle);
-		return 0;
-	}	
-
-	llapply(dlmap, &unloaddl);
+	error: 
+		return NULL;
 }
 
 //auto detects, compiles, and loads the plugins
 LList* getliblist()
 {
+	//init vars
+	DLNode* dlnode; //holds the newly loaded handle
+	char errstat = 1; //do we return from this function if error occurs?
+
 	//init dlmap
 	dlmap = llnew();
 	if(!dlmap) return NULL;
@@ -173,24 +163,21 @@ LList* getliblist()
 		//search plugindir for directories
 		if(fl->d_type == DT_DIR) 
 		{
+			errstat = 0;
+
 			//trim the d_dname to something proper
-			char* dirname = (char*)malloc(sizeof(char)*strlen(fl->d_name)+1);
+			char dirname[strlen(fl->d_name)+1];
 			strcpy(dirname,fl->d_name);
 
-			DEBUG("Attemping to load plugin \"%s\"...",dirname);
+			log_attempt("Plugin \"%s\" found attempting to load it",dirname);
+
 			//create new node
-			DLNode* dlnode = compileplin(dirname);
-			if(dlnode) 
-			{
-				DEBUG("success\n");
-				llappend(dlmap,dlnode);
-			}
-			else
-			{
-				DEBUG("failed\n");
-				free(dirname);
-			}
+			error_run(dlnode = compileplin(dirname), log_failure("%s",dlerror())); //compileplin will give detailed error message if needed
+			error_run(llappend(dlmap,dlnode), log_failure("could not cache"));
+			log_success();
 		}
+		reset:
+			errstat = 1;
 
 		//go to next entry in dirlist
 		fl = readdir(dir);
@@ -198,24 +185,63 @@ LList* getliblist()
 
 	closedir(dir);
 	return dlmap->length > 0 ? dlmap : NULL;
+
+	error:
+		if(errstat)
+			return NULL;
+		else 
+		{
+			free(dlnode);
+			goto reset;
+		}
+}
+
+//free all the memory of these plugins by unloading the 
+//shared libraries
+void unloadplugins()
+{
+	log_attempt("Unloading all plugins");
+	size_t unloaddl(void* data)
+	{
+		DLNode* node = (DLNode*)data;
+		dlclose(node->handle);
+		free(node->libname);
+		return 0;
+	}	
+
+	error_run(llapply(dlmap, &unloaddl),log_failure("llapply failed see libllist"));
+
+	log_success();
+	error: 
+		free(dlmap);
 }
 
 int main(int argc, char const *argv[])
 {		
 	//init variables 
+	int error_code = 0;
+	int (*starttui)();
+	void (*stoptui)();
+
 	//sanity checks and option parsing
 	//load plugins
 	if(!getliblist()) return EXIT_FAILURE;	
 
 	//start running TUI thread
-	int (*starttui)() = getfuncref("tui","starttui");
-	starttui();
+	starttui = getfuncref("tui","starttui");
+	log_attempt("Starting cligraph");
+	error_run(!(error_code = starttui()), log_failure("Error code: %i",error_code));
+	log_success();
 
 	//free all memory
-	void (*stoptui)() = getfuncref("tui","stoptui");
+	stoptui = getfuncref("tui","stoptui");
+	log_info("Stopping cligraph...");
 	stoptui();
 
 	unloadplugins();
-	lldestroy(dlmap);
-	return 0;
+	return EXIT_SUCCESS;
+
+	error:
+		unloadplugins();
+		return EXIT_FAILURE;
 } 
