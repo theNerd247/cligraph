@@ -25,14 +25,15 @@
  * DESCRIPTION: main source file for cligraph
  */
 
+#include <dirent.h> 
+#include <dlfcn.h> 
+#include <errno.h> 
+#include <llist.h>
+#include <pthread.h>
 #include <stdio.h> 
 #include <stdlib.h> 
-#include <dlfcn.h> 
-#include <sys/types.h> 
-#include <dirent.h> 
 #include <string.h> 
-#include <llist.h>
-#include <errno.h> 
+#include <sys/types.h> 
 
 #include "cligraph.h"
 
@@ -222,28 +223,31 @@ int main(int argc, char const *argv[])
 {		
 	//init variables 
 	int error_code = 0;
-	int (*starttui)();
-	void (*stoptui)();
+	void* (*starttui)(void*);
+	pthread_t tui_thread;
 
 	//sanity checks and option parsing
 	//load plugins
 	if(!getliblist()) return EXIT_FAILURE;	
 
+	//load the functions to use
+	error_run(starttui = getfuncref("tui","starttui"),(void)(0));
+
 	//start running TUI thread
-	starttui = getfuncref("tui","starttui");
 	log_attempt("Starting cligraph");
-	error_run(!(error_code = starttui()), log_failure("Error code: %i",error_code));
+	error_run(!(error_code = pthread_create(&tui_thread, NULL, starttui, NULL)), log_failure("Error code: %i",error_code));
 	log_success();
 
+	//wait for user to exit tui
+	check(!(error_code = pthread_join(tui_thread, NULL)),"pthead_join returned: %i",error_code);
+
 	//free all memory
-	stoptui = getfuncref("tui","stoptui");
 	log_info("Stopping cligraph...");
-	stoptui();
 
 	unloadplugins();
-	return EXIT_SUCCESS;
+	exit(EXIT_SUCCESS);
 
 	error:
 		unloadplugins();
-		return EXIT_FAILURE;
+		exit(EXIT_FAILURE);
 } 

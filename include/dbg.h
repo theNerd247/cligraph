@@ -41,7 +41,7 @@
 // Send attempt info to STDERR ...
 #define log_attempt(M, ...) fprintf(stderr, "[ATTEMPT] " M "...", ##__VA_ARGS__) 
 // ...success! 
-#define log_success(M, ...) fprintf(stderr,"success: " M "\n",##__VA_ARGS__);
+#define log_success(M, ...) fprintf(stderr,"success " M "\n",##__VA_ARGS__);
 // ...failure! 
 #define log_failure(M, ...) { fprintf(stderr,"failure: \n"); log_err(M, ##__VA_ARGS__); }
 

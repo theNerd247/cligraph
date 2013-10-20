@@ -76,13 +76,13 @@ typedef struct display
  * 
  * DESCRIPTION: starts running the tui as a thread-safe system
  *
- * PARAMETERS: 
+ * PARAMETERS: void* null - absolutely nothing, this exists only for
+ * pthread_create()
  *
- * RETURNS: int - error code, 0 if the tui starts correctly, 1 if something
- * went wrong
- * 
+ * RETURNS: void* - this will be NULL no matter what. errno is set if error
+ * occures
  */
-int starttui();
+void* starttui(void* null);
 
 /*
  * FUNCTION: stoptui

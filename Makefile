@@ -13,7 +13,9 @@ PKGLIST=Makefile src/ include/ testing/
 
 IDIR=./include
 
-LFLAGS=-I$(IDIR) -lm -ldl -lstr -lncurses -lllist -g #uncomment for debuging with gdb
+LLIBS=dl llist pthread 
+LLIBS :=$(patsubst %, -l%, $(LLIBS))
+LFLAGS=-I$(IDIR) $(LLIBS) -g #uncomment for debuging with gdb
 CFLAGS=-Wall -c -g #uncomment for debuging with gdb
 
 SRCS=cligraph.c 

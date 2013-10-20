@@ -115,7 +115,7 @@ int __init_winstructs()
 		return error_code;
 }
 
-int starttui()
+void* starttui(void* null)
 {
 	//vars
 	int error_code = 0;
@@ -129,18 +129,18 @@ int starttui()
 	keypad(stdscr, TRUE); //we want to enable F1-F12, etc...
 
 	//create window structs
-	error_code += __init_winstructs();
+	error_code = __init_winstructs();
 
 	//display the windows
 	doupdate();
+
+	//process keyboard events
 	while(getch() != 'q')
 		;
 
-	return 0;
-
 	error: 
 		stoptui();
-		return error_code;
+		return NULL;
 }
 
 void stoptui()
