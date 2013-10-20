@@ -1,0 +1,5 @@
+[ATTEMPT] Plugin "tui" found attempting to load it...success 
+[ATTEMPT] Loading func "starttui" in lib "tui"...success 
+[ATTEMPT] Starting cligraph...success 
+[INFO] (src/cligraph.c:245) Stopping cligraph...
+[ATTEMPT] Unloading all plugins...success 
