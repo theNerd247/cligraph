@@ -36,7 +36,9 @@
 #define ESC_KEY 27
 
 /* menus for the toolbar */
-#define NMENUS 6
+#define NMENUS 6 
+#define MENUWIDTH (COLS/NMENUS)
+
 MENU* menus[NMENUS];
 const char* menu_titles[NMENUS] = {"Math","Functions","Tables","Graphs","Settings","Plugin"}; //titles of the table menu
 
@@ -66,6 +68,7 @@ MENU* __init_menu(size_t ysize, size_t xsize, size_t ypos, size_t xpos, const ch
 	leaveok(container, FALSE);
 
 	//draw the border and title
+	mvwhline(container,1,0,ACS_HLINE,xsize);
 	mvwprintw(container,0,(xsize/2)-strlen(title)/2,title);
 	wnoutrefresh(container);
 
@@ -133,7 +136,10 @@ int __init_winstructs()
 	//initialize menus 
 	size_t i;
 	for (i = 0; i < NMENUS; i++)
-		error_run(menus[i] = __init_menu(7,COLS/6,0,i*(COLS/6),menu_titles[i]), error_code =1);
+	{
+		int width = i < NMENUS-1 ? MENUWIDTH : COLS-(i*MENUWIDTH);
+		error_run(menus[i] = __init_menu(7,width,0,i*MENUWIDTH,menu_titles[i]), error_code =1);
+	}
 
 	//initialize displays
 
@@ -151,7 +157,8 @@ void* starttui(void* null)
 {
 	//vars
 	int error_code = 0;
-	//perform all ncurses init stuff here
+
+	//init screen
 	initscr();
 
 	//keyboard config
@@ -181,16 +188,14 @@ void* starttui(void* null)
 /* frees the window structures */
 void __free_winstructs()
 {
-
+	size_t i;
+	for (i = 0; i < NMENUS; i++)
+		__free_menu(menus[i]);
 }
 
 /* stops running the tui interface */
 void stoptui()
 {
-	//free menus
-	size_t i;
-	for (i = 0; i < NMENUS; i++)
-		__free_menu(menus[i]);
-
+	__free_winstructs();	
 	endwin();
 }
