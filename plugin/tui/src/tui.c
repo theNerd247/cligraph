@@ -25,14 +25,25 @@
  * DESCRIPTION: definition file for prototypes in window.h
  */
 
+/** TODO
+ * - Restructure the keyboard controller to handle keyevents more efficiently
+ * - Make the keyboard controller memory safe
+ * - Make the keyboard controller thread safe
+ */
+
 #include <string.h>
 #include <ncurses.h>
 #include <stdlib.h>
+#include <pthread.h>
 
-#include "tui.h"
 #include "dbg.h"
+#include "keyboard.h"
+#include "tui.h"
 
-//custom keymaps
+/* thread for keyboard controller */
+pthread_t kbthread;
+
+/*custom keymaps*/
 #define ESC_KEY 27
 
 /* menus for the toolbar */
@@ -44,6 +55,39 @@ const char* menu_titles[NMENUS] = {"Math","Functions","Tables","Graphs","Setting
 
 /* command bar */
 WINDOW* cmdbar; 
+
+/* the container window for plugins to dipslay fun stuff */
+WINDOW* displaywin; 
+
+//--starttui()------------------------------
+
+//helper function for __init_winstructs
+/* initializes the window to contain plugin displays */
+WINDOW* __init_displaywin(size_t ysize, size_t xsize, size_t ypos, size_t xpos)
+{
+	WINDOW* win;
+	check(win = newwin(ysize,xsize,ypos,xpos), "Failed to create displaywin");
+	
+	//keyboard config
+	keypad(win, TRUE);
+
+	//cursor config
+	leaveok(win, FALSE);
+
+	//borders 
+	mvwvline(win,0,0,ACS_VLINE,ysize);
+	mvwvline(win,0,xsize-1,ACS_VLINE,ysize);
+
+	//print welcome message
+	mvwprintw(win,ysize/2,(xsize/2)-10,"WELCOME TO CLIGRAPH!");
+
+	wnoutrefresh(win);
+
+	return win;
+	
+	error: 
+		return NULL;
+}
 
 //helper function for __init_winstructs
 /* initializes all the menus at the top of the screen */
@@ -84,26 +128,6 @@ MENU* __init_menu(size_t ysize, size_t xsize, size_t ypos, size_t xpos, const ch
 		return NULL;
 }
 
-//helper function for __free_winstructs
-/* frees all the menus and the data related to them */
-//assumes arguments are valid
-void __free_menu(MENU* menu)
-{
-	wclear(menu_win(menu));
-
-	ITEM** items = menu_items(menu);
-	if(items == NULL)
-		goto free;
-
-	size_t i;
-	for (i = 0; i < 5; i++)
-		free_item(items[i]);
-		free(items);
-
-	free:
-		free_menu(menu);
-}
-
 //helper function for __init_winstructs
 /* initializes cmdbar */
 WINDOW* __init_cmdbar()
@@ -142,6 +166,7 @@ int __init_winstructs()
 	}
 
 	//initialize displays
+	error_run(displaywin = __init_displaywin(LINES-5,COLS,2,0), error_code = 3);
 
 	//initialize command bar
 	error_run(cmdbar = __init_cmdbar(), error_code = 2);
@@ -150,6 +175,21 @@ int __init_winstructs()
 
 	error:
 		return error_code;
+}
+
+//helper function for starttui
+/* sets up the default key events */
+int __add_default_keys()
+{
+	initkeyevents();
+	check(!addkeyevent(ESC_KEY, (event_func_type)stoptui),"failed to add key event"); //ESC closes the tui
+
+	//we want backspacing
+	//check_expr(addkeyevent(KEY_BACKSPACE,(event_func_type)stoptui),0,"failed to add key event");
+	return 0;
+
+	error:
+		return 1;
 }
 
 /* sets up and starts running the tui */
@@ -161,11 +201,6 @@ void* starttui(void* null)
 	//init screen
 	initscr();
 
-	//keyboard config
-	cbreak(); //don't wait for a new line character
-	echo(); //print what we type
-	keypad(stdscr, TRUE); //we want to enable F1-F12, etc...
-
 	//create window structs
 	check_expr(__init_winstructs(),0,"Failed to create windows. aborting");
 
@@ -175,27 +210,73 @@ void* starttui(void* null)
 	//display the windows
 	doupdate();
 
-	//process keyboard events
-	while(wgetch(cmdbar) != ESC_KEY)
-		;
+	//start the keyboard controller
+	log_attempt("Starting keyboard controller");
+	error_run(!(error_code = pthread_create(&kbthread,NULL,(void* (*)(void*))startkeyctlr,cmdbar)), log_failure("Could not start keyboard controller: %i",error_code));
+	log_success();
 
+	//add default key events
+	__add_default_keys();
+
+	//wait for keyboard controller thread to end
+	pthread_join(kbthread,NULL);
+
+	return NULL;
 	error: 
 		stoptui();
 		return NULL;
+}
+
+//--END starttui()---------------------------
+
+//--stoptui()------------------------------
+
+//helper function for __free_winstructs
+/* frees all the menus and the data related to them */
+//assumes arguments are valid
+void __free_menu(MENU* menu)
+{
+	wclear(menu_win(menu));
+
+	ITEM** items = menu_items(menu);
+	if(items == NULL)
+		goto free;
+
+	size_t i;
+	for (i = 0; i < 5; i++)
+		free_item(items[i]);
+		free(items);
+
+	free:
+		free_menu(menu);
 }
 
 //helper function for stoptui
 /* frees the window structures */
 void __free_winstructs()
 {
+	//free the menus
 	size_t i;
 	for (i = 0; i < NMENUS; i++)
 		__free_menu(menus[i]);
+
+	//free the displays
+	wclear(displaywin);
+	delwin(displaywin);
+
+	//free the cmdbar
+	wclear(cmdbar);
+	delwin(cmdbar);
 }
 
 /* stops running the tui interface */
-void stoptui()
+int stoptui()
 {
+	debug("stopping tui...");
+	stopkeyctlr();
 	__free_winstructs();	
 	endwin();
+	return 0;
 }
+
+//--END stoptui()---------------------------

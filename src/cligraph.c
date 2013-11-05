@@ -37,12 +37,22 @@
 
 #include "cligraph.h"
 
+//--LOGGING------------------------------
+
 //#define NLOG //uncomment to turn off logging 
 #include "dbg.h"
 
-//config stuff 
+#define __LOG_FILE_PATH "log.txt"
+#define __WRITE_MODE "w"
+
+//--END LOGGING---------------------------
+
+//--PLUGIN CONFIG------------------------------
+
 #define PLUGIN_PATH "plugin"
 #define DL_LOAD_FLAG (RTLD_LAZY || RTLD_GLOBAL)
+
+//--END PLUGIN CONFIG---------------------------
 
 typedef struct dlmap_node_st
 {
@@ -225,6 +235,9 @@ int main(int argc, char const *argv[])
 	int error_code = 0;
 	void* (*starttui)(void*);
 	pthread_t tui_thread;
+
+	//move all stdout prints to a log file
+	freopen(__LOG_FILE_PATH,__WRITE_MODE,stderr);
 
 	//sanity checks and option parsing
 	//load plugins

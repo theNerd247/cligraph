@@ -64,12 +64,17 @@
 #ifndef __TUI
 #define __TUI
 
-/* screen structure */
-typedef struct display
-{
-	char* dispcntnt; //content to display
-	struct curspos_st { int x; int y; } curpos; //position of cursur if it is in screen (default is out of screen or -1,-1). coordinates are taken from top left of window container
-} DISPLAY;
+/*
+ * FUNCTION: addmenuitem
+ * 
+ * DESCRIPTION: adds an item to the given menu (0-5) for other plugins
+ *
+ * PARAMETERS: size_t num, ITEM* item
+ *
+ * RETURNS: int - error code: 0 - no error, 1 - something went wrong
+ * 
+ */
+//int addmenuitem(size_t num, ITEM* item); don't make this callable yet
 
 /*
  * FUNCTION: starttui
@@ -91,11 +96,11 @@ void* starttui(void* null);
  *
  * PARAMETERS: 
  *
- * RETURNS: void - 
+ * RETURNS: int - always zero
  * 
  * NOTES: if there is an error in closing the tui it performs a force kill of
  * the thread that runs it. 
  */
-void stoptui();
+int stoptui();
 
 #endif 

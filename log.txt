@@ -1,0 +1,7 @@
+[ATTEMPT] Plugin "tui" found attempting to load it...success 
+[ATTEMPT] Loading func "starttui" in lib "tui"...success 
+[ATTEMPT] Starting cligraph...success 
+[ATTEMPT] Starting keyboard controller...success 
+DEBUG (src/tui.c:stoptui:275): stopping tui...
+[INFO] (src/cligraph.c:258) Stopping cligraph...
+[ATTEMPT] Unloading all plugins...success 
