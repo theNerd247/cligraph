@@ -35,31 +35,18 @@
 #include "dbg.h"
 
 /* stores all keyboard events stored as an array*/
-#define NEVENTS 634
-pthread_mutex_t events_mutex = PTHREAD_MUTEX_INITIALIZER;
-event_func_type events[NEVENTS];
-
-//the current window the kybdctrlr is working with
-WINDOW* curr_win;
+static pthread_mutex_t events_mutex = PTHREAD_MUTEX_INITIALIZER;
+static event_func_type events[NEVENTS];
 
 //the state of the keyboard controller
-unsigned char run_ctrlr = 1;
+static unsigned char run_ctrlr = 1;
 
-//current key that has been pressed
-int curr_key;
-
-//the default action to take place when a key is pressed
-//default action is to print the key pressed to the current window
-int default_event()
-{
-	waddch(curr_win,curr_key);
-}
+static WINDOW* curr_win;
 
 int addkeyevent(int key, event_func_type func)
 {
 	check(func,"Could not set event for key: %i (function invalid)",key);
 	check(key >= 0 && key < NEVENTS, "Could not set event for key: %i (key invalid)",key);
-//	check(events[key] != &default_event, "Could not set event for key: %i (event exists)",key);
 
 //	debug("ADDING KEY EVENT FOR KEY: %i",key);
 	pthread_mutex_lock(&events_mutex);
@@ -75,7 +62,7 @@ int addkeyevent(int key, event_func_type func)
 void removekeyevent(int key)
 {
 	check(key >= 0 || key < NEVENTS, "Could not remove event for key: %i (key invalid)",key);
-	events[key] = default_event;
+	events[key] = NULL;
 	error: 
 		return;
 }
@@ -91,15 +78,6 @@ int setkeywin(WINDOW* win)
 	return 0;
 }
 
-//helper function for startkeyctlr
-/* sets up the keyevent list */
-void initkeyevents()
-{
-	size_t i;
-	for (i = 0; i < NEVENTS; i++)
-	addkeyevent(i,&default_event);
-}
-
 int startkeyctlr(void* win)
 {
 	curr_win = (WINDOW*)win;
@@ -109,7 +87,7 @@ int startkeyctlr(void* win)
 	cbreak(); //don't wait for a new line character
 	noecho(); //print what we type
 	nodelay(curr_win,FALSE); //wait for a character input
-	keypad(curr_win,TRUE);
+	keypad(curr_win,TRUE); //allow the keypad
 
 	//current key pressed
 	run_ctrlr = 1;

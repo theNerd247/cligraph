@@ -1,5 +1,6 @@
 #Testing Files
 testing/
+log.txt
 
 #executables and objects
 bin/

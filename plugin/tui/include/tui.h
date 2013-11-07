@@ -59,10 +59,13 @@
  *--TUI LAYOUT--------------------------------------*/
 
 #include <ncurses.h>
-#include <menu.h>
 
 #ifndef __TUI
 #define __TUI
+
+/*custom keymaps*/
+#define ESC_KEY 27
+#define ENTER_KEY 10
 
 /*
  * FUNCTION: addmenuitem

@@ -28,8 +28,17 @@
 #include <ncurses.h>
 #include <pthread.h>
 
+#ifndef __KEYBOARDCTL
+#define __KEYBOARDCTL
+
+//the maximum number of keys 
+#define NEVENTS 634
+
 //type for an keyevent-function
 typedef int (*event_func_type)(void);
+
+//the last key that was pressed
+int curr_key;
 
 /*
  * FUNCTION: addkeyboard event
@@ -94,3 +103,5 @@ int startkeyctlr(void* window);
  * 
  */
 void stopkeyctlr();
+
+#endif 
