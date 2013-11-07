@@ -32,8 +32,6 @@
 #define __WINMGR
 
 //--GLOBALS------------------------------
-WINDOW* CURRWIN;//the current window held by the keyboard controller
-
 //--menus------------------------------
 #define NMENUS 6 
 #define MENUWIDTH (COLS/NMENUS)
@@ -67,13 +65,13 @@ WINDOW* DISPWIN;
  * character as it uses mvwgetnstr(). This function removes the characters from
  * the current window
  *
- * PARAMETERS: size_t x, size_t y, size_t n
+ * PARAMETERS: size_t xpos, size_t ypos, size_t n
  *
  * RETURNS: char* - string contained. Return NULL on error or if no characters
  * were found
  * 
  */
-//char* fetchchars(size_t x, size_t y, size_t n);
+char* fetchchars(size_t xpos, size_t ypos, size_t n);
 
 /*
  * FUNCTION: __init_DISPWIN
@@ -110,42 +108,16 @@ char __init_menubar();
  */
 char __init_CMDBAR();
 
-//helper function for __free_winstructs
-/* frees all the menus and the data related to them */
-//assumes arguments are valid
-void __free_menu(MENU* menu)
-{
-	wclear(menu_win(menu));
-
-	ITEM** items = menu_items(menu);
-	if(items == NULL)
-		goto free;
-
-	size_t i;
-	for (i = 0; i < 5; i++)
-		free_item(items[i]);
-		free(items);
-
-	free:
-		free_menu(menu);
-}
-
-//helper function for stoptui
-/* frees the window structures */
-void __free_winstructs()
-{
-	//free the menus
-	size_t i;
-	for (i = 0; i < NMENUS; i++)
-		__free_menu(menus[i]);
-
-	//free the displays
-	wclear(DISPWIN);
-	delwin(DISPWIN);
-
-	//free the CMDBAR
-	wclear(CMDBAR);
-	delwin(CMDBAR);
-}
+/*
+ * FUNCTION: __free_winstructs
+ * 
+ * DESCRIPTION: frees all the window structures when done
+ *
+ * PARAMETERS: 
+ *
+ * RETURNS: void - never fails
+ * 
+ */
+void __free_winstructs();
 
 #endif  //end __WINMGR

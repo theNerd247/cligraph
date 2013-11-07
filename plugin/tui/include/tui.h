@@ -106,4 +106,8 @@ void* starttui(void* null);
  */
 int stoptui();
 
+//--TESTING------------------------------
+void getlastcmd(char* buff);
+//--END TESTING---------------------------
+
 #endif 

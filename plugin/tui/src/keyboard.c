@@ -41,8 +41,6 @@ static event_func_type events[NEVENTS];
 //the state of the keyboard controller
 static unsigned char run_ctrlr = 1;
 
-static WINDOW* curr_win;
-
 int addkeyevent(int key, event_func_type func)
 {
 	check(func,"Could not set event for key: %i (function invalid)",key);

@@ -26,27 +26,13 @@
  */
 
 #include <ncurses.h>
+#include <stdlib.h>
 
 #include "dbg.h"
 #include "winmgr.h"
 
 //window titles
 static const char* __menu_titles[NMENUS] = {"Math","Functions","Tables","Graphs","Settings","Plugin"}; //titles of the table menu
-
-/*
- * char* fetchchars(size_t y, size_t x, size_t n)
- * {
- * 	//clear the window
- * 	size_t i;
- * 	for (i = 0; i < n; i++)
- * 		mvwaddch(curr_win,y,x+i,' ');
- * 
- * 	wmove(curr_win,y,x);
- * 	wrefresh(curr_win); //TODO: eventually remove as doupdate() will be called
- * 	buff_i = 0;
- * 	return buffer;
- * }
- *  */
 
 //helper function for __init_winstructs
 /* initializes the window to contain plugin displays */
@@ -147,4 +133,40 @@ char __init_CMDBAR()
 
 	error:
 		return 1;
+}
+
+//helper function for __free_winstructs
+/* frees all the menus and the data related to them */
+//assumes arguments are valid
+void __free_menu(MENU* menu)
+{
+	wclear(menu_win(menu));
+
+	ITEM** items = menu_items(menu);
+	if(items == NULL)
+		goto free;
+
+	size_t i;
+	for (i = 0; i < 5; i++)
+		free_item(items[i]);
+		free(items);
+
+	free:
+		free_menu(menu);
+}
+
+void __free_winstructs()
+{
+	//free the menus
+	size_t i;
+	for (i = 0; i < NMENUS; i++)
+		__free_menu(menus[i]);
+
+	//free the displays
+	wclear(DISPWIN);
+	delwin(DISPWIN);
+
+	//free the CMDBAR
+	wclear(CMDBAR);
+	delwin(CMDBAR);
 }

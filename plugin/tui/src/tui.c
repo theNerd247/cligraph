@@ -31,18 +31,31 @@
  * - Make the keyboard controller thread safe
  */
 
-#include <string.h>
 #include <ncurses.h>
-#include <stdlib.h>
 #include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "dbg.h"
 #include "keyboard.h"
 #include "tui.h"
 #include "winmgr.h"
 
-/* thread for keyboard controller */
-pthread_t kbthread;
+//--keyboard------------------------------
+static pthread_t kbthread;
+
+//buffer used for holding printed keys 
+#define PBUFFSIZE 1000
+static char printbuff[PBUFFSIZE+1];
+static size_t printbuff_ind = 0;
+
+static char cmdbuff[PBUFFSIZE];
+//--END keyboard---------------------------
+
+//--windows------------------------------
+static pthread_t winthread;
+static char running = 1;
+//--END windows---------------------------
 
 //--starttui()------------------------------
 
@@ -65,11 +78,56 @@ int __init_winstructs()
 		return error_code;
 }
 
+//--TESTING------------------------------
+void getlastcmd(char* buff)
+{
+	strcpy(buff,cmdbuff);
+}
+
+//fetches the command from the window and does some cleaning on the screen
+int readprintbuff()
+{
+	//copy the printbuff into the cmd buff
+	strcpy(cmdbuff,printbuff);
+
+	//print the current print buffer
+	wprintw(DISPWIN,"%s",printbuff);
+	wnoutrefresh(DISPWIN);
+
+	//erase the last inputs
+	size_t i;
+	int y,x;
+	getyx(curr_win,y,x);
+	for (i = 0; i <= printbuff_ind; i++)
+		mvwprintw(curr_win,y,x-i," ");
+
+	wmove(curr_win,y,x-printbuff_ind);
+	wnoutrefresh(curr_win);
+	printbuff_ind = 0;
+}
+
+//call doupdate ever so often instead of after everytime we do something ?
+void updatewins()
+{
+	while(running)
+	{
+		doupdate();
+	}
+}
+//--END TESTING---------------------------
+
 //the default action to take place when a key is pressed
 //default action is to print the key pressed to the current window
 int default_event()
 {
-	waddch(CURRWIN,curr_key); 
+	waddch(curr_win,curr_key); 
+	wnoutrefresh(curr_win);
+	printbuff[printbuff_ind] = curr_key;
+	printbuff[printbuff_ind+1] = '\0';
+	if(printbuff_ind == PBUFFSIZE-1)
+		printbuff_ind = 0;
+	else
+		printbuff_ind++;
 }
 
 //helper function for __add_default_keys
@@ -86,13 +144,14 @@ void initkeyevents()
 int __add_default_keys()
 {
 	initkeyevents();
+	printbuff[PBUFFSIZE] = '\0';
 
 	//--default events------------------------------
 	//ESC closes the tui
 	check(!addkeyevent(ESC_KEY, (event_func_type)stoptui),"failed to add event for key: %i",ESC_KEY); 
 
 	//ENTER closes
-	//check(!addkeyevent(ENTER_KEY, (event_func_type)exec_cmd),"failed to add event for key: %i",ENTER_KEY);
+	check(!addkeyevent(ENTER_KEY, (event_func_type)readprintbuff),"failed to add event for key: %i",ENTER_KEY);
 
 	//we want backspacing
 	//check_expr(addkeyevent(KEY_BACKSPACE,(event_func_type)stoptui),0,"failed to add key event");
@@ -103,6 +162,7 @@ int __add_default_keys()
 	error:
 		return 1;
 }
+
 
 /* sets up and starts running the tui */
 void* starttui(void* null)
@@ -126,12 +186,17 @@ void* starttui(void* null)
 	log_attempt("Starting keyboard controller");
 	error_run(!(error_code = pthread_create(&kbthread,NULL,(void* (*)(void*))startkeyctlr,CMDBAR)), log_failure("Could not start keyboard controller: %i",error_code));
 	log_success();
+	
+	log_attempt("Starting window refresher");
+	error_run(!(error_code = pthread_create(&winthread,NULL,(void* (*)(void*))updatewins,NULL)), log_failure("Could not start window refresher"));
+	log_success();
 
 	//add default key events
 	__add_default_keys();
 
 	//wait for keyboard controller thread to end
 	pthread_join(kbthread,NULL);
+	pthread_join(winthread,NULL);
 
 	return NULL;
 	error: 
@@ -147,6 +212,7 @@ void* starttui(void* null)
 int stoptui()
 {
 	debug("stopping tui...");
+	running = 0;
 	stopkeyctlr();
 	__free_winstructs();	
 	endwin();
