@@ -107,7 +107,19 @@ void* starttui(void* null);
 int stoptui();
 
 //--TESTING------------------------------
+/*
+ * FUNCTION: getlastcmd
+ * 
+ * DESCRIPTION: fetches the last command inputed in the cmdbar?
+ *
+ * PARAMETERS: char* buff
+ *
+ * RETURNS: void - puts the last cmd in the buffer
+ * 
+ */
 void getlastcmd(char* buff);
+
+void printdisp(const char* buff);
 //--END TESTING---------------------------
 
 #endif 

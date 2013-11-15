@@ -58,9 +58,11 @@ typedef struct dlmap_node_st
 {
 	void* handle;
 	char* libname;
+	pthread_t* thread;
 } DLNode;
 
-LList* dlmap; 
+static LList* dlmap; 
+static pthread_t* tuithread;
 
 /*
  * helper function for getfuncref()
@@ -229,30 +231,55 @@ void unloadplugins()
 		free(dlmap);
 }
 
+void startplugins()
+{
+	size_t strtp(void* data)
+	{
+		char* lbname = (char*)(((DLNode*)data)->libname);
+		char funcname[strlen(lbname)+5]; 
+		void *(*strtfunc)(void *); 
+		int error_code = 0;
+		((DLNode*)data)->thread = (pthread_t*)malloc(sizeof(pthread_t));
+
+		//store the tui thread that should always exist
+		if(!strcmp(lbname,"tui")) tuithread = ((DLNode*)data)->thread;
+
+		//create the function name
+		strcpy(funcname,"start");
+		strcat(funcname,lbname);
+		
+		//create the thread
+		log_attempt("Starting plugin %s",lbname);
+		error_run(strtfunc = getfuncref(lbname,funcname),log_failure("Could not load start func"));
+		error_run(!(error_code = pthread_create(((DLNode*)data)->thread, NULL, strtfunc, NULL)), log_failure("Error code: %i",error_code));
+		log_success();
+		error: 
+			return 0;
+	}
+
+	check(llapply(dlmap,&strtp),"traversion function failed");
+	error:
+		return;
+}
+
 int main(int argc, char const *argv[])
 {		
 	//init variables 
 	int error_code = 0;
-	void* (*starttui)(void*);
-	pthread_t tui_thread;
 
 	//move all stdout prints to a log file
 	freopen(__LOG_FILE_PATH,__WRITE_MODE,stderr);
 
 	//sanity checks and option parsing
+
 	//load plugins
 	if(!getliblist()) return EXIT_FAILURE;	
 
 	//load the functions to use
-	error_run(starttui = getfuncref("tui","starttui"),(void)(0));
-
-	//start running TUI thread
-	log_attempt("Starting cligraph");
-	error_run(!(error_code = pthread_create(&tui_thread, NULL, starttui, NULL)), log_failure("Error code: %i",error_code));
-	log_success();
+	startplugins();
 
 	//wait for user to exit tui
-	check(!(error_code = pthread_join(tui_thread, NULL)),"pthead_join returned: %i",error_code);
+	check(!(error_code = pthread_join(*tuithread, NULL)),"pthead_join returned: %i",error_code);
 
 	//free all memory
 	log_info("Stopping cligraph...");

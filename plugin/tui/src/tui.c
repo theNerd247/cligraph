@@ -84,6 +84,12 @@ void getlastcmd(char* buff)
 	strcpy(buff,cmdbuff);
 }
 
+void printdisp(const char* stuff)
+{
+	waddstr(DISPWIN,stuff);
+	wnoutrefresh(DISPWIN);
+}
+
 //fetches the command from the window and does some cleaning on the screen
 int readprintbuff()
 {
@@ -91,8 +97,7 @@ int readprintbuff()
 	strcpy(cmdbuff,printbuff);
 
 	//print the current print buffer
-	wprintw(DISPWIN,"%s",printbuff);
-	wnoutrefresh(DISPWIN);
+	printdisp(printbuff);
 
 	//erase the last inputs
 	size_t i;
@@ -151,7 +156,7 @@ int __add_default_keys()
 	check(!addkeyevent(ESC_KEY, (event_func_type)stoptui),"failed to add event for key: %i",ESC_KEY); 
 
 	//ENTER closes
-	check(!addkeyevent(ENTER_KEY, (event_func_type)readprintbuff),"failed to add event for key: %i",ENTER_KEY);
+//	check(!addkeyevent(ENTER_KEY, (event_func_type)readprintbuff),"failed to add event for key: %i",ENTER_KEY);
 
 	//we want backspacing
 	//check_expr(addkeyevent(KEY_BACKSPACE,(event_func_type)stoptui),0,"failed to add key event");
@@ -162,7 +167,6 @@ int __add_default_keys()
 	error:
 		return 1;
 }
-
 
 /* sets up and starts running the tui */
 void* starttui(void* null)
