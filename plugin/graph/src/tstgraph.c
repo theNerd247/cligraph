@@ -118,23 +118,40 @@ struct table* makegraph(FuncValues* values)
  * 
  *  */
 
-int graphfunc()
-{
-	int (*getlastcmd)(char*);
-	getlastcmd = getfuncref("tui","getlastcmd");	
-	void (*printdisp)(const char*);
-	printdisp = getfuncref("tui","printdisp");
+/*
+ * int graphfunc()
+ * {
+ * 	int (*getlastcmd)(char*);
+ * 	getlastcmd = getfuncref("tui","getlastcmd");	
+ * 	void (*printdisp)(const char*);
+ * 	printdisp = getfuncref("tui","printdisp");
+ * 
+ * 	char buff[100];
+ * 	getlastcmd(buff);
+ * 	FuncValues* values = getfuncvalues(buff,0,50,1);
+ * 	struct table* graph = makegraph(values);
+ * 	printdisp((char*)graph->cells);
+ * }
+ * 
+ *  */
 
-	char buff[100];
-	getlastcmd(buff);
+/*
+ * startgraph(void* null)
+ * {
+ * 	int (*addkeyevent)(int, int (*event_func)(void));
+ * 	addkeyevent = getfuncref("tui","addkeyevent");
+ * 	addkeyevent(ENTER_KEY,&graphfunc);
+ * }
+ * 
+ *  */
+
+int main(int argc, char const *argv[])
+{
+	char buff[100] = "2*(2x-2)/((x^2-2x)^(-2))";
+	
 	FuncValues* values = getfuncvalues(buff,0,50,1);
 	struct table* graph = makegraph(values);
-	printdisp((char*)graph->cells);
-}
+	pgraph(graph);
 
-startgraph(void* null)
-{
-	int (*addkeyevent)(int, int (*event_func)(void));
-	addkeyevent = getfuncref("tui","addkeyevent");
-	addkeyevent(ENTER_KEY,&graphfunc);
+	return 0;
 }

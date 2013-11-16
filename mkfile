@@ -35,6 +35,12 @@ OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 all: setup $(OBJ) $(BINDIR)
 	$(CC) $(LFLAGS) $(OBJ) -o $(BINDIR)/$(EXEC)
 
+$(TSRCDIR)/%.o: $(TSRCDIR)/%.c
+	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c 
+	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
+
 pkg:
 	mkdir -p $(PKGNAME)
 	cp -r  $(PKGLIST) $(PKGNAME)
@@ -43,12 +49,6 @@ pkg:
 
 testing: setup $(TOBJ) $(OBJ)
 	$(CC) $(LFLAGS) $(TOBJ) $(OBJ) -o $(TSRCDIR)/tst
-
-$(TSRCDIR)/%.o: $(TSRCDIR)/%.c
-	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c 
-	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
 
 setup: 
 	mkdir -p $(BINDIR)

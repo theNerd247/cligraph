@@ -16,7 +16,7 @@ OUTNAME=$(LIBNAME).so
 
 IDIR=include
 PROJIDIR=../../include/
-LFLAGS=-I$(PROJIDIR) -I$(IDIR) -fPIC -lllist -lncurses -lmenu -g #uncomment for debuging with gdb
+LFLAGS=-I$(PROJIDIR) -I$(IDIR) -fPIC -lllist -lncurses -lmenu -lm -g #uncomment for debuging with gdb
 SHRDFLAGS= -shared -Wl,-soname,$(SONAME)
 CFLAGS=-c -g #uncomment for debuging with gdb
 
@@ -28,7 +28,7 @@ SRCDIR=src
 SRC:=$(wildcard $(SRCDIR)/$(SRCS))
 
 TSRCS=tst.c
-TSRCDIR=tst
+TSRCDIR=testing
 TLFLAGS=-I$(IDIR) -L. -l$(PLUGNAME)
 TSRC=$(patsubst %.c, $(TSRCDIR)/%.c, $(TSRCS))
 TOBJ := $(patsubst $(TSRCDIR)/%.c, $(TSRCDIR)/%.o, $(TSRC))
@@ -38,11 +38,17 @@ OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
 .PHONY: setup clean pkg test
 
+$(TSRCDIR)/%.o: $(TSRCDIR)/%.c
+	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c 
+	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
+
 all: setup $(OBJ) $(BINDIR)
 	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) -o $(LIBDIR)/$(OUTNAME)
 
-testing: setup all $(TOBJ)
-	$(CC) $(TLFLAGS) $(TOBJ) -o $(TSRCDIR)/tst
+testing: setup $(OBJ)
+	$(CC) $(LFLAGS) $(OBJ) -o $(TSRCDIR)/tst
 
 test: testing
 	export LD_LIBRARY_PATH_TMP=$$LD_LIBRARY_PATH
@@ -56,9 +62,3 @@ setup:
 
 clean: 
 	rm -rf $(OBJDIR)
-
-$(TSRCDIR)/%.o: $(TSRCDIR)/%.c
-	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c 
-	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@

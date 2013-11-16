@@ -41,3 +41,27 @@ struct table* makefancy(struct table* tble)
  	*/
 }
 
+int pgraph(struct table* tble)
+{
+	//--ERROR CHECK------------------------------
+	if(tble == NULL)
+		return 1;
+	//--END ERROR CHECK---------------------------
+
+	//--Print Table------------------------------
+	int i,j;
+	int xsize = tble->x_size;
+	int ysize = tble->y_size;
+	for (i = ysize-1; i >= 0; i--)
+	{
+		for (j = 0; j < xsize; j++)
+		{
+			int cell = getcell(tble,j,i);
+			printf("%c",cell);
+		}
+		printf("\n");
+	}	
+	//--END Print Table---------------------------
+
+	return 0;
+}

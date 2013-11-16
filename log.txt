@@ -1,1 +1,0 @@
-/home/noah/src/com/cligraph/bin/cligraph: symbol lookup error: plugin/graph/libgraph.so: undefined symbol: getfuncref
