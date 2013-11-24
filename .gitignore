@@ -5,6 +5,7 @@ log.txt
 #executables and objects
 bin/
 obj/
+doc/
 *.so
 
 #swp files

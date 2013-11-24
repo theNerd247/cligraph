@@ -1,4 +1,4 @@
-/*
+/**
  * tui.h is part of cligraph.
  * 
  * cligraph is free software: you can redistribute it and/or modify
@@ -15,17 +15,17 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
+/**
  * tui.h 
  *
  * AUTHOR: Noah Harvey
  *
  * VERSION: v0.0.1
  *
- * DESCRIPTION: declaration file for window functions
+ * declaration file for window functions
  */
 
-/*--TUI LAYOUT----------------------------------------
+/**
  * The physical screen shall have the following layout: 
  *
  * --|-----|-- --> menu/toolbar section
@@ -63,43 +63,38 @@
 #ifndef __TUI
 #define __TUI
 
-/*custom keymaps*/
+/**
 #define ESC_KEY 27
 #define ENTER_KEY 10
 
-/*
- * FUNCTION: addmenuitem
+/**
  * 
- * DESCRIPTION: adds an item to the given menu (0-5) for other plugins
+ * adds an item to the given menu (0-5) for other plugins
  *
  * PARAMETERS: size_t num, ITEM* item
  *
- * RETURNS: int - error code: 0 - no error, 1 - something went wrong
+ * @return int - error code: 0 - no error, 1 - something went wrong
  * 
  */
 //int addmenuitem(size_t num, ITEM* item); don't make this callable yet
 
-/*
- * FUNCTION: starttui
+/**
  * 
- * DESCRIPTION: starts running the tui as a thread-safe system
+ * starts running the tui as a thread-safe system
  *
- * PARAMETERS: void* null - absolutely nothing, this exists only for
+ * @param null (type: void*)- absolutely nothing, this exists only for
  * pthread_create()
  *
- * RETURNS: void* - this will be NULL no matter what. errno is set if error
+ * @return void* - this will be NULL no matter what. errno is set if error
  * occures
  */
 void* starttui(void* null);
 
-/*
- * FUNCTION: stoptui
+/**
  * 
- * DESCRIPTION: stops running the tui in a gracefull way
+ * stops running the tui in a gracefull way
  *
- * PARAMETERS: 
- *
- * RETURNS: int - always zero
+ * @return int - always zero
  * 
  * NOTES: if there is an error in closing the tui it performs a force kill of
  * the thread that runs it. 
@@ -107,14 +102,14 @@ void* starttui(void* null);
 int stoptui();
 
 //--TESTING------------------------------
-/*
- * FUNCTION: getlastcmd
+
+/**
  * 
- * DESCRIPTION: fetches the last command inputed in the cmdbar?
+ * fetches the last command inputed in the cmdbar?
  *
- * PARAMETERS: char* buff
+ * @param buff
  *
- * RETURNS: void - puts the last cmd in the buffer
+ * @return void - puts the last cmd in the buffer
  * 
  */
 void getlastcmd(char* buff);
