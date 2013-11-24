@@ -259,6 +259,7 @@ pthread_t* gettuithread()
 		}
 		return 0;
 	}
-
+	
+	llapply(dlmap,&filter);
 	return thread;
 }

@@ -70,7 +70,8 @@ int main(int argc, char const *argv[])
 	startplugins();
 
 	//wait for user to exit tui
-	check(!(error_code = pthread_join(*(gettuithread()), NULL)),"pthead_join returned: %i",error_code);
+	pthread_t* tuithread = gettuithread();
+	check(!(error_code = pthread_join(*tuithread, NULL)),"pthead_join returned: %i",error_code);
 
 	//free all memory
 	log_info("Stopping cligraph...");
