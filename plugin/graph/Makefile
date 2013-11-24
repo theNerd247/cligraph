@@ -39,7 +39,7 @@ OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 .PHONY: setup clean pkg test
 
 all: setup $(OBJ) $(BINDIR)
-	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) -o $(LIBDIR)/$(OUTNAME)
+	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) $(OBJDIR)/cligraph.o -o $(LIBDIR)/$(OUTNAME)
 
 testing: setup all $(TOBJ)
 	$(CC) $(TLFLAGS) $(TOBJ) -o $(TSRCDIR)/tst

@@ -25,6 +25,14 @@
  * DESCRIPTION: header for plugin management prototypes
  */
 
+//--PLUGIN CONFIG------------------------------
+
+#define PLUGIN_PATH "plugin"
+#define DL_LOAD_FLAG (RTLD_LAZY || RTLD_GLOBAL)
+
+//--END PLUGIN CONFIG---------------------------
+
+
 /*
  * FUNCTION: getfuncref
  * 

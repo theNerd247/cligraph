@@ -132,7 +132,7 @@ int graphfunc()
 	printdisp((char*)graph->cells);
 }
 
-startgraph(void* null)
+void startgraph(void* null)
 {
 	int (*addkeyevent)(int, int (*event_func)(void));
 	addkeyevent = getfuncref("tui","addkeyevent");

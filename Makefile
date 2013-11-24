@@ -18,7 +18,7 @@ LLIBS :=$(patsubst %, -l%, $(LLIBS))
 LFLAGS=-I$(IDIR) $(LLIBS) -g #uncomment for debuging with gdb
 CFLAGS=-Wall -c -g #uncomment for debuging with gdb
 
-SRCS=cligraph.c 
+SRCS=*.c 
 SRCDIR=./src
 SRC:=$(wildcard $(SRCDIR)/$(SRCS))
 
