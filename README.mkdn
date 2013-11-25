@@ -2,14 +2,14 @@ cligraph
 ========
 An ncurses graphing calculator. 
 
+Installing
+==========
+Nothing to install....yet...Although, this program will rely on GNU make.
+
 URLs
 ====
 	* http: http://www.github.com/theNerd247/cligraph
 	* ssh:  git@github.com:theNerd247/libstr.git
-
-Installing
-==========
-Nothing to install....yet...Although, this program will rely on GNU make.
 
 Documentation
 =============

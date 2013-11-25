@@ -6,6 +6,7 @@ log.txt
 bin/
 obj/
 doc/
+lib*/
 *.so
 
 #swp files
