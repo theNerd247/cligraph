@@ -63,7 +63,7 @@
 #ifndef __TUI
 #define __TUI
 
-/**
+
 #define ESC_KEY 27
 #define ENTER_KEY 10
 

@@ -216,50 +216,79 @@ void unloadplugins()
 		free(dlmap);
 }
 
-void startplugins()
+DLNode* gettuinode()
 {
-	size_t strtp(void* data)
-	{
-		char* lbname = (char*)(((DLNode*)data)->libname);
-		char funcname[strlen(lbname)+5]; 
-		void *(*strtfunc)(void *); 
-		int error_code = 0;
-		((DLNode*)data)->thread = (pthread_t*)malloc(sizeof(pthread_t));
-
-		//create the function name
-		strcpy(funcname,"start");
-		strcat(funcname,lbname);
-		
-		//create the thread
-		log_attempt("Starting plugin %s",lbname);
-		error_run(strtfunc = getfuncref(lbname,funcname),log_failure("Could not load start func"));
-		error_run(!(error_code = pthread_create(((DLNode*)data)->thread, NULL, strtfunc, NULL)), log_failure("Error code: %i",error_code));
-		log_success();
-		error: 
-			return 0;
-	}
-
-	check(llapply(dlmap,&strtp),"traversion function failed");
-	error:
-		return;
-}
-
-//helper function for main
-/* fetches the thread attached to the tui plugin. this is called by main */
-pthread_t* gettuithread()
-{
-	pthread_t* thread = NULL;
+	DLNode* nd = NULL;
 	size_t filter(void* data)
 	{
 		DLNode* node = (DLNode*)data;
 		if(!strcmp(node->libname,"tui"))
 		{
-			thread = node->thread;
+			nd = node;
 			return 1;
 		}
 		return 0;
 	}
 	
 	llapply(dlmap,&filter);
-	return thread;
+	return nd;
+
+}
+
+//helper function for main and startplugins
+/* fetches the thread attached to the tui plugin */
+pthread_t* gettuithread()
+{
+	return gettuinode()->thread;
+}
+
+void startplugin(DLNode* data)
+{
+	char* lbname = (char*)(data->libname);
+	char funcname[strlen(lbname)+5]; 
+	void *(*strtfunc)(void *); 
+	int error_code = 0;
+	data->thread = (pthread_t*)malloc(sizeof(pthread_t));
+
+	//create the function name
+	strcpy(funcname,"start");
+	strcat(funcname,lbname);
+	
+	//create the thread
+	log_attempt("Starting plugin %s",lbname);
+	error_run(strtfunc = getfuncref(lbname,funcname),log_failure("Could not load start func"));
+	error_run(!(error_code = pthread_create(data->thread, NULL, strtfunc, NULL)), log_failure("Error code: %i",error_code));
+	log_success();
+
+	error:
+	return;
+}
+
+void startplugins()
+{
+	//manually start the tui plugin since it needs to be first
+	//TODO: fix this hack
+	log_attempt("Starting plugin tui");
+	void* (*strtfunc)(void*);
+
+	DLNode* tuinode = gettuinode();	
+	tuinode->thread = (pthread_t*)malloc(sizeof(pthread_t));
+
+	char error_code = 0;
+	error_run(strtfunc = getfuncref("tui","starttui"),log_failure("Could not load start func"));
+	error_run(!(error_code = pthread_create(tuinode->thread, NULL, strtfunc, NULL)), log_failure("Error code: %i",error_code));
+	log_success();
+
+	size_t strtp(void* data)
+	{
+		if(!data) return 0;
+		char* lbname = (char*)((DLNode*)data)->libname;
+		if(!strcmp(lbname,"tui")) return 0;//ignore the tui 
+		startplugin((DLNode*)data);
+		return 0;
+	}
+
+	check(llapply(dlmap,&strtp),"traversion function failed");
+	error:
+		return;
 }

@@ -22,6 +22,7 @@ OBJDIR=obj
 SHARED_LIBDIR=lib
 SHARED_OBJDIR=libobj
 REQUIRED_DIRS = $(OBJDIR) $(BINDIR) $(SHARED_OBJDIR) $(SHARED_LIBDIR)
+CLEAN_DIRS = $(OBJDIR) $(SHARED_OBJDIR)
 ## END DIRS ############################
 #
 #
@@ -44,12 +45,14 @@ SHARED_OUTNAME=$(SHARED_LIBDIR)/$(SHARED_LIBNAME).$(VERSION)
 #
 #
 ## FLAGS ##############################
-CFLAGS=-Wall -c -g #uncomment for debuging with gdb
 LLIBS=dl llist pthread 
 LLIBS:=$(patsubst %, -l%, $(LLIBS))
-LFLAGS=-I$(IDIR) $(LLIBS) -g #uncomment for debuging with gdb
-SHARED_LFLAGS=$(LFLAGS) -fPIC 
+LLFLAGS=-I$(IDIR) $(LLIBS) -g #uncomment for debuging with gdb
+SHARED_LFLAGS=$(LLFLAGS) -fPIC 
+LFLAGS=$(LLFLAGS) -L. -l$(EXEC)
 SHARED_SFLAGS=-shared -Wl,-soname,$(SHARED_LIBNAME)
+
+CFLAGS=-Wall -c -g #uncomment for debuging with gdb
 ## END FLAGS ############################
 #
 #
@@ -62,8 +65,8 @@ TOBJ := $(patsubst $(TSRCDIR)/%.c, $(TSRCDIR)/%.o, $(TSRC))
 
 .PHONY: setup clean package libcligraph
 
-all: setup $(SHARED_OUTNAME) $(OBJ) $(BINDIR)
-	$(CC) $(LFLAGS) -L. -l$(EXEC) $(OBJ) -o $(BINDIR)/$(EXEC)
+all: setup $(SHARED_OUTNAME) $(OBJ) 
+	$(CC) $(LFLAGS) $(OBJ) -o $(BINDIR)/$(EXEC)
 
 run: all
 	echo "export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$(pwd)/$(SHARED_LIBDIR)" > $(BINDIR)/run.sh
@@ -90,7 +93,7 @@ setup:
 	chmod 700 $(BINDIR)/run.sh
 
 clean: 
-	rm -rf $(REQUIRED_DIRS)
+	rm -rf $(CLEAN_DIRS)
 
 $(TSRCDIR)/%.o: $(TSRCDIR)/%.c
 	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
@@ -99,8 +102,8 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
 
 $(SHARED_OUTNAME): $(SHARED_OBJS)
-	$(CC) $(LFLAGS) $(SHARED_SFLAGS) $(SHARED_OBJS) -o $(SHARED_OUTNAME)
-	ln -sfT $(SHARED_OUTNAME) $(SHARED_LIBDIR)/$(SHARED_LIBNAME)
+	$(CC) $(SHARED_SFLAGS) $(SHARED_OBJS) -o $(SHARED_OUTNAME)
+	ln -sfT $(SHARED_OUTNAME) $(SHARED_LIBNAME)
 
 $(SHARED_OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(SHARED_LFLAGS) $(CFLAGS) $< -o $@

@@ -180,13 +180,7 @@ void* starttui(void* null)
 	//create window structs
 	check_expr(__init_winstructs(),0,"Failed to create windows. aborting");
 
-	//move the cursor to the CMDBAR
-	wmove(CMDBAR,1,0);
-
-	//display the windows
-	doupdate();
-
-	//start the keyboard controller
+		//start the keyboard controller
 	log_attempt("Starting keyboard controller");
 	error_run(!(error_code = pthread_create(&kbthread,NULL,(void* (*)(void*))startkeyctlr,CMDBAR)), log_failure("Could not start keyboard controller: %i",error_code));
 	log_success();
@@ -197,6 +191,9 @@ void* starttui(void* null)
 
 	//add default key events
 	__add_default_keys();
+
+	//move the cursor to the CMDBAR
+	wmove(CMDBAR,1,0);
 
 	//wait for keyboard controller thread to end
 	pthread_join(kbthread,NULL);

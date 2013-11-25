@@ -16,7 +16,7 @@ OUTNAME=$(LIBNAME).so
 
 IDIR=include
 PROJIDIR=../../include/
-LFLAGS=-I$(PROJIDIR) -I$(IDIR) -fPIC -lllist -lncurses -lmenu -g #uncomment for debuging with gdb
+LFLAGS=-I$(PROJIDIR) -I$(IDIR) -fPIC -lllist -lncurses -lmenu -L../.. -lcligraph -g #uncomment for debuging with gdb
 SHRDFLAGS= -shared -Wl,-soname,$(SONAME)
 CFLAGS=-c -g #uncomment for debuging with gdb
 
@@ -39,7 +39,7 @@ OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 .PHONY: setup clean pkg test
 
 all: setup $(OBJ) $(BINDIR)
-	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) $(OBJDIR)/cligraph.o -o $(LIBDIR)/$(OUTNAME)
+	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) -o $(LIBDIR)/$(OUTNAME)
 
 testing: setup all $(TOBJ)
 	$(CC) $(TLFLAGS) $(TOBJ) -o $(TSRCDIR)/tst
