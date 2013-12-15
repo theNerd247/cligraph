@@ -7,7 +7,7 @@ bin/
 obj/
 doc/
 lib*/
-*.so
+*.*o
 
 #swp files
 *.sw*
