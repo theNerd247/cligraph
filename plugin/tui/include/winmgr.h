@@ -38,7 +38,7 @@
 MENU* menus[NMENUS];
 //--END menus---------------------------
 
-//--cmdbar------------------------------ #define CMD_YS 3 #define CMD_XS COLS
+//--cmdbar------------------------------ 
 #define CMD_YS 3
 #define CMD_XS COLS
 #define CMD_YP LINES-3

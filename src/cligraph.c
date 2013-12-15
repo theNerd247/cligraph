@@ -37,20 +37,18 @@
  * In order for the functions in plugins.c to work we need to
  * manually define the functions for main to work below
  */
-LList* getliblist(void);
-void startplugins(void);
-void unloadplugins(void);
+LList* getliblist();
+void startplugins();
+void unloadplugins();
 pthread_t* gettuithread();
 //--END SEMI-INCLUDES---------------------------
 
 //--LOGGING------------------------------
-
 //#define NLOG //uncomment to turn off logging 
 #include "dbg.h"
 
 #define __LOG_FILE_PATH "log.txt"
 #define __WRITE_MODE "w"
-
 //--END LOGGING---------------------------
 
 int main(int argc, char const *argv[])

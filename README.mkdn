@@ -29,3 +29,13 @@ Comming Soon
 * zooming on functions 
 * function data point display
 * integrals and derivatives - both definite and indefinte calculations/solutions
+
+TODO
+====
++cligraph reorganize build structure
++cligraph break core system into main and libcligraph
++cligraph update README
++cligraph create documentation for code (man pages)
++cligraph write CONTRIBUTIONS file.
++cligraph update github to be collaboration friendly
+

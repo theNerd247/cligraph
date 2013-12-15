@@ -66,6 +66,7 @@
 
 #define ESC_KEY 27
 #define ENTER_KEY 10
+#define DOUPDATE_INTERVAL 10000000
 
 /**
  * 

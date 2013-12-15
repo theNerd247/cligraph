@@ -37,14 +37,11 @@
 #define NEVENTS 634
 
 //--globals------------------------------
-//the current window held by controller
-WINDOW* curr_win;
-
 //type for an keyevent-function
 typedef int (*event_func_type)(void);
 
 //the last key that was pressed
-int curr_key;
+static int curr_key;
 //--END globals---------------------------
 
 /*
@@ -85,7 +82,14 @@ void removekeyevent(int key);
  */
 int setkeywin(WINDOW* win);
 
-#define getkeywin() curr_win
+/**
+ * fetches the pointer to the window that is currently held by the keyboard
+ * controller.
+ *
+ * @return WINDOW* - window pointer. NULL is returned if an error occurs
+ * 
+ */
+WINDOW* getkeywin();
 
 /*
  * FUNCTION: startkeyctlr

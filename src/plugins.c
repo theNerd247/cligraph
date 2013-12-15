@@ -266,18 +266,13 @@ void startplugin(DLNode* data)
 
 void startplugins()
 {
-	//manually start the tui plugin since it needs to be first
-	//TODO: fix this hack
-	log_attempt("Starting plugin tui");
-	void* (*strtfunc)(void*);
-
+	//manually start the tuiplugin
 	DLNode* tuinode = gettuinode();	
-	tuinode->thread = (pthread_t*)malloc(sizeof(pthread_t));
-
-	char error_code = 0;
-	error_run(strtfunc = getfuncref("tui","starttui"),log_failure("Could not load start func"));
-	error_run(!(error_code = pthread_create(tuinode->thread, NULL, strtfunc, NULL)), log_failure("Error code: %i",error_code));
-	log_success();
+	startplugin(tuinode);
+	
+	//wait for plugintui to fully start before loading external plugins
+	int(*tuistatus)(void) = getfuncref("tui","getstatus");
+	while(!tuistatus());
 
 	size_t strtp(void* data)
 	{

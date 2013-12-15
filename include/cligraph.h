@@ -23,6 +23,9 @@
  * header for libcligraph
  */
 
+#ifndef __CLIGRAPH
+#define __CLIGRAPH
+
 //--PLUGIN CONFIG------------------------------
 
 #define PLUGIN_PATH "plugin"
@@ -40,3 +43,5 @@
  * 
  */
 void* getfuncref(char* plugname, char* funcname);
+
+#endif 

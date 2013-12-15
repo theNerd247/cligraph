@@ -41,6 +41,9 @@ static event_func_type events[NEVENTS];
 //the state of the keyboard controller
 static unsigned char run_ctrlr = 1;
 
+//the current window held by controller
+static WINDOW* curr_win;
+
 int addkeyevent(int key, event_func_type func)
 {
 	check(func,"Could not set event for key: %i (function invalid)",key);
@@ -49,7 +52,6 @@ int addkeyevent(int key, event_func_type func)
 //	debug("ADDING KEY EVENT FOR KEY: %i",key);
 	pthread_mutex_lock(&events_mutex);
 	events[key] = func;
-
 	pthread_mutex_unlock(&events_mutex);
 	return 0;
 
@@ -60,7 +62,9 @@ int addkeyevent(int key, event_func_type func)
 void removekeyevent(int key)
 {
 	check(key >= 0 || key < NEVENTS, "Could not remove event for key: %i (key invalid)",key);
+	pthread_mutex_lock(&events_mutex);
 	events[key] = NULL;
+	pthread_mutex_unlock(&events_mutex);
 	error: 
 		return;
 }
@@ -69,11 +73,17 @@ int setkeywin(WINDOW* win)
 {
 	if(!win) return 1;
 	curr_win = win;
+
 	//set keyboard properties
 	nodelay(curr_win,FALSE); //wait for a character input
 	keypad(curr_win,TRUE); //allow for keypad stuff
 
 	return 0;
+}
+
+WINDOW* getkeywin()
+{
+	return curr_win;
 }
 
 int startkeyctlr(void* win)

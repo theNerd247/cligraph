@@ -1,12 +1,15 @@
 [ATTEMPT] Plugin "tui" found attempting to load it...success 
-[ATTEMPT] Plugin "graph" found attempting to load it...success 
+[ATTEMPT] Plugin "tst" found attempting to load it...success 
+[ATTEMPT] Plugin "graph" found attempting to load it...failure: 
+[ERROR] (src/plugins.c:175: errno: None) plugin/graph/libgraph.so: cannot open shared object file: No such file or directory
 [ATTEMPT] Starting plugin tui...[ATTEMPT] Loading func "starttui" in lib "tui"...success 
 success 
-[ATTEMPT] Starting plugin graph...[ATTEMPT] Loading func "startgraph" in lib "graph"...success 
+[ATTEMPT] Loading func "getstatus" in lib "tui"...success 
+[ATTEMPT] Starting plugin tst...[ATTEMPT] Loading func "starttst" in lib "tst"...success 
 success 
 [ATTEMPT] Loading func "addkeyevent" in lib "tui"...success 
 [ATTEMPT] Starting keyboard controller...success 
 [ATTEMPT] Starting window refresher...success 
-DEBUG (src/tui.c:stoptui:215): stopping tui...
-[INFO] (src/cligraph.c:77) Stopping cligraph...
+DEBUG (src/tui.c:stoptui:238): stopping tui...
+[INFO] (src/cligraph.c:75) Stopping cligraph...
 [ATTEMPT] Unloading all plugins...success 

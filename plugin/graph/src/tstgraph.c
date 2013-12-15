@@ -8,6 +8,7 @@
 
 //new includes
 #include "cligraph.h" 
+#include "dbg.h"
 
 #define ENTER_KEY 10 
 
@@ -120,16 +121,20 @@ struct table* makegraph(FuncValues* values)
 
 int graphfunc()
 {
-	int (*getlastcmd)(char*);
-	getlastcmd = getfuncref("tui","getlastcmd");	
-	void (*printdisp)(const char*);
-	printdisp = getfuncref("tui","printdisp");
-
-	char buff[100];
-	getlastcmd(buff);
-	FuncValues* values = getfuncvalues(buff,0,50,1);
-	struct table* graph = makegraph(values);
-	printdisp((char*)graph->cells);
+	debug("graph func called");
+//	printdisp("graph func called\n");
+/*
+ * 	int (*getlastcmd)(char*);
+ * 	getlastcmd = getfuncref("tui","getlastcmd");	
+ * 	void (*printdisp)(const char*);
+ * 	printdisp = getfuncref("tui","printdisp");
+ * 
+ * 	char buff[100];
+ * 	getlastcmd(buff);
+ * 	FuncValues* values = getfuncvalues(buff,0,50,1);
+ * 	struct table* graph = makegraph(values);
+ * 	printdisp((char*)graph->cells);
+ * 	 */
 }
 
 void startgraph(void* null)
