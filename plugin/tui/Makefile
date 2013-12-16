@@ -37,17 +37,11 @@ OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
 .PHONY: setup clean pkg test
 
-all: setup $(OBJ) $(BINDIR)
-	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) -o $(LIBDIR)/$(OUTNAME)
+all: setup $(OBJ) 
+	$(CC) -o $(LIBDIR)/$(OUTNAME) $(OBJ) $(SHRDFLAGS) $(LFLAGS) 
 
 testing: setup all $(TOBJ)
 	$(CC) $(TLFLAGS) $(TOBJ) -o $(TSRCDIR)/tst
-
-test: testing
-	export LD_LIBRARY_PATH_TMP=$$LD_LIBRARY_PATH
-	export LD_LIBRARY_PATH=$$(pwd):$$LD_LIBRARY_PATH
-	echo $$LD_LIBRARY_PATH
-	$(TSRCDIR)/tst 2> $(TSRCDIR)/log.txt
 
 setup: 
 	mkdir -p $(LIBDIR)

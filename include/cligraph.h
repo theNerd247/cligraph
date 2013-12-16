@@ -15,25 +15,33 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * cligraph.h 
+/**
+ * @file cligraph.h 
  *
- * AUTHOR: Noah Harvey
+ * @author Noah Harvey (noah.harvey247@gmail.com)
  *
- * VERSION: v0.0.1
- *
- * DESCRIPTION: header for plugin management prototypes
+ * header for libcligraph
  */
 
-/*
- * FUNCTION: getfuncref
- * 
- * DESCRIPTION: returns a reference to a function located in another plugin
+#ifndef __CLIGRAPH
+#define __CLIGRAPH
+
+//--PLUGIN CONFIG------------------------------
+
+#define PLUGIN_PATH "plugin"
+#define DL_LOAD_FLAG (RTLD_LAZY || RTLD_GLOBAL)
+
+//--END PLUGIN CONFIG---------------------------
+
+/**
+ * returns a void pointer to the function in the given plugin 
  *
- * PARAMETERS: char* libname, char* funcname
+ * @param plugname - name of the plugin to search
+ * @param funcname - name of the function needed
  *
- * RETURNS: void* - void pointer to function. NULL is returned if error occurs
- * (funcname or libname are invalid names or trouble getting funcrefrence).
+ * @return void* - void pointer to function. NULL is returned if error occurs. 
  * 
  */
-void* getfuncref(char* libname, char* funcname);
+void* getfuncref(char* plugname, char* funcname);
+
+#endif 

@@ -35,6 +35,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "dbg.h"
 #include "keyboard.h"
@@ -82,22 +83,31 @@ int __init_winstructs()
 void getlastcmd(char* buff)
 {
 	strcpy(buff,cmdbuff);
-}
+	//erase the last inputs
 
-void printdisp(const char* stuff)
-{
-	waddstr(DISPWIN,stuff);
-	wnoutrefresh(DISPWIN);
+	size_t i;
+	int y,x;
+	WINDOW* curr_win = getkeywin();
+
+	//clear the curr_win
+	getyx(curr_win,y,x);
+	for (i = 0; i <= printbuff_ind; i++)
+		mvwprintw(curr_win,y,x-i," ");
+
+	wmove(curr_win,y,x-printbuff_ind);
+	wnoutrefresh(curr_win);
+	printbuff_ind = 0;
 }
 
 //fetches the command from the window and does some cleaning on the screen
 int readprintbuff()
 {
+	WINDOW* curr_win = getkeywin();
 	//copy the printbuff into the cmd buff
 	strcpy(cmdbuff,printbuff);
 
 	//print the current print buffer
-	printdisp(printbuff);
+//	printdisp(printbuff);
 
 	//erase the last inputs
 	size_t i;
@@ -114,8 +124,15 @@ int readprintbuff()
 //call doupdate ever so often instead of after everytime we do something ?
 void updatewins()
 {
+	struct timespec tm_intv;
+	struct timespec tm_left = {0};
+	tm_intv.tv_sec = 0;
+	tm_intv.tv_nsec = DOUPDATE_INTERVAL;
+
 	while(running)
 	{
+		//run update not so often
+		nanosleep(&tm_intv,&tm_left);
 		doupdate();
 	}
 }
@@ -125,6 +142,7 @@ void updatewins()
 //default action is to print the key pressed to the current window
 int default_event()
 {
+	WINDOW* curr_win = getkeywin();
 	waddch(curr_win,curr_key); 
 	wnoutrefresh(curr_win);
 	printbuff[printbuff_ind] = curr_key;
@@ -180,12 +198,6 @@ void* starttui(void* null)
 	//create window structs
 	check_expr(__init_winstructs(),0,"Failed to create windows. aborting");
 
-	//move the cursor to the CMDBAR
-	wmove(CMDBAR,1,0);
-
-	//display the windows
-	doupdate();
-
 	//start the keyboard controller
 	log_attempt("Starting keyboard controller");
 	error_run(!(error_code = pthread_create(&kbthread,NULL,(void* (*)(void*))startkeyctlr,CMDBAR)), log_failure("Could not start keyboard controller: %i",error_code));
@@ -198,6 +210,9 @@ void* starttui(void* null)
 	//add default key events
 	__add_default_keys();
 
+	//move the cursor to the CMDBAR
+	wmove(CMDBAR,1,0);
+
 	//wait for keyboard controller thread to end
 	pthread_join(kbthread,NULL);
 	pthread_join(winthread,NULL);
@@ -206,6 +221,11 @@ void* starttui(void* null)
 	error: 
 		stoptui();
 		return NULL;
+}
+
+int getstatus()
+{
+	return running;
 }
 
 //--END starttui()---------------------------
@@ -218,6 +238,10 @@ int stoptui()
 	debug("stopping tui...");
 	running = 0;
 	stopkeyctlr();
+
+	pthread_join(kbthread,NULL);
+	pthread_join(winthread,NULL);
+
 	__free_winstructs();	
 	endwin();
 	return 0;
