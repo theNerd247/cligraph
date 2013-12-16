@@ -198,7 +198,7 @@ void* starttui(void* null)
 	//create window structs
 	check_expr(__init_winstructs(),0,"Failed to create windows. aborting");
 
-		//start the keyboard controller
+	//start the keyboard controller
 	log_attempt("Starting keyboard controller");
 	error_run(!(error_code = pthread_create(&kbthread,NULL,(void* (*)(void*))startkeyctlr,CMDBAR)), log_failure("Could not start keyboard controller: %i",error_code));
 	log_success();

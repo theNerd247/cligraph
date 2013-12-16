@@ -7,9 +7,9 @@ success
 [ATTEMPT] Loading func "getstatus" in lib "tui"...success 
 [ATTEMPT] Starting plugin tst...[ATTEMPT] Loading func "starttst" in lib "tst"...success 
 success 
-[ATTEMPT] Loading func "addkeyevent" in lib "tui"...success 
 [ATTEMPT] Starting keyboard controller...success 
 [ATTEMPT] Starting window refresher...success 
+[ATTEMPT] Loading func "addkeyevent" in lib "tui"...success 
 DEBUG (src/tui.c:stoptui:238): stopping tui...
 [INFO] (src/cligraph.c:75) Stopping cligraph...
 [ATTEMPT] Unloading all plugins...success 

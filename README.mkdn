@@ -13,14 +13,18 @@ URLs
 
 Documentation
 =============
-Documentation can be found in the header files of the functions used. More
-indepth documentation will be placed in soon to come man pages.
+Documentation is done doxygen style. You will find a file called doxygen.conf
+that will contain the configuration data for doxygen. See this file for the
+details on documentation.
 
 Help and Bugs
 =============
 If Bugs are found please email a bug report to:
     noah.harvey247@gmail.com
-Also, if you have a github account please open up an issue on the project.
+
+Bug reports can be found on the project site as issues. Also, if you have a
+github account please open up an issue on the project at
+github.com/thenerd247/cligraph/issues instead of emailing Noah Harvey.
 
 Comming Soon
 ============
@@ -32,10 +36,9 @@ Comming Soon
 
 TODO
 ====
-+cligraph reorganize build structure
-+cligraph break core system into main and libcligraph
-+cligraph update README
-+cligraph create documentation for code (man pages)
-+cligraph write CONTRIBUTIONS file.
-+cligraph update github to be collaboration friendly
-
+update README
+create documentation for code (man pages)
+write CONTRIBUTIONS file or section of the README.
+merge tui plugin as part of libcligraph.
+update github to be collaboration friendly
+switch build structure to cmake
