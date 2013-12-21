@@ -38,10 +38,8 @@
 
 //--globals------------------------------
 //type for an keyevent-function
-typedef int (*event_func_type)(void);
+typedef int (*event_func_type)(int keycode);
 
-//the last key that was pressed
-static int curr_key;
 //--END globals---------------------------
 
 /*
@@ -102,7 +100,7 @@ WINDOW* getkeywin();
  * RETURNS: void* - absolutely nothing so far
  * 
  */
-int startkeyctlr(void* window);
+void* startkeyctlr(void* window);
 
 /*
  * FUNCTION: stopkeyctlr

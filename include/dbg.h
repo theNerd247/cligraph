@@ -6,6 +6,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <pthread.h>
+
+//--THREADS ------------------------------
+#define lock(a) pthread_mutex_lock(&a)
+#define unlock(a) pthread_mutex_unlock(&a)
+//--END THREADS ---------------------------
 
 #ifdef NDEBUG
 #define debug(M, ...)

@@ -36,6 +36,7 @@ Comming Soon
 
 TODO
 ====
+fix race condition between threads
 update README
 create documentation for code (man pages)
 write CONTRIBUTIONS file or section of the README.

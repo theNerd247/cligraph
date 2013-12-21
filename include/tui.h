@@ -63,9 +63,10 @@
 #ifndef __TUI
 #define __TUI
 
-
 #define ESC_KEY 27
 #define ENTER_KEY 10
+
+//how fast to update the thread intervals
 #define DOUPDATE_INTERVAL 10000000
 
 /**
@@ -78,6 +79,18 @@
  * 
  */
 //int addmenuitem(size_t num, ITEM* item); don't make this callable yet
+
+/**
+ * The thread that controls the tui manager will sometimes need to wait till
+ * crucial data has been setup and so it waits. Calling this function will tell
+ * the tui thread that it's ok to proceed if it's waiting on a child thread to
+ * reach a checkpoint. Call this function at the end of a thread init function.
+ *
+ * 
+ * @return void
+ * 
+ */
+void tui_ready();
 
 /**
  * 

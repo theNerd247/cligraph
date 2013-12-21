@@ -216,32 +216,6 @@ void unloadplugins()
 		free(dlmap);
 }
 
-DLNode* gettuinode()
-{
-	DLNode* nd = NULL;
-	size_t filter(void* data)
-	{
-		DLNode* node = (DLNode*)data;
-		if(!strcmp(node->libname,"tui"))
-		{
-			nd = node;
-			return 1;
-		}
-		return 0;
-	}
-	
-	llapply(dlmap,&filter);
-	return nd;
-
-}
-
-//helper function for main and startplugins
-/* fetches the thread attached to the tui plugin */
-pthread_t* gettuithread()
-{
-	return gettuinode()->thread;
-}
-
 void startplugin(DLNode* data)
 {
 	char* lbname = (char*)(data->libname);
@@ -266,19 +240,9 @@ void startplugin(DLNode* data)
 
 void startplugins()
 {
-	//manually start the tuiplugin
-	DLNode* tuinode = gettuinode();	
-	startplugin(tuinode);
-	
-	//wait for plugintui to fully start before loading external plugins
-	int(*tuistatus)(void) = getfuncref("tui","getstatus");
-	while(!tuistatus());
-
 	size_t strtp(void* data)
 	{
 		if(!data) return 0;
-		char* lbname = (char*)((DLNode*)data)->libname;
-		if(!strcmp(lbname,"tui")) return 0;//ignore the tui 
 		startplugin((DLNode*)data);
 		return 0;
 	}

@@ -34,16 +34,23 @@
 #include <ncurses.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
+#include <string.h> 
 
 #include "dbg.h"
-#include "keyboard.h"
 #include "tui.h"
+#include "keyboard.h"
 #include "winmgr.h"
 
+//--THREADS------------------------------
+pthread_t kbthread;
+pthread_t winthread;
+
+pthread_mutex_t wait_mutex;
+pthread_cond_t wait_cond;
+unsigned char wait_sig;
+//--END THREADS---------------------------
+
 //--keyboard------------------------------
-static pthread_t kbthread;
 
 //buffer used for holding printed keys 
 #define PBUFFSIZE 1000
@@ -54,30 +61,11 @@ static char cmdbuff[PBUFFSIZE];
 //--END keyboard---------------------------
 
 //--windows------------------------------
-static pthread_t winthread;
-static char running = 1;
 //--END windows---------------------------
 
+/* status of the tui manger */
+static char running = 1;
 //--starttui()------------------------------
-
-//helper function for starttui
-/* initializes all window structures for screen display*/
-int __init_winstructs()
-{
-	int error_code = 0;
-
-	//initialize menus 
-	error_run(!__init_menubar(), error_code = 1);
-	//initialize command bar
-	error_run(!__init_CMDBAR(), error_code = 2);
-	//initialize display window
-	error_run(!__init_DISPWIN(), error_code = 3);
-
-	return 0;
-
-	error:
-		return error_code;
-}
 
 //--TESTING------------------------------
 void getlastcmd(char* buff)
@@ -119,38 +107,19 @@ int readprintbuff()
 	wmove(curr_win,y,x-printbuff_ind);
 	wnoutrefresh(curr_win);
 	printbuff_ind = 0;
+	return 0;
 }
 
-//call doupdate ever so often instead of after everytime we do something ?
-void updatewins()
-{
-	struct timespec tm_intv;
-	struct timespec tm_left = {0};
-	tm_intv.tv_sec = 0;
-	tm_intv.tv_nsec = DOUPDATE_INTERVAL;
-
-	while(running)
-	{
-		//run update not so often
-		nanosleep(&tm_intv,&tm_left);
-		doupdate();
-	}
-}
 //--END TESTING---------------------------
 
 //the default action to take place when a key is pressed
 //default action is to print the key pressed to the current window
-int default_event()
+int default_event(int curr_key)
 {
 	WINDOW* curr_win = getkeywin();
 	waddch(curr_win,curr_key); 
 	wnoutrefresh(curr_win);
-	printbuff[printbuff_ind] = curr_key;
-	printbuff[printbuff_ind+1] = '\0';
-	if(printbuff_ind == PBUFFSIZE-1)
-		printbuff_ind = 0;
-	else
-		printbuff_ind++;
+	return 0;
 }
 
 //helper function for __add_default_keys
@@ -159,7 +128,7 @@ void initkeyevents()
 {
 	size_t i;
 	for (i = 0; i < NEVENTS; i++)
-	addkeyevent(i,&default_event);
+		addkeyevent(i,&default_event);
 }
 
 //helper function for starttui
@@ -167,7 +136,6 @@ void initkeyevents()
 int __add_default_keys()
 {
 	initkeyevents();
-	printbuff[PBUFFSIZE] = '\0';
 
 	//--default events------------------------------
 	//ESC closes the tui
@@ -186,32 +154,60 @@ int __add_default_keys()
 		return 1;
 }
 
+void tui_ready()
+{
+	debug("tui_ready called");
+	lock(wait_mutex);
+	wait_sig = 1;	
+	unlock(wait_mutex);
+	pthread_cond_signal(&wait_cond);
+}
+
+///helper function for starttui
+/** waits for the ready signal and then returns */
+void tui__wait()
+{
+	lock(wait_mutex);
+	while(wait_sig == 0) pthread_cond_wait(&wait_cond, &wait_mutex);
+	//reset the signal so this function will work next time called
+	wait_sig = 0;
+	unlock(wait_mutex);
+	return;
+}
+
 /* sets up and starts running the tui */
 void* starttui(void* null)
 {
 	//vars
 	int error_code = 0;
+	
+	pthread_mutex_init(&wait_mutex, NULL);
+	pthread_cond_init(&wait_cond, NULL);
 
 	//init screen
 	initscr();
 
-	//create window structs
-	check_expr(__init_winstructs(),0,"Failed to create windows. aborting");
+	//start the window manager
+	log_attempt("Starting window refresher");
+	error_run(!(error_code = pthread_create(&winthread,NULL,startwinmgr,NULL)), log_failure("Could not start window refresher"));
+	//wait till the winmgr says it's ok to move on
+	tui__wait();
+	log_success();
+
 
 	//start the keyboard controller
 	log_attempt("Starting keyboard controller");
-	error_run(!(error_code = pthread_create(&kbthread,NULL,(void* (*)(void*))startkeyctlr,CMDBAR)), log_failure("Could not start keyboard controller: %i",error_code));
+	WINDOW* cmdbar = getcmdbar();
+	error_run(!(error_code = pthread_create(&kbthread,NULL,startkeyctlr,(void*)cmdbar)), log_failure("Could not start keyboard controller: %i",error_code));
+	//wait till the kbdmgr says it's ok to move on
+	tui__wait();
 	log_success();
 	
-	log_attempt("Starting window refresher");
-	error_run(!(error_code = pthread_create(&winthread,NULL,(void* (*)(void*))updatewins,NULL)), log_failure("Could not start window refresher"));
-	log_success();
-
 	//add default key events
 	__add_default_keys();
 
 	//move the cursor to the CMDBAR
-	wmove(CMDBAR,1,0);
+	wmove(getcmdbar(),1,0);
 
 	//wait for keyboard controller thread to end
 	pthread_join(kbthread,NULL);
@@ -223,11 +219,6 @@ void* starttui(void* null)
 		return NULL;
 }
 
-int getstatus()
-{
-	return running;
-}
-
 //--END starttui()---------------------------
 
 //--stoptui()------------------------------
@@ -237,6 +228,7 @@ int stoptui()
 {
 	debug("stopping tui...");
 	running = 0;
+	stopwinmgr();
 	stopkeyctlr();
 
 	pthread_join(kbthread,NULL);

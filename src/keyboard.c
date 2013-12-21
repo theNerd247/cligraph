@@ -28,31 +28,33 @@
 #include <ncurses.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
+#define keyboard_c
 #include "keyboard.h"
 #include "tui.h"
 #define NDEBUG
 #include "dbg.h"
 
 /* stores all keyboard events stored as an array*/
-static pthread_mutex_t events_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t events_mutex;
 static event_func_type events[NEVENTS];
 
-//the state of the keyboard controller
-static unsigned char run_ctrlr = 1;
+/* stores the current window the keyboard manager is to use */
+static pthread_mutex_t keywin_mutex;
+static WINDOW* curr_keywin;
 
-//the current window held by controller
-static WINDOW* curr_win;
+/* the state of the keyboard controller */
+static unsigned char run_ctrlr = 0;
 
 int addkeyevent(int key, event_func_type func)
 {
 	check(func,"Could not set event for key: %i (function invalid)",key);
 	check(key >= 0 && key < NEVENTS, "Could not set event for key: %i (key invalid)",key);
 
-//	debug("ADDING KEY EVENT FOR KEY: %i",key);
-	pthread_mutex_lock(&events_mutex);
+	lock(events_mutex);
 	events[key] = func;
-	pthread_mutex_unlock(&events_mutex);
+	unlock(events_mutex);
 	return 0;
 
 	error:
@@ -62,59 +64,80 @@ int addkeyevent(int key, event_func_type func)
 void removekeyevent(int key)
 {
 	check(key >= 0 || key < NEVENTS, "Could not remove event for key: %i (key invalid)",key);
-	pthread_mutex_lock(&events_mutex);
+	lock(events_mutex);
 	events[key] = NULL;
-	pthread_mutex_unlock(&events_mutex);
+	unlock(events_mutex);
 	error: 
 		return;
 }
 
 int setkeywin(WINDOW* win)
 {
-	if(!win) return 1;
-	curr_win = win;
+	if(!win) return 1;		
+
+	lock(keywin_mutex);
+	curr_keywin = win;
 
 	//set keyboard properties
-	nodelay(curr_win,FALSE); //wait for a character input
-	keypad(curr_win,TRUE); //allow for keypad stuff
+	cbreak(); //don't wait for a new line character
+	noecho(); //print what we type
+	nodelay(curr_keywin,FALSE); //wait for a character input
+	keypad(curr_keywin,TRUE); //allow for keypad stuff
+
+	unlock(keywin_mutex);
 
 	return 0;
 }
 
 WINDOW* getkeywin()
 {
-	return curr_win;
+	WINDOW* win;
+	lock(keywin_mutex);
+	win = curr_keywin;
+	unlock(keywin_mutex);
+	return win;
+	
 }
 
-int startkeyctlr(void* win)
+void* startkeyctlr(void* win)
 {
-	curr_win = (WINDOW*)win;
-	check(curr_win,"window was null");
+	//initialize mutexes
+	pthread_mutex_init(&events_mutex, NULL);	
+	pthread_mutex_init(&keywin_mutex, NULL);
 
-	//keyboard config
-	cbreak(); //don't wait for a new line character
-	noecho(); //print what we type
-	nodelay(curr_win,FALSE); //wait for a character input
-	keypad(curr_win,TRUE); //allow the keypad
+	check(!setkeywin((WINDOW*)win),"window was null");
+	
+	tui_ready();
 
-	//current key pressed
+	//set the controller state to running and start capturing keyboard input
 	run_ctrlr = 1;
 
+	int curr_key;
 	while(run_ctrlr)
 	{
-		if((curr_key = wgetch(curr_win)) != ERR)
+		lock(keywin_mutex);
+		curr_key = wgetch(curr_keywin);
+		unlock(keywin_mutex);
+
+		if(curr_key != ERR)
 		{
-			debug("KEY PRESSED -- INT: %i CHAR: %c",curr_key,curr_key);	
-			events[curr_key]();
+			//if the key is valid call its event function
+			lock(events_mutex);
+			events[curr_key](curr_key);
+			debug("Key pressed: %i -- %c",curr_key, curr_key);
+			unlock(events_mutex);
 		}
 	}
 
-	return 0;
 	error: 
-		return 1;
+		return NULL;
 }
 
 void stopkeyctlr()
 {
+	//stop running the controller 
 	run_ctrlr = 0;
+
+	pthread_mutex_destroy(&events_mutex);
+	pthread_mutex_destroy(&keywin_mutex);
 }

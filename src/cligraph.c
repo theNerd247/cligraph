@@ -31,6 +31,7 @@
 #include <llist.h>
 
 #include "cligraph.h"
+#include "tui.h"
 
 //--SEMI-INCLUDES------------------------------
 /*
@@ -40,8 +41,11 @@
 LList* getliblist();
 void startplugins();
 void unloadplugins();
-pthread_t* gettuithread();
 //--END SEMI-INCLUDES---------------------------
+
+static pthread_mutex_t wait_mutex;
+static pthread_cond_t wait_cond;
+static unsigned char wait_sig;
 
 //--LOGGING------------------------------
 //#define NLOG //uncomment to turn off logging 
@@ -55,21 +59,23 @@ int main(int argc, char const *argv[])
 {		
 	//init variables 
 	int error_code = 0;
+	pthread_t tui_thread;
 
 	//move all stdout prints to a log file
 	freopen(__LOG_FILE_PATH,__WRITE_MODE,stderr);
 
 	//TODO<sanity checks and option parsing goes here>
 
-	//load plugins
-	if(!getliblist()) return EXIT_FAILURE;	
+	//start UI
+	check(!(error_code = pthread_create(&tui_thread,NULL,&starttui,NULL)), "could not start tui thread: %i",error_code);
 
-	//load the functions to use
-	startplugins();
+	//load plugins
+	if(!getliblist()) fprintf(stderr,"no plugins found\n");
+	else
+		startplugins();
 
 	//wait for user to exit tui
-	pthread_t* tuithread = gettuithread();
-	check(!(error_code = pthread_join(*tuithread, NULL)),"pthead_join returned: %i",error_code);
+	check(!(error_code = pthread_join(tui_thread, NULL)),"pthead_join returned: %i",error_code);
 
 	//free all memory
 	log_info("Stopping cligraph...");

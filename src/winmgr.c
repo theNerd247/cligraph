@@ -27,17 +27,35 @@
 
 #include <ncurses.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <sys/time.h>
 
 #include "dbg.h"
+
+//define variables located in winmgr.c
+#include "tui.h"
+#define winmgr_c
 #include "winmgr.h"
+
+//--WINSTRUCTS------------------------------
+static MENU* menus[NMENUS];
+static WINDOW* CMDBAR;
+static WINDOW* DISPWIN;
+
+static pthread_mutex_t cmdbar_mutex;
+static pthread_mutex_t dispwin_mutex;
+//--END WINSTRUCTS---------------------------
 
 //window titles
 static const char* __menu_titles[NMENUS] = {"Math","Functions","Tables","Graphs","Settings","Plugin"}; //titles of the table menu
 
-//helper function for __init_winstructs
-/* initializes the window to contain plugin displays */
+/* status of window manager */
+static unsigned char running = 0;
+
+/* helper function for __init_winstructs */
 char __init_DISPWIN()
 {
+	lock(dispwin_mutex);
 	check(DISPWIN = newwin(DISP_YS,DISP_XS,DISP_YP,DISP_XP), "Failed to create DISPWIN");
 	
 	//keyboard config
@@ -53,6 +71,8 @@ char __init_DISPWIN()
 	//start cursor at the top of the window 
 	wmove(DISPWIN,0,1);
 	wnoutrefresh(DISPWIN);
+	
+	unlock(dispwin_mutex);
 
 	return 0;
 	
@@ -60,14 +80,10 @@ char __init_DISPWIN()
 		return 1;
 }
 
-//helper function for __init_menus
-/* initializes all the menus at the top of the screen */
+/* helper function for __init_menus */
 //assumes all arguments are valid arguments
 MENU* __init_menu(size_t ysize, size_t xsize, size_t ypos, size_t xpos, const char* title)
 {
-	//vars 
-	int error = 0;
-
 	//init new menu
 	MENU* menu = new_menu(NULL);
 	check(menu, "Failed to create menu: %s", title);
@@ -99,6 +115,7 @@ MENU* __init_menu(size_t ysize, size_t xsize, size_t ypos, size_t xpos, const ch
 		return NULL;
 }
 
+/* helper function for __init_winstructs */
 char __init_menubar()
 {
 	size_t i;
@@ -113,10 +130,10 @@ char __init_menubar()
 		return 1;
 }
 
-//helper function for __init_winstructs
-/* initializes CMDBAR */
+/* helper function for __init_winstructs */
 char __init_CMDBAR()
 {
+	lock(cmdbar_mutex);
 	//init window
 	check(CMDBAR = newwin(CMD_YS,CMD_XS,CMD_YP,CMD_XP),"Failed to create command bar");
 
@@ -129,14 +146,32 @@ char __init_CMDBAR()
 
 	//apply updates and return	
 	wnoutrefresh(CMDBAR);
+
+	unlock(cmdbar_mutex);
 	return 0;
 
 	error:
 		return 1;
 }
 
-//helper function for __free_winstructs
-/* frees all the menus and the data related to them */
+int __init_winstructs()
+{
+	int error_code = 0;
+
+	//initialize menus 
+	error_run(!__init_menubar(), error_code = 1);
+	//initialize command bar
+	error_run(!__init_CMDBAR(), error_code = 2);
+	//initialize display window
+	error_run(!__init_DISPWIN(), error_code = 3);
+
+	return 0;
+
+	error:
+		return error_code;
+}
+
+/* helper function for __free_winstructs */
 //assumes arguments are valid
 void __free_menu(MENU* menu)
 {
@@ -169,4 +204,72 @@ void __free_winstructs()
 	//free the CMDBAR
 	wclear(CMDBAR);
 	delwin(CMDBAR);
+}
+
+WINDOW* getcmdbar()
+{
+	WINDOW* win = NULL;
+	lock(cmdbar_mutex);
+	win = CMDBAR;
+	unlock(cmdbar_mutex);
+	return win;
+}
+
+int setdispwin(WINDOW* win)
+{
+	check(win, "win is null");
+	lock(dispwin_mutex);
+	DISPWIN = win;
+	wnoutrefresh(DISPWIN);
+	unlock(dispwin_mutex);
+	return 0;
+
+	error:
+		return 1;
+}
+
+WINDOW* getdispwin()
+{
+	WINDOW* win = NULL;
+	lock(dispwin_mutex);
+	win = DISPWIN;
+	unlock(dispwin_mutex);
+	return win;
+}
+
+void updatewins()
+{
+	struct timespec tm_intv;
+	struct timespec tm_left = {0};
+	tm_intv.tv_sec = 0;
+	tm_intv.tv_nsec = DOUPDATE_INTERVAL;
+
+	while(running)
+	{
+		//run update not so often
+		nanosleep(&tm_intv,&tm_left);
+		doupdate();
+	}
+}
+
+void* startwinmgr(void* null)
+{
+	//init mutexes
+	pthread_mutex_init(&cmdbar_mutex, NULL);
+	pthread_mutex_init(&dispwin_mutex, NULL);
+	
+	__init_winstructs();
+	running = 1;
+
+	tui_ready();
+
+	updatewins();
+	return NULL;
+}
+
+void stopwinmgr()
+{
+	running = 0;
+	pthread_mutex_destroy(&dispwin_mutex);
+	pthread_mutex_destroy(&cmdbar_mutex);
 }

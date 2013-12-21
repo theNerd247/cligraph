@@ -31,11 +31,17 @@
 #ifndef __WINMGR
 #define __WINMGR
 
+//define have extern exist for all inclusions except for winmgr.c
+#ifdef winmgr_c
+#define EXTERN 
+#else
+#define EXTERN extern
+#endif
+
 //--GLOBALS------------------------------
 //--menus------------------------------
 #define NMENUS 6 
 #define MENUWIDTH (COLS/NMENUS)
-MENU* menus[NMENUS];
 //--END menus---------------------------
 
 //--cmdbar------------------------------ 
@@ -44,7 +50,7 @@ MENU* menus[NMENUS];
 #define CMD_YP LINES-3
 #define CMD_XP 0
 #define CMD_GRAB_Y 1 //the line to grab text from the cmdbar
-WINDOW* CMDBAR;
+
 //--END cmdbar---------------------------
 
 //--display window------------------------------
@@ -52,10 +58,37 @@ WINDOW* CMDBAR;
 #define DISP_XS COLS
 #define DISP_YP 2
 #define DISP_XP 0
-WINDOW* DISPWIN;
 //--END display window---------------------------
 
 //--END GLOBALS---------------------------
+
+/**
+ * sets the display window
+ *
+ * @param win - the window to use for the display window
+ *
+ * @return int - error code: 0 - no error; 1 - error
+ * 
+ */
+int setdispwin(WINDOW* win);
+
+/**
+ * returns a pointer to the current window being used as the display window
+ *
+ * 
+ * @return WINDOW* - the current display window
+ * 
+ */
+WINDOW* getdispwin();
+
+/**
+ * returns a pointer to the window that is used for the display bar.
+ *
+ * 
+ * @return WINDOW* - the command bar
+ * 
+ */
+WINDOW* getcmdbar();
 
 /*
  * FUNCTION: fetchchars
@@ -73,40 +106,15 @@ WINDOW* DISPWIN;
  */
 char* fetchchars(size_t xpos, size_t ypos, size_t n);
 
-/*
- * FUNCTION: __init_DISPWIN
+/**
+ * initializes all default window structures. This doesnot actually call for the
+ * structures to be displayed.
+ *
  * 
- * DESCRIPTION: initialize the display window
- *
- * PARAMETERS: size_t ysize, size_t xsize, size_t ypos, size_t xpos
- *
- * RETURNS: char - error code: 0 - no error; 1 - something bad happened 
- */
-char __init_DISPWIN();
-
-/*
- * FUNCTION: __init_menubar
- * 
- * DESCRIPTION: creates the menubar
- *
- * PARAMETERS: 
- *
- * RETURNS: char - error code: 0 - no error; 1 - something bad happened
+ * @return int - error code: 0 - no error; 1 - error occured
  * 
  */
-char __init_menubar();
-
-/*
- * FUNCTION: __init_CMDBAR
- * 
- * DESCRIPTION: intializes the command bar
- *
- * PARAMETERS: 
- *
- * RETURNS: char - error code: 0 - no error; 1 - something bad happened
- * 
- */
-char __init_CMDBAR();
+int __init_winstructs();
 
 /*
  * FUNCTION: __free_winstructs
@@ -119,5 +127,24 @@ char __init_CMDBAR();
  * 
  */
 void __free_winstructs();
+
+/**
+ * starts the window manager. Call this method when creating a new thread.
+ *
+ * @param null - 
+ *
+ * @return void* - nothing
+ * 
+ */
+void* startwinmgr(void* null);
+
+/**
+ * stops running the window manager
+ *
+ * 
+ * @return void - 
+ * 
+ */
+void stopwinmgr();
 
 #endif  //end __WINMGR

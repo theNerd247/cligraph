@@ -16,7 +16,7 @@ VERSION=0.1
 PREFIX=.
 BINDIR=$(PREFIX)/bin
 IDIR=$(PREFIX)/include
-SUBDIRS=$(PREFIX)/src
+SRCDIR=$(PREFIX)/src
 LIBDIR=$(PREFIX)/lib
 CLEAN=$(LIBDIR) $(BINDIR)
 REQUIRED_DIRS=$(BINDIR) $(LIBDIR)
@@ -26,7 +26,7 @@ REQUIRED_DIRS=$(BINDIR) $(LIBDIR)
 #
 ## FLAGS ##############################
 
-LLIBS=dl llist pthread 
+LLIBS=dl llist pthread ncurses menu
 LLIBS:=$(patsubst %, -l%, $(LLIBS))
 
 export CC=gcc
@@ -39,9 +39,10 @@ SOFLAGS=-shared
 #
 ## OBJECTS ##############################
 
-OBJS:=$(patsubst %.c, %.o, $(wildcard $(SUBDIRS)/*.c))
-LIBOBJS=plugins.o
-LIBOBJECTS=$(filter %/$(LIBOBJS), $(OBJS))
+OBJS:=$(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c))
+LIBOBJS=plugins.o tui.o winmgr.o keyboard.o
+LIBOBJS:=$(patsubst %.o, $(SRCDIR)/%.o, $(LIBOBJS))
+LIBOBJECTS=$(filter $(LIBOBJS), $(OBJS))
 LIBNAME=$(PROJECT)
 LIBTARGET=$(LIBDIR)/lib$(LIBNAME).so
 OBJECTS:=$(filter-out $(LIBOBJECTS), $(OBJS))
@@ -52,9 +53,9 @@ OBJECTS:=$(filter-out $(LIBOBJECTS), $(OBJS))
 
 TARGET=$(BINDIR)/$(PROJECT)
 
-.PHONY: all setup clean package $(SUBDIRS)
+.PHONY: all setup clean package 
 
-all: setup $(TARGET)
+all: clean setup $(TARGET)
 
 #for debuging this make file
 debugmk: 
