@@ -30,6 +30,7 @@
 #include <pthread.h>
 #include <llist.h>
 
+#include "dbg.h"
 #include "cligraph.h"
 #include "tui.h"
 
@@ -46,6 +47,24 @@ void unloadplugins();
 static pthread_mutex_t wait_mutex;
 static pthread_cond_t wait_cond;
 static unsigned char wait_sig;
+
+void cli_ready()
+{
+	lock(wait_mutex);
+	wait_sig = 1;	
+	unlock(wait_mutex);
+	pthread_cond_signal(&wait_cond);
+}
+
+void __cli__wait()
+{
+	lock(wait_mutex);
+	while(wait_sig == 0) pthread_cond_wait(&wait_cond, &wait_mutex);
+	//reset the signal so this function will work next time called
+	wait_sig = 0;
+	unlock(wait_mutex);
+	return;
+}
 
 //--LOGGING------------------------------
 //#define NLOG //uncomment to turn off logging 
@@ -68,6 +87,8 @@ int main(int argc, char const *argv[])
 
 	//start UI
 	check(!(error_code = pthread_create(&tui_thread,NULL,&starttui,NULL)), "could not start tui thread: %i",error_code);
+	//wait for the UI to finish loading before continuing
+	__cli__wait();
 
 	//load plugins
 	if(!getliblist()) fprintf(stderr,"no plugins found\n");

@@ -1,65 +1,87 @@
 ##############################
-# Makefile for cligraph plugin graph 
+# @file Makefile for tst plugin
+# @author Noah Harvey <noah.harvey247@gmail.com>
 ##############################
+#
+## PROJECT ##############################
+SHELL=/bin/sh 
+PROJECT=graph
+VERSION=0.1
 
-SHELL=/bin/sh
+## END PROJECT ############################
+#
+## DIRS ##############################
 
-CC=gcc
+PREFIX=.
+BINDIR=$(PREFIX)/bin
+IDIR=$(PREFIX)/include
+SRCDIR=$(PREFIX)/src
+TSTDIR=$(PREFIX)/testing
+LIBDIR=$(PREFIX)/lib
 
-VERSION=0.0.1
+CLEAN=$(LIBDIR) $(BINDIR)
+REQUIRED_DIRS=$(BINDIR)
 
-PLUGNAME=graph
-LIBNAME=lib$(PLUGNAME)
-LIBDIR=lib
-SONAME=$(LIBNAME).so
-OUTNAME=$(LIBNAME).so
+## END DIRS ############################
+#
+#
+## FLAGS ##############################
 
-IDIR=include
-PROJIDIR=../../include/
-LFLAGS=-I$(PROJIDIR) -I$(IDIR) -fPIC -lm -ldl -lpthread -lllist -lncurses -lmenu -L../.. -lcligraph -g #uncomment for debuging with gdb
+#libraries to link in
+LLIBS=cligraph
+LLIBS:=$(patsubst %, -l%, $(LLIBS))
+LLIB_SDIR=-L../../lib/
 
-SHRDFLAGS= -shared -Wl,-soname,$(SONAME)
-CFLAGS=-c -g #uncomment for debuging with gdb
+export CC=gcc
+export CFLAGS=-I$(IDIR) -I../../include -Wall -g -fPIC
+export LFLAGS=$(LLIB_SDIR) $(LLIBS) 
 
-HEADERS:=$(wildcard $(IDIR)/*.h)
-HDRS=$(patsubst $(IDIR)/%.h, $(HDRINSTALLDIR)/%.h, $(HEADERS))
+SOFLAGS=-shared
 
-SRCS=*.c
-SRCDIR=src
-SRC:=$(wildcard $(SRCDIR)/$(SRCS))
+## END FLAGS ############################
+#
+## OBJECTS ##############################
 
-OBJDIR=obj
-OBJ:= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
+OBJECTS:=$(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c))
+LIBNAME=$(LIBDIR)/lib$(PROJECT).a
+TSTOBJECTS=$(patsubst %.c, %.o, $(wildcard $(TSTDIR)/*.c))
 
-TSRCS=tst3.c
-TSRCDIR=testing
-TLFLAGS=-I$(IDIR) -Llib -l$(PLUGNAME) -L../.. -lcligraph
-TSRC=$(patsubst %.c, $(TSRCDIR)/%.c, $(TSRCS))
-TOBJ:=$(patsubst $(TSRCDIR)/%.c, $(TSRCDIR)/%.o, $(TSRC))
+## END OBJECTS ############################
+#
+## TARGETS ##############################
 
-.PHONY: setup clean pkg test testing
+TARGET=lib$(PROJECT).so
 
-$(TSRCDIR)/%.o: $(TSRCDIR)/%.c
-	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
+.PHONY: all setup clean package test
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c 
-	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
+all: setup $(TARGET)
 
-all: setup $(OBJ) $(BINDIR)
-	$(CC) $(LFLAGS) $(SHRDFLAGS) $(OBJ) -o $(LIBDIR)/$(OUTNAME)
+#for debuging this make file
+debugmk:
+	@echo $(OBJECTS)
+	@echo $(LIBOBJECTS)
 
-testing: all $(TOBJ)
-	$(CC) $(TLFLAGS) $(TOBJ) -o $(TSRCDIR)/tst
+#create directories that are needed before building
+setup:
+	@mkdir -p $(REQUIRED_DIRS)
 
-setup: 
-	mkdir -p $(LIBDIR)
-	mkdir -p $(OBJDIR)
+$(LIBNAME): $(OBJECTS)
+	ar rcs $@ $(OBJECTS)
+	ranlib $@
 
-clean: 
-	rm -rf $(OBJDIR)
+$(TARGET): $(OBJECTS)
+	$(CC) -o $@ $(OBJECTS) $(SOFLAGS) $(LFLAGS)  
 
-$(TSRCDIR)/%.o: $(TSRCDIR)/%.c
-	$(CC) $(TLFLAGS) $(CFLAGS) $< -o $@
+#build: $(SUBDIRS)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c 
-	$(CC) $(LFLAGS) $(CFLAGS) $< -o $@
+#clean: $(SUBDIRS)
+clean: CLEAN += $(OBJECTS) $(TSTOBJECTS)
+clean:
+	rm -rf $(CLEAN)
+
+test: all $(TSTOBJECTS)
+	$(CC) -o tst $(TSTOBJECTS) $(LFLAGS) -L. -l$(PROJECT) 
+
+#$(SUBDIRS):
+#	$(MAKE) -C $@ $(MAKECMDGOALS)
+## END TARGETS ############################

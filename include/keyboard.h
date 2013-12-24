@@ -36,59 +36,6 @@
 //the maximum number of keys 
 #define NEVENTS 634
 
-//--globals------------------------------
-//type for an keyevent-function
-typedef int (*event_func_type)(int keycode);
-
-//--END globals---------------------------
-
-/*
- * FUNCTION: addkeyboard event
- * 
- * DESCRIPTION: adds a keyboard event for the keyboard controller. This allows
- * other plugins to perform operations when a keyboard is pressed
- *
- * PARAMETERS: int key, event_func_type func
- *
- * RETURNS: int - error code: 0 - no error, assume event added; 1 - event alread
- * exists; 2 - some other error happened
- * 
- */
-int addkeyevent(int key, event_func_type func);
-
-/*
- * FUNCTION: removekeyevent
- * 
- * DESCRIPTION: removes the key event that is paired with the given key
- *
- * PARAMETERS: int key
- *
- * RETURNS: int - error code: 0 - no error code; 1 - invalid key
- * 
- */
-void removekeyevent(int key);
-
-/*
- * FUNCTION: setkeywin
- * 
- * DESCRIPTION: sets the window the keyboard controller fetches characters from
- *
- * PARAMETERS: WINDOW* win
- *
- * RETURNS: int - error code: 0 - no error; 1 - something  whent wrong
- * 
- */
-int setkeywin(WINDOW* win);
-
-/**
- * fetches the pointer to the window that is currently held by the keyboard
- * controller.
- *
- * @return WINDOW* - window pointer. NULL is returned if an error occurs
- * 
- */
-WINDOW* getkeywin();
-
 /*
  * FUNCTION: startkeyctlr
  * 

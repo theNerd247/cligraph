@@ -63,9 +63,6 @@
 #ifndef __TUI
 #define __TUI
 
-#define ESC_KEY 27
-#define ENTER_KEY 10
-
 //how fast to update the thread intervals
 #define DOUPDATE_INTERVAL 10000000
 
@@ -114,21 +111,5 @@ void* starttui(void* null);
  * the thread that runs it. 
  */
 int stoptui();
-
-//--TESTING------------------------------
-
-/**
- * 
- * fetches the last command inputed in the cmdbar?
- *
- * @param buff
- *
- * @return void - puts the last cmd in the buffer
- * 
- */
-void getlastcmd(char* buff);
-
-void printdisp(const char* buff);
-//--END TESTING---------------------------
 
 #endif 

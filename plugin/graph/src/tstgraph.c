@@ -119,7 +119,7 @@ struct table* makegraph(FuncValues* values)
  * 
  *  */
 
-int graphfunc()
+int graphfunc(int key)
 {
 	debug("graph func called");
 //	printdisp("graph func called\n");
@@ -135,6 +135,7 @@ int graphfunc()
  * 	struct table* graph = makegraph(values);
  * 	printdisp((char*)graph->cells);
  *  */
+	return 0;
 }
 
 int main(int argc, char const *argv[])
@@ -150,7 +151,5 @@ int main(int argc, char const *argv[])
 
 void startgraph(void* null)
 {
-	int (*addkeyevent)(int, int (*event_func)(void));
-	addkeyevent = getfuncref("tui","addkeyevent");
 	addkeyevent(ENTER_KEY,&graphfunc);
 }

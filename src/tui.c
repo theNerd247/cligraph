@@ -37,117 +37,79 @@
 #include <string.h> 
 
 #include "dbg.h"
+#include "cligraph.h"
 #include "tui.h"
 #include "keyboard.h"
 #include "winmgr.h"
 
 //--THREADS------------------------------
-pthread_t kbthread;
-pthread_t winthread;
+static pthread_t kbthread;
+static pthread_t winthread;
 
-pthread_mutex_t wait_mutex;
-pthread_cond_t wait_cond;
-unsigned char wait_sig;
+static pthread_mutex_t wait_mutex;
+static pthread_cond_t wait_cond;
+static unsigned char wait_sig;
 //--END THREADS---------------------------
 
-//--keyboard------------------------------
-
-//buffer used for holding printed keys 
-#define PBUFFSIZE 1000
-static char printbuff[PBUFFSIZE+1];
-static size_t printbuff_ind = 0;
-
-static char cmdbuff[PBUFFSIZE];
-//--END keyboard---------------------------
-
-//--windows------------------------------
-//--END windows---------------------------
-
 /* status of the tui manger */
-static char running = 1;
 //--starttui()------------------------------
 
-//--TESTING------------------------------
-void getlastcmd(char* buff)
+//the input buffer for the command bar
+static char cmdbuff[10000];
+int cmdbuff_index;//editor functions use this to know where to place data in the buffer.
+
+void sendcmd(int key)
 {
-	strcpy(buff,cmdbuff);
-	//erase the last inputs
+	//print whatever is in the print buffer
+	WINDOW* dispwin = getdispwin();
+	wprintw(dispwin,"%s",cmdbuff);
+	wnoutrefresh(dispwin);
 
-	size_t i;
-	int y,x;
-	WINDOW* curr_win = getkeywin();
-
-	//clear the curr_win
-	getyx(curr_win,y,x);
-	for (i = 0; i <= printbuff_ind; i++)
-		mvwprintw(curr_win,y,x-i," ");
-
-	wmove(curr_win,y,x-printbuff_ind);
-	wnoutrefresh(curr_win);
-	printbuff_ind = 0;
+	//and then clear the print buffer and cmd window
 }
 
-//fetches the command from the window and does some cleaning on the screen
-int readprintbuff()
-{
-	WINDOW* curr_win = getkeywin();
-	//copy the printbuff into the cmd buff
-	strcpy(cmdbuff,printbuff);
-
-	//print the current print buffer
-//	printdisp(printbuff);
-
-	//erase the last inputs
-	size_t i;
-	int y,x;
-	getyx(curr_win,y,x);
-	for (i = 0; i <= printbuff_ind; i++)
-		mvwprintw(curr_win,y,x-i," ");
-
-	wmove(curr_win,y,x-printbuff_ind);
-	wnoutrefresh(curr_win);
-	printbuff_ind = 0;
-	return 0;
-}
-
-//--END TESTING---------------------------
-
-//the default action to take place when a key is pressed
-//default action is to print the key pressed to the current window
+/*the default action to take place when a key is pressed */
 int default_event(int curr_key)
 {
-	WINDOW* curr_win = getkeywin();
-	waddch(curr_win,curr_key); 
-	wnoutrefresh(curr_win);
-	return 0;
-}
+	/*
+ 	 * The default action for any key that is pressed is to add the key to the
+ 	 * command buffer and print the key to the command bar if it is printable.
+ 	 */
 
-//helper function for __add_default_keys
-/* sets up the keyevent list */
-void initkeyevents()
-{
-	size_t i;
-	for (i = 0; i < NEVENTS; i++)
-		addkeyevent(i,&default_event);
+	//first write to the input buffer...
+	cmdbuff[cmdbuff_index++] = curr_key;
+
+	//...and then print to the output window if printable
+	if(curr_key <= PRINTKEY_RANGE_MAX && curr_key >= PRINTKEY_RANGE_MIN)
+	{
+		WINDOW* curr_win = getkeywin();
+		waddch(curr_win,curr_key); 
+		wnoutrefresh(curr_win);
+	}
+
+	return 0;
 }
 
 //helper function for starttui
 /* sets up the default key events */
 int __add_default_keys()
 {
-	initkeyevents();
+	/* for now set all keys initially to the default event */
+	size_t i;
+	for (i = 0; i < NEVENTS; i++)
+		addkeyevent(i,&default_event);
 
-	//--default events------------------------------
+	//--other default events------------------------------
 	//ESC closes the tui
 	check(!addkeyevent(ESC_KEY, (event_func_type)stoptui),"failed to add event for key: %i",ESC_KEY); 
 
 	//ENTER closes
-//	check(!addkeyevent(ENTER_KEY, (event_func_type)readprintbuff),"failed to add event for key: %i",ENTER_KEY);
+	check(!addkeyevent(ENTER_KEY, (event_func_type)sendcmd),"failed to add event for key: %i",ENTER_KEY);
 
 	//we want backspacing
 	//check_expr(addkeyevent(KEY_BACKSPACE,(event_func_type)stoptui),0,"failed to add key event");
 
-	//--END default events---------------------------
+	//--END other default events---------------------------
 	return 0;
 
 	error:
@@ -180,34 +142,40 @@ void* starttui(void* null)
 {
 	//vars
 	int error_code = 0;
-	
+
+	//init print buffer
+	cmdbuff[0] = '\0';
+	cmdbuff_index = 0;
+
+	//init thread mutexes and conditions
 	pthread_mutex_init(&wait_mutex, NULL);
 	pthread_cond_init(&wait_cond, NULL);
 
-	//init screen
+	//initial ncurses calls 
 	initscr();
 
 	//start the window manager
-	log_attempt("Starting window refresher");
-	error_run(!(error_code = pthread_create(&winthread,NULL,startwinmgr,NULL)), log_failure("Could not start window refresher"));
+	error_code = pthread_create(&winthread,NULL,startwinmgr,NULL);
+	check(!error_code, "could not start window manager....aborting");
 	//wait till the winmgr says it's ok to move on
 	tui__wait();
-	log_success();
 
 
 	//start the keyboard controller
-	log_attempt("Starting keyboard controller");
 	WINDOW* cmdbar = getcmdbar();
-	error_run(!(error_code = pthread_create(&kbthread,NULL,startkeyctlr,(void*)cmdbar)), log_failure("Could not start keyboard controller: %i",error_code));
+	error_code = pthread_create(&kbthread,NULL,startkeyctlr,(void*)cmdbar);
+	check(!error_code, "could not start keyboard controller....aborting");
 	//wait till the kbdmgr says it's ok to move on
 	tui__wait();
-	log_success();
 	
 	//add default key events
 	__add_default_keys();
 
 	//move the cursor to the CMDBAR
 	wmove(getcmdbar(),1,0);
+
+	//let parent thread know that we're ready to move on
+	cli_ready();
 
 	//wait for keyboard controller thread to end
 	pthread_join(kbthread,NULL);
@@ -227,13 +195,15 @@ void* starttui(void* null)
 int stoptui()
 {
 	debug("stopping tui...");
-	running = 0;
+	//stop all managers
 	stopwinmgr();
 	stopkeyctlr();
 
+	//gracefully wait till the managers have stopped....
 	pthread_join(kbthread,NULL);
 	pthread_join(winthread,NULL);
 
+	//free all the data we've used.
 	__free_winstructs();	
 	endwin();
 	return 0;
