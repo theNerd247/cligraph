@@ -40,6 +40,9 @@
 //#define NLOG //uncomment to turn off logging 
 #include "dbg.h"
 
+#define PLUGIN_PATH "plugin"
+#define DL_LOAD_FLAG (RTLD_LAZY || RTLD_GLOBAL)
+
 typedef struct dlmap_node_st
 {
 	void* handle;

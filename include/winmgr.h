@@ -15,14 +15,15 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * winmgr.h 
+/**
+ * @file winmgr.h 
  *
- * AUTHOR: Noah Harvey
- * 
- * EMAIL: noah.harvey247 @gmail.com
+ * @brief macros and functions for the window manager.
  *
- * DESCRIPTION: manager of the windows 
+ * These functions are not plugin safe unless otherwise specified.
+ *
+ * @author Noah Harvey (noah.harvey247@gmail.com)
+ * @copyright GNU Public License 2
  */
 
 #include <ncurses.h>
@@ -63,7 +64,7 @@
 //--END GLOBALS---------------------------
 
 /**
- * sets the display window
+ * @brief sets the display window.
  *
  * @param win - the window to use for the display window
  *
@@ -73,8 +74,9 @@
 int setdispwin(WINDOW* win);
 
 /**
- * returns a pointer to the current window being used as the display window
+ * @brief returns the current display window.
  *
+ * This is a plugin safe function; call it as often as you like!
  * 
  * @return WINDOW* - the current display window
  * 
@@ -82,54 +84,40 @@ int setdispwin(WINDOW* win);
 WINDOW* getdispwin();
 
 /**
- * returns a pointer to the window that is used for the display bar.
- *
- * 
+ * @brief returns the command bar window.
+ *   
  * @return WINDOW* - the command bar
  * 
  */
 WINDOW* getcmdbar();
 
-/*
- * FUNCTION: fetchchars
- * 
- * DESCRIPTION: fetches the last printed characters in the current window held
- * by the keycontroller at x,y (this only returns up to the first new-line
- * character as it uses mvwgetnstr(). This function removes the characters from
- * the current window
- *
- * PARAMETERS: size_t xpos, size_t ypos, size_t n
- *
- * RETURNS: char* - string contained. Return NULL on error or if no characters
- * were found
- * 
- */
-char* fetchchars(size_t xpos, size_t ypos, size_t n);
-
 /**
- * initializes all default window structures. This doesnot actually call for the
- * structures to be displayed.
+ * @brief initializes all default window structures. 
  *
+ * This function does perform wnoutrefresh() calls, but the actuall displaying
+ * of the windows is performed by startwinmgr() .
  * 
- * @return int - error code: 0 - no error; 1 - error occured
+ * @return int - 0: no error, 1: something whent wrong.
  * 
  */
 int __init_winstructs();
 
-/*
- * FUNCTION: __free_winstructs
+/**
+ * @brief gracefully frees all the memory used by the windows the window manager
+ * uses.
  * 
- * DESCRIPTION: frees all the window structures when done
+ * @bug If the function fails then a seg-fault may occure.
  *
- * PARAMETERS: 
- *
- * RETURNS: void - never fails
+ * @return void - 
  * 
  */
 void __free_winstructs();
 
 /**
- * starts the window manager. Call this method when creating a new thread.
+ * @brief starts the window manager. 
+ *
+ * This function is called from starttui() and must call tui_ready() in order
+ * for the tui to finish loading.
  *
  * @param null - 
  *
@@ -139,8 +127,10 @@ void __free_winstructs();
 void* startwinmgr(void* null);
 
 /**
- * stops running the window manager
+ * @brief gracefully stops running the window manager.
  *
+ * This function: frees all memory used by the window manager and stops running
+ * the manager's controller loop.
  * 
  * @return void - 
  * 

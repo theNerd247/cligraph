@@ -1,5 +1,5 @@
 // Zed Shaw's Debug macros. Pretty fancy, that.
-// Comments by Ben Davenport-Ray.
+// Comments by Ben Davenport-Ray and Noah Harvey
 #ifndef __dbg_h__
 #define __dbg_h__
 

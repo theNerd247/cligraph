@@ -16,16 +16,19 @@
  */
 
 /**
- * tui.h 
+ * @file tui.h 
  *
- * AUTHOR: Noah Harvey
+ * @brief the functions that controll the tui core.
  *
- * VERSION: v0.0.1
+ * These functions are not plugin safe unless otherwise specified.
  *
- * declaration file for window functions
+ * @author Noah Harvey (noah.harvey247@gmail.com)
+ * @copyright GNU Public License 2
  */
 
 /**
+ * @internal 
+ * -----------------TUI LAYOUT NOTES------------------------
  * The physical screen shall have the following layout: 
  *
  * --|-----|-- --> menu/toolbar section
@@ -56,19 +59,25 @@
  * sub-menu is left up to the plugin, however each menu item must correspond to
  * a screen controlled by the plugin.
  *
- *--TUI LAYOUT--------------------------------------*/
+ *
+ */
 
 #include <ncurses.h>
 
 #ifndef __TUI
 #define __TUI
 
-//how fast to update the thread intervals
+/** the min ASCII value for printable characters*/
+#define PRINTKEY_RANGE_MIN 32
+/** the max ASCII value for printable characters */
+#define PRINTKEY_RANGE_MAX 126
+
+/** how fast to update the controll loops so we don't use up all our memory */
 #define DOUPDATE_INTERVAL 10000000
 
 /**
  * 
- * adds an item to the given menu (0-5) for other plugins
+ * @brief adds an item to the given menu (0-5) for other plugins
  *
  * PARAMETERS: size_t num, ITEM* item
  *
@@ -78,6 +87,8 @@
 //int addmenuitem(size_t num, ITEM* item); don't make this callable yet
 
 /**
+ * @brief tells the tui controller that the calling thread is ready to move on.
+ *
  * The thread that controls the tui manager will sometimes need to wait till
  * crucial data has been setup and so it waits. Calling this function will tell
  * the tui thread that it's ok to proceed if it's waiting on a child thread to
@@ -91,10 +102,12 @@ void tui_ready();
 
 /**
  * 
- * starts running the tui as a thread-safe system
+ * @brief starts running the tui as a thread-safe system
  *
- * @param null (type: void*)- absolutely nothing, this exists only for
- * pthread_create()
+ * Called as the first "plugin" for cligraph. This sets up the core tui structs
+ * and managers.
+ *
+ * @param null - absolutely nothing
  *
  * @return void* - this will be NULL no matter what. errno is set if error
  * occures
@@ -103,13 +116,30 @@ void* starttui(void* null);
 
 /**
  * 
- * stops running the tui in a gracefull way
+ * @brief gracefully stops running the tui 
  *
- * @return int - always zero
+ * This function: frees all memory used by the tui manager, kills all running
+ * subthreads. If an error occurs during the stop process this function will
+ * perform a not-so-gracefull shutdown.
+ *
+ * @return void - 
  * 
- * NOTES: if there is an error in closing the tui it performs a force kill of
- * the thread that runs it. 
  */
-int stoptui();
+void stoptui();
+
+/**
+ * @brief attempts to execute the currently inputed command.
+ *
+ * This is the function that is called when the ENTER_KEY is pressed (notice it
+ * follows the event_func_type typedef). Never call this function directly as it
+ * is already loaded at startup and cannot be removed or overridden. If you wish
+ * to have a function called when the enter key is pressed see addcmdevent().
+ *
+ * @param key - the ENTER_KEY
+ *
+ * @return int - allways 0
+ * 
+ */
+int sendcmd(int key);
 
 #endif 

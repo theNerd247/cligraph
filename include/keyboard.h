@@ -15,14 +15,16 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * keyboard.h 
+/**
+ * @file keyboard.h 
  *
- * AUTHOR: Noah Harvey
- * 
- * EMAIL: noah.harvey247 @gmail.com
+ * functions used by the keyboard controller. 
  *
- * DESCRIPTION: function prototypes for the keyboard controller
+ * These functions are not plugin safe unless otherwise specified. If you are
+ * looking for keyboard interfaces for plugins then please see cligraph.h
+ *
+ * @author Noah Harvey (noah.harvey247@gmail.com)
+ * @copyright GNU Public License 2
  */
 
 #include <ncurses.h>
@@ -33,31 +35,31 @@
 #ifndef __KEYBOARDCTL
 #define __KEYBOARDCTL
 
-//the maximum number of keys 
+/** the number of keyboard events */
 #define NEVENTS 634
 
-/*
- * FUNCTION: startkeyctlr
+/**
+ * @brief starting function for the keyboard controller.
+ *
+ * This function is called by starttui() to start a new thread. This function
+ * must call the tui_ready() function to signal that it's finished setting up.
  * 
- * DESCRIPTION: starts the keycontrolling thread
+ * @param window - the initial window to use for the keyboard controller.
+ * by default this is the command bar.
  *
- * PARAMETERS: WINDOW* window - window to run the ctrller on (typically this
- * will be the cmdbar)
- *
- * RETURNS: void* - absolutely nothing so far
+ * @return void* - NULL
  * 
  */
 void* startkeyctlr(void* window);
 
-/*
- * FUNCTION: stopkeyctlr
+/**
+ * @brief gracefully stops running the keyboard controller.
  * 
- * DESCRIPTION: stops the key controller in a graceful way. This is a safe
- * function to call in need of immediate shutdown
+ * This function: frees all memory associated to the keyboard controller, an halts the
+ * controller loop that runs the keyboard controller.
  *
- * PARAMETERS: 
- *
- * RETURNS: void - nothing.
+ * 
+ * @return void - 
  * 
  */
 void stopkeyctlr();

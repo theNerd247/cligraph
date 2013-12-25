@@ -8,14 +8,12 @@ Nothing to install....yet...Although, this program will rely on GNU make.
 
 URLs
 ====
-	* http: http://www.github.com/theNerd247/cligraph
-	* ssh:  git@github.com:theNerd247/libstr.git
+	* Project Website: http://www.github.com/theNerd247/cligraph
 
 Documentation
 =============
-Documentation is done doxygen style. You will find a file called doxygen.conf
-that will contain the configuration data for doxygen. See this file for the
-details on documentation.
+Documentation is done doxygen style. Man pages are generated during installation
+time. For API development see the CONTRIBUTING file. 
 
 Help and Bugs
 =============

@@ -23,6 +23,9 @@ REQUIRED_DIRS=$(BINDIR) $(LIBDIR)
 
 ## END DIRS ############################
 #
+## FILES ##############################
+DOXYGEN_CONFIG_FILE=$(PREFIX)/doxygen.conf
+## END FILES ############################
 #
 ## FLAGS ##############################
 
@@ -53,7 +56,7 @@ OBJECTS:=$(filter-out $(LIBOBJECTS), $(OBJS))
 
 TARGET=$(BINDIR)/$(PROJECT)
 
-.PHONY: all setup clean package 
+.PHONY: all setup clean package doc
 
 all: clean setup $(TARGET)
 
@@ -81,7 +84,7 @@ clean: CLEAN += $(OBJECTS) $(LIBOBJECTS)
 clean: 
 	rm -rf $(CLEAN)
 
-#$(SUBDIRS):
-#	$(MAKE) -C $@ $(MAKECMDGOALS)
+doc:
+	doxygen $(DOXYGEN_CONFIG_FILE)
 
 ## END TARGETS ############################

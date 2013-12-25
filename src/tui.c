@@ -58,14 +58,15 @@ static unsigned char wait_sig;
 static char cmdbuff[10000];
 int cmdbuff_index;//editor functions use this to know where to place data in the buffer.
 
-void sendcmd(int key)
+int sendcmd(int key)
 {
 	//print whatever is in the print buffer
 	WINDOW* dispwin = getdispwin();
 	wprintw(dispwin,"%s",cmdbuff);
 	wnoutrefresh(dispwin);
 
-	//and then clear the print buffer and cmd window
+	//TODO: clear the print buffer and cmd window
+	return 0;
 }
 
 /*the default action to take place when a key is pressed */
@@ -192,7 +193,7 @@ void* starttui(void* null)
 //--stoptui()------------------------------
 
 /* stops running the tui interface */
-int stoptui()
+void stoptui()
 {
 	debug("stopping tui...");
 	//stop all managers
@@ -206,7 +207,6 @@ int stoptui()
 	//free all the data we've used.
 	__free_winstructs();	
 	endwin();
-	return 0;
 }
 
 //--END stoptui()---------------------------
