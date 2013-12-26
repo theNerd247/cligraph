@@ -15,6 +15,31 @@ Before we get into the meat of cligraph please keep a few things in mind:
 * Cligraph uses threading - namely POSIXS style threads commonly known as
   pthreads. All functions that are written MUST be thread and memory safe. 
 
+Code Standards
+--------------
+* Please comment all code as detailed as possible. It makes it easy to fix bugs
+when someone else can figure out your code without needing to spend an hour
+parsing it. 
+
+* Use doxygen style formatting for your comments
+
+for controll statements: 
+* do not put spaces between the parenthesis and the conditions for example: 
+    do this:   if(!foobar > 3)
+    not this:  if( !foobar > 3 ) 
+
+* put the braces for a function or control statement on a new line: 
+    do this: 
+    function()
+		{
+    	//some code
+    }
+
+* it is recommended that you do not use one line if statements but it's ok if
+  you do.
+
+* please make much use of the dbg.h function in the main project includes
+  directory. It contains very valuable debuging tools.
 
 How cligraph works
 ==================
@@ -87,7 +112,7 @@ the graphs are to be drawn, computation output is to be shown, and pretty much
 everything else. You can think of it as the main screen on a normal graphing
 calculator. 
 
-There should be a single, borderless display window for each menu (but no more). Only one
+There is to be a single, borderless display window for each menu (but no more). Only one
 display window can be viewed at a time. A single window pointer has been created
 called DISPWIN that holds the currently displayed window, though plugin
 developers should use setdispwin() to show a display window. Each plugin will
@@ -126,12 +151,33 @@ test
 
 Build Target
 ------------
+The build target for a plugin is a shared library in the form:
+
+     lib<plugin-name>.so
+
+This shared object will get loaded dynamically at run time. If you're plugin has
+dependencies on other plugins you can use getfuncref() to call functions from
+other plugins. This should be limited and exists only for the purpose of
+resolving minor dependency issues.
 
 Makefile
 --------
+If the build target does not exist cligraph will attempt to build the target if
+a Makefile is present. In the main project directory there exists a Makefile.plg
+file that you can use to create new plugins.
 
 Source Files
 ------------
+All source files should reside in the src directory of a plugin. Amoungst your
+source files there must be a function with the prototype 
+"void* start<plugin-name>(void*)" (for example the test plugin has a function
+called void* starttest(void*) ). This is the first function that will be called
+to start a plugin. 
+
+Although the start function above is the only standard so far, it is recomended
+that you also include a function called stop<plugin-name> that stops the given
+plugin.
 
 Include Files
 -------------
+This is where all the header files for that plugin should go. 

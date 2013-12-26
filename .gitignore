@@ -20,3 +20,6 @@ tags
 
 #hidden files
 .*
+
+#doc pages
+doc/
