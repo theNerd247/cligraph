@@ -1,11 +1,17 @@
 // Zed Shaw's Debug macros. Pretty fancy, that.
-// Comments by Ben Davenport-Ray.
+// Comments by Ben Davenport-Ray and Noah Harvey
 #ifndef __dbg_h__
 #define __dbg_h__
 
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <pthread.h>
+
+//--THREADS ------------------------------
+#define lock(a) pthread_mutex_lock(&a)
+#define unlock(a) pthread_mutex_unlock(&a)
+//--END THREADS ---------------------------
 
 #ifdef NDEBUG
 #define debug(M, ...)

@@ -1,11 +1,16 @@
 #Testing Files
 testing/
+tst/
+test/
+log.txt
 
 #executables and objects
 bin/
 obj/
-lib/
-*.so
+doc/
+lib*/
+*.*o
+*.*a
 
 #swp files
 *.sw*
@@ -15,3 +20,6 @@ tags
 
 #hidden files
 .*
+
+#doc pages
+doc/

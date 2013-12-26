@@ -1,0 +1,183 @@
+Contributing to cligraph
+========================
+
+Here you will find the in's and out's of developing for cligraph. If you want to
+develop plugins for cligraph see the plugin section below. Other wise start with
+"How Cligraph Works". 
+
+Some Notes
+----------
+Before we get into the meat of cligraph please keep a few things in mind: 
+
+* This project is very young, many bugs still exist as the entire system hasn't
+  been thoroughly tested yet. If you run into trouble please create a bug report
+	and try solving the problem on your own.
+* Cligraph uses threading - namely POSIXS style threads commonly known as
+  pthreads. All functions that are written MUST be thread and memory safe. 
+
+Code Standards
+--------------
+* Please comment all code as detailed as possible. It makes it easy to fix bugs
+when someone else can figure out your code without needing to spend an hour
+parsing it. 
+
+* Use doxygen style formatting for your comments
+
+for controll statements: 
+* do not put spaces between the parenthesis and the conditions for example: 
+    do this:   if(!foobar > 3)
+    not this:  if( !foobar > 3 ) 
+
+* put the braces for a function or control statement on a new line: 
+    do this: 
+    function()
+		{
+    	//some code
+    }
+
+* it is recommended that you do not use one line if statements but it's ok if
+  you do.
+
+* please make much use of the dbg.h function in the main project includes
+  directory. It contains very valuable debuging tools.
+
+How cligraph works
+==================
+Cligraph was created to be a dynamic and modular program that supports plugins.
+Infact everything from computing equations to graphing functions has been
+written as plugins. The core of cligraph is simply a handful of "managers" that
+keep track of the necessary tools needed to run cligraph.
+
+Startup
+-------
+When the cligraph program is started it first starts the "tui". This is done by
+creating a new thread where all of the ncurses interfacing is done. From now on
+this thread will be known as the tui thread. After the tui thread is called to
+start the main function waits until it recieves an ok signal from the tui thread
+before moving on. This prevents plugins from segfaulting or worse. If the tui
+thread crashes for whatever reason (or doesn't send the signal on time) then the
+program will attempt to terminate gracefully. For more details on the innards of
+the tui manager please see below.
+
+After the tui thread is started the plugins are loaded. (See the plugin section
+below for how plugins should be organized.) Each plugin is started up on its own
+thread and is left alone by the program from there. 
+
+Once the plugins are loaded the tui manager will begin waiting for input from
+the user.
+
+Termination
+-----------
+The program terminates naturally when the tui thread terminates. This can be
+done by user input (the ESC_KEY) or something bad happens. Once the tui thread
+shuts down cligraph will call for each plugin that was loaded to terminate its
+thread. If an error occurs during shutdown then the plugin manager will call a
+SIGTERM on all threads to force a termination. If no plugins rely on saving
+memory to the hard drive then the only "big deal" with termination is restoring
+the terminal back to normal by exiting ncurses mode. 
+
+TUI Manager
+===========
+The tui manager is quite simple. It is composed of two sub-managers known as the
+keyboard manager and the window manager and a command hook system.
+
+The keyboard manager handles only keyboard events. This is done by using the
+ncurses getchr function and calling the returned key's mapped function. Every
+function that is called by the keyboard manager during this process must be of
+event_func_type (see cligraph.h). The keyboard manager runs on its own thread
+and upon startup it uses a similiar signalling system as above to tell the tui
+manager that it's ok to move on.
+
+The window manager is the meat of the tui manager. It handles the
+initialization, deletion, updating, moving, and pretty much anything else you
+can think of in relation to ncurses windows. This is the first manager thread of
+the two that is started. Like the keyboard manager it uses a signalling system
+to tell the tui thread it's ok to move on. 
+
+Windows
+-------
+All the windows in cligraph are ncurses windows. Menus are used to make the
+menubar work. 
+
+### Menu Bar
+
+Each menubar can be access via a coorelating function key on the
+keyboard. Once an function key is pressed the keyboard manager should switch to
+coorelating window holding that menu and they hook manager should load the
+proper command function. 
+
+### Display Window 
+The display window is where the main program output can be seen. This is where
+the graphs are to be drawn, computation output is to be shown, and pretty much
+everything else. You can think of it as the main screen on a normal graphing
+calculator. 
+
+There is to be a single, borderless display window for each menu (but no more). Only one
+display window can be viewed at a time. A single window pointer has been created
+called DISPWIN that holds the currently displayed window, though plugin
+developers should use setdispwin() to show a display window. Each plugin will
+get a single display window on that it can use to display whatever it wants. This window
+should only be accessable to the user by a menu on the screen. Sub-menus for
+this last menu will be created to list the different plugins that use a custom
+display window. See the plugins section for details on how the plugin windows
+work.
+
+### Command Bar
+The command bar is the main user interface. This is where the user can enter
+printable characters (numbers and letters...) to create equations, call
+functions, perform calculations and so forth. This is the keyboard managers
+default window. 
+
+Plugins
+=======
+Plugins are the meat of cligraph. They define the algorithms to use for various
+tasks (doing calculus, algebra, computations, graphing, etc...). 
+
+File Structure
+--------------
+Each plugin should reside as a seperate project in a directory that is the name
+of the plugin. For example all the files for the "test" plugin should be found
+in a directory called "test". This directory should be located in the "plugin"
+directory. Below is an example file structure for a plugin called "test":
+
+test
+|
+|-libtest.so --> the target of the make file.
+|-Makefile --> a Makefile that is used to build the plugin
+|-src/ --> where the source files are located.
+  |
+  |-test.c --> a sample source file.
+|-include/ --> the header files for the plugin.
+
+Build Target
+------------
+The build target for a plugin is a shared library in the form:
+
+     lib<plugin-name>.so
+
+This shared object will get loaded dynamically at run time. If you're plugin has
+dependencies on other plugins you can use getfuncref() to call functions from
+other plugins. This should be limited and exists only for the purpose of
+resolving minor dependency issues.
+
+Makefile
+--------
+If the build target does not exist cligraph will attempt to build the target if
+a Makefile is present. In the main project directory there exists a Makefile.plg
+file that you can use to create new plugins.
+
+Source Files
+------------
+All source files should reside in the src directory of a plugin. Amoungst your
+source files there must be a function with the prototype 
+"void* start<plugin-name>(void*)" (for example the test plugin has a function
+called void* starttest(void*) ). This is the first function that will be called
+to start a plugin. 
+
+Although the start function above is the only standard so far, it is recomended
+that you also include a function called stop<plugin-name> that stops the given
+plugin.
+
+Include Files
+-------------
+This is where all the header files for that plugin should go. 

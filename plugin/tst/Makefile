@@ -1,12 +1,11 @@
 ##############################
-# @file Makefile for cligraph
+# @file Makefile for tst plugin
 # @author Noah Harvey <noah.harvey247@gmail.com>
 ##############################
 #
 ## PROJECT ##############################
-
-SHELL=/bin/sh
-PROJECT=cligraph
+SHELL=/bin/sh 
+PROJECT=tst
 VERSION=0.1
 
 ## END PROJECT ############################
@@ -17,24 +16,25 @@ PREFIX=.
 BINDIR=$(PREFIX)/bin
 IDIR=$(PREFIX)/include
 SRCDIR=$(PREFIX)/src
+TSTDIR=$(PREFIX)/test
 LIBDIR=$(PREFIX)/lib
+
 CLEAN=$(LIBDIR) $(BINDIR)
 REQUIRED_DIRS=$(BINDIR) $(LIBDIR)
 
 ## END DIRS ############################
 #
-## FILES ##############################
-DOXYGEN_CONFIG_FILE=$(PREFIX)/doxygen.conf
-## END FILES ############################
 #
 ## FLAGS ##############################
 
-LLIBS=dl llist pthread ncurses menu
+#libraries to link in
+LLIBS=cligraph
 LLIBS:=$(patsubst %, -l%, $(LLIBS))
+LLIB_SDIR=-L../../lib/
 
 export CC=gcc
-export CFLAGS=-I$(IDIR) -Wall -g -fPIC
-export LFLAGS=$(LLIBS) 
+export CFLAGS=-I$(IDIR) -I../../include -Wall -g -fPIC
+export LFLAGS=$(LLIB_SDIR) $(LLIBS) 
 
 SOFLAGS=-shared
 
@@ -42,26 +42,22 @@ SOFLAGS=-shared
 #
 ## OBJECTS ##############################
 
-OBJS:=$(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c))
-LIBOBJS=plugins.o tui.o winmgr.o keyboard.o
-LIBOBJS:=$(patsubst %.o, $(SRCDIR)/%.o, $(LIBOBJS))
-LIBOBJECTS=$(filter $(LIBOBJS), $(OBJS))
-LIBNAME=$(PROJECT)
-LIBTARGET=$(LIBDIR)/lib$(LIBNAME).so
-OBJECTS:=$(filter-out $(LIBOBJECTS), $(OBJS))
+OBJECTS:=$(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c))
+LIBNAME=$(LIBDIR)/lib$(PROJECT).a
+TSTOBJECTS=$(patsubst %.c, %.o, $(wildcard $(TSTDIR)/*.c))
 
 ## END OBJECTS ############################
 #
 ## TARGETS ##############################
 
-TARGET=$(BINDIR)/$(PROJECT)
+TARGET=lib$(PROJECT).so
 
-.PHONY: all setup clean package doc
+.PHONY: all setup clean package test
 
-all: clean setup $(TARGET)
+all: setup $(TARGET)
 
 #for debuging this make file
-debugmk: 
+debugmk:
 	@echo $(OBJECTS)
 	@echo $(LIBOBJECTS)
 
@@ -69,22 +65,23 @@ debugmk:
 setup:
 	@mkdir -p $(REQUIRED_DIRS)
 
-$(LIBTARGET): $(LIBOBJECTS)
-	$(CC) -o $(LIBTARGET) $(LIBOBJECTS) $(SOFLAGS) $(LFLAGS)
+$(LIBNAME): $(OBJECTS)
+	ar rcs $@ $(OBJECTS)
+	ranlib $@
 
-$(TARGET): $(LIBTARGET) $(OBJECTS)
-	$(CC) -o $@ $(OBJECTS) $(LFLAGS) -L$(LIBDIR) -l$(LIBNAME)
+$(TARGET): $(OBJECTS)
+	$(CC) -o $@ $(OBJECTS) $(SOFLAGS) $(LFLAGS)  
 
-#perform a recursive build 
 #build: $(SUBDIRS)
 
-#perform a recursive clean
 #clean: $(SUBDIRS)
-clean: CLEAN += $(OBJECTS) $(LIBOBJECTS)
-clean: 
+clean: CLEAN += $(OBJECTS) $(TSTOBJECTS)
+clean:
 	rm -rf $(CLEAN)
 
-doc:
-	doxygen $(DOXYGEN_CONFIG_FILE)
+test: all $(TSTOBJECTS)
+	$(CC) -o tst $(TSTOBJECTS) $(LFLAGS) -L. -l$(PROJECT) 
 
+#$(SUBDIRS):
+#	$(MAKE) -C $@ $(MAKECMDGOALS)
 ## END TARGETS ############################
