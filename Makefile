@@ -18,7 +18,7 @@ BINDIR=$(PREFIX)/bin
 IDIR=$(PREFIX)/include
 SRCDIR=$(PREFIX)/src
 LIBDIR=$(PREFIX)/lib
-CLEAN=$(LIBDIR) $(BINDIR)
+CLEAN=$(LIBDIR) 
 REQUIRED_DIRS=$(BINDIR) $(LIBDIR)
 
 ## END DIRS ############################
@@ -29,7 +29,7 @@ DOXYGEN_CONFIG_FILE=$(PREFIX)/doxygen.conf
 #
 ## FLAGS ##############################
 
-LLIBS=dl llist pthread ncurses menu
+LLIBS=dl llist pthread ncurses menu m
 LLIBS:=$(patsubst %, -l%, $(LLIBS))
 
 export CC=gcc
@@ -58,7 +58,7 @@ TARGET=$(BINDIR)/$(PROJECT)
 
 .PHONY: all setup clean package doc
 
-all: clean setup $(TARGET)
+all: setup $(TARGET)
 
 #for debuging this make file
 debugmk: 

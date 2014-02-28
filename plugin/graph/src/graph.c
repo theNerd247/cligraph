@@ -39,6 +39,7 @@ struct table* makefancy(struct table* tble)
  	* Assume: - X = {0,1,2,...,n}
  	* 				- y exists for each x 
  	*/
+	return NULL;
 }
 
 int pgraph(struct table* tble)

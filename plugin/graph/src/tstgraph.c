@@ -7,13 +7,14 @@
 #include "table.h"
 
 //new includes
+#include <ncurses.h>
 #include "cligraph.h" 
 #include "dbg.h"
 
 #define ENTER_KEY 10 
 
-int xsize = 100;
-int ysize = 100;
+int xsize = 0;
+int ysize = 0;
 double domain;
 double range;
 
@@ -91,51 +92,15 @@ struct table* makegraph(FuncValues* values)
 	return newtble;
 }
 
-/*
- * int main(int argc, char const *argv[])
- * {
- * 	char* expr = "x^0.5";
- * 	FuncValues* values = getfuncvalues(expr,0,50,1);
- * 	struct table* graph = makegraph(values);
- * 
- * //	double xc = xsize/domain;
- * //	double yc = ysize/range;
- * //	printf("%lf %lf\n",xc,yc);
- * 	
- * 
- * /*
- *  * 	int i;
- *  * 	for (i = 0; i < values->length; i++)
- *  * 	{
- *  * 		POINT* value = (POINT*)llgetvalue(values,i);
- *  * 		printf("%lf, %lf\n", value->x,value->y);
- *  * 	}
- *  * 	 /
- * 
- * 	pgraph(graph);	
- * 
- * 	return 0;
- * }
- * 
- *  */
-
-int graphfunc(int key)
+int graphfunc(char* buff)
 {
-	debug("graph func called");
-//	printdisp("graph func called\n");
-/*
- * 	int (*getlastcmd)(char*);
- * 	getlastcmd = getfuncref("tui","getlastcmd");	
- * 	void (*printdisp)(const char*);
- * 	printdisp = getfuncref("tui","printdisp");
- * 
- * 	char buff[100];
- * 	getlastcmd(buff);
- * 	FuncValues* values = getfuncvalues(buff,0,50,1);
- * 	struct table* graph = makegraph(values);
- * 	printdisp((char*)graph->cells);
- *  */
+	xsize = 20;
+	ysize = 20; 
+	FuncValues* values = getfuncvalues(buff,-10,10,1);
+	struct table* graph = makegraph(values);
+	pgraph(graph);
 	return 0;
+
 }
 
 int main(int argc, char const *argv[])
@@ -149,7 +114,7 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
-void startgraph(void* null)
+void* startgraph(void* null)
 {
-	addkeyevent(ENTER_KEY,&graphfunc);
+	return NULL;
 }

@@ -79,6 +79,8 @@ int main(int argc, char const *argv[])
 	//init variables 
 	int error_code = 0;
 	pthread_t tui_thread;
+	pthread_mutex_init(&wait_mutex, NULL);
+	pthread_cond_init(&wait_cond, NULL);
 
 	//move all stdout prints to a log file
 	freopen(__LOG_FILE_PATH,__WRITE_MODE,stderr);

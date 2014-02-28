@@ -70,4 +70,7 @@
 // Run something if an error occurs
 #define error_run(A,C) if(!(A)) { C; goto error;}
 
+//added by Noah Harvey
+#define check_error(A) if(!(A)) {goto error;}
+
 #endif

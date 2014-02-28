@@ -31,8 +31,7 @@
 #ifndef __CLIGRAPH
 #define __CLIGRAPH
 
-//--PLUGINS ------------------------------
-
+//--PLUGINS ------------------------------ 
 /**
  * returns a void pointer to the function in the given plugin. 
  *
@@ -109,12 +108,12 @@ int addkeyevent(int key, event_func_type func);
  * 
  * @param key - the key to set the function to.
  *
- * @return void  
+ * @return int - see addkeyevent() return cases  
  * 
  * @todo check for invalid keys
  * @todo replace removed keys to the "do nothing" function.
  */
-void removekeyevent(int key);
+int removekeyevent(int key);
 
 /**
  * @brief sets the window the keyboard controller should accept keys from.
@@ -129,10 +128,7 @@ void removekeyevent(int key);
  */
 int setkeywin(WINDOW* win);
 
-/**
- * @brief grabs the window the keyboard controller currently holds.
- *
- * @return WINDOW* - window pointer. NULL is returned if an error occurs
+/** * @brief grabs the window the keyboard controller currently holds.  * * @return WINDOW* - window pointer. NULL is returned if an error occurs
  * 
  */
 WINDOW* getkeywin();
@@ -157,5 +153,22 @@ WINDOW* getkeywin();
 int addcmdevent(WINDOW* win, cmd_func_type func);
 
 //--END COMMANDS---------------------------
+
+//--WINDOWS------------------------------
+
+/**
+ * @brief prints a buffer to the current display window.
+ *
+ * The printing of this buffer will start at coordinates 0,0 by default. This
+ * function is useful for being called by a graphing function.
+ * 
+ * @param buff - 
+ *
+ * @return int - 0: no error; 1: error occured
+ * 
+ */
+int printdispwin(char* buff);
+
+//--END WINDOWS---------------------------
 
 #endif 

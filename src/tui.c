@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h> 
 
+#define NDEBUG
 #include "dbg.h"
 #include "cligraph.h"
 #include "tui.h"
@@ -52,41 +53,52 @@ static unsigned char wait_sig;
 //--END THREADS---------------------------
 
 /* status of the tui manger */
-//--starttui()------------------------------
 
 //the input buffer for the command bar
 static char cmdbuff[10000];
-int cmdbuff_index;//editor functions use this to know where to place data in the buffer.
+static int cmdbuff_index;//used by printable_event to place characters pressed inside the cmdbuff
 
-int sendcmd(int key)
+/* the cmd event for the command bar (performed when enter key is pressed inside
+ * the cmdbar */
+int cmdbar_cmdevent(WINDOW* cmdbar)
 {
-	//print whatever is in the print buffer
-	WINDOW* dispwin = getdispwin();
-	wprintw(dispwin,"%s",cmdbuff);
-	wnoutrefresh(dispwin);
+	int (*graph)(char*) = (int (*)(char*))getfuncref("graph","graphfunc");
+	graph(cmdbuff);
 
-	//TODO: clear the print buffer and cmd window
+	//clear the cmdbar and the cmdbuffer
+	size_t i;
+	for (i = 0; i <= cmdbuff_index; i++)
+		cmdbuff[i] = '\0';
+
+	cmdbuff_index = 0;
+
+	//clear the command bar
+	wmove(cmdbar,1,0);
+	wclrtoeol(cmdbar);
+	wnoutrefresh(cmdbar);
+
 	return 0;
 }
 
-/*the default action to take place when a key is pressed */
-int default_event(int curr_key)
+int printdispwin(char* buff)
 {
-	/*
- 	 * The default action for any key that is pressed is to add the key to the
- 	 * command buffer and print the key to the command bar if it is printable.
- 	 */
+	mvwprintw(getdispwin(),0,0,"%s",buff);
+	wnoutrefresh(getdispwin());
+	return 0;
+}
 
+//--starttui()------------------------------
+
+/*the default action to take place when a printable key is pressed */
+int printable_event(int curr_key)
+{
 	//first write to the input buffer...
 	cmdbuff[cmdbuff_index++] = curr_key;
 
 	//...and then print to the output window if printable
-	if(curr_key <= PRINTKEY_RANGE_MAX && curr_key >= PRINTKEY_RANGE_MIN)
-	{
-		WINDOW* curr_win = getkeywin();
-		waddch(curr_win,curr_key); 
-		wnoutrefresh(curr_win);
-	}
+	WINDOW* curr_win = getcmdbar();
+	waddch(curr_win,curr_key); 
+	wnoutrefresh(curr_win);
 
 	return 0;
 }
@@ -95,20 +107,18 @@ int default_event(int curr_key)
 /* sets up the default key events */
 int __add_default_keys()
 {
-	/* for now set all keys initially to the default event */
+	//set all the printable keys to print to the command bar	
 	size_t i;
-	for (i = 0; i < NEVENTS; i++)
-		addkeyevent(i,&default_event);
+	for (i = PRINTKEY_RANGE_MIN; i <= PRINTKEY_RANGE_MAX; i++)
+		check_error(!addkeyevent(i,&printable_event));
 
 	//--other default events------------------------------
 	//ESC closes the tui
-	check(!addkeyevent(ESC_KEY, (event_func_type)stoptui),"failed to add event for key: %i",ESC_KEY); 
+	check_error(!addkeyevent(ESC_KEY, (event_func_type)stoptui)); 
 
-	//ENTER closes
-	check(!addkeyevent(ENTER_KEY, (event_func_type)sendcmd),"failed to add event for key: %i",ENTER_KEY);
-
-	//we want backspacing
-	//check_expr(addkeyevent(KEY_BACKSPACE,(event_func_type)stoptui),0,"failed to add key event");
+	//sendcmd is defined in keyboard.c
+	check_error(!addkeyevent(ENTER_KEY, sendcmd));
+	check_error(!addcmdevent(getcmdbar(),cmdbar_cmdevent));
 
 	//--END other default events---------------------------
 	return 0;
@@ -161,7 +171,6 @@ void* starttui(void* null)
 	//wait till the winmgr says it's ok to move on
 	tui__wait();
 
-
 	//start the keyboard controller
 	WINDOW* cmdbar = getcmdbar();
 	error_code = pthread_create(&kbthread,NULL,startkeyctlr,(void*)cmdbar);
@@ -169,9 +178,9 @@ void* starttui(void* null)
 	//wait till the kbdmgr says it's ok to move on
 	tui__wait();
 	
-	//add default key events
-	__add_default_keys();
-
+	//setup the default key and cmd events
+	check(!__add_default_keys(), "failed to add default keys....aborting");
+	
 	//move the cursor to the CMDBAR
 	wmove(getcmdbar(),1,0);
 
@@ -190,8 +199,6 @@ void* starttui(void* null)
 
 //--END starttui()---------------------------
 
-//--stoptui()------------------------------
-
 /* stops running the tui interface */
 void stoptui()
 {
@@ -208,5 +215,3 @@ void stoptui()
 	__free_winstructs();	
 	endwin();
 }
-
-//--END stoptui()---------------------------

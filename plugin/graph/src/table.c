@@ -51,7 +51,7 @@ struct table* inittble(int x_size, int y_size)
 
 struct table* inscell(struct table* tble, const int val, const int x, const int y)
 {
-	;
+	return NULL;
 }
 
 int getcell(struct table* tble, int x, int y)

@@ -34,10 +34,10 @@ Comming Soon
 
 TODO
 ====
-fix race condition between threads
 update README
 create documentation for code (man pages)
 write CONTRIBUTIONS file or section of the README.
 merge tui plugin as part of libcligraph.
 update github to be collaboration friendly
 switch build structure to cmake
+redo cmd_event structure
