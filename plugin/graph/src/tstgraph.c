@@ -94,9 +94,9 @@ struct table* makegraph(FuncValues* values)
 
 int graphfunc(char* buff)
 {
-	xsize = 20;
-	ysize = 20; 
-	FuncValues* values = getfuncvalues(buff,-10,10,1);
+	xsize = COLS;
+	ysize = LINES; 
+	FuncValues* values = getfuncvalues(buff,-(COLS/2),COLS/2,1);
 	struct table* graph = makegraph(values);
 	pgraph(graph);
 	return 0;

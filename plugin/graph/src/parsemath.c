@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 //from project libraries
 #include "parsemath.h"
 #include "strlib.h"
@@ -75,30 +76,36 @@ char* inspare(char* expr)
 	newexpr =	strins(newexpr,")",strlen(newexpr));
 
 	//insert around pre-existing parenthesis
-	int para_flag = ((char*)memchr(newexpr+1,'(',strlen(newexpr)))-newexpr;	
+	char* para = strpbrk("(",newexpr+1);
+	int para_flag = para == NULL ? -1 : para-newexpr;
+
 	int epara_flag = 0;
 
-	while(para_flag >= 0 )
+	while(para_flag >= 0)
 	{
 		newexpr = strins(newexpr,"(",para_flag);
 
-		epara_flag = ((char*)memchr(newexpr+para_flag,')',strlen(newexpr+para_flag+1)))-newexpr;
+		char* epara = ((char*)memchr(newexpr+para_flag,')',strlen(newexpr+para_flag+1)));
+		epara_flag = epara == NULL ? -1 : epara-newexpr;
 
 		if(epara_flag >= 0)
 			newexpr = strins(newexpr,")",epara_flag);
 
-		para_flag = ((char*)memchr(newexpr+epara_flag,'(',strlen(newexpr)))-newexpr;	
+		para = strpbrk("(",newexpr+1);
+		para_flag = para == NULL ? -1 : para-newexpr;
 	}
 
 	//insert before and after '+' and/or '-'
-	int p_flag = strpbrk(newexpr,"+-")-newexpr;
+	char* p_temp = strpbrk(newexpr,"+-");
+	int p_flag = p_temp == NULL ? -1 : p_temp-newexpr;
 	
 	while(p_flag >= 0)
 	{
 		newexpr = strins(newexpr,")",p_flag);
 		newexpr = strins(newexpr,"(",p_flag+2);
 
-		p_flag = strpbrk(newexpr+p_flag+2,"+-")-newexpr;
+		p_temp = strpbrk(newexpr,"+-");
+		p_flag = p_temp == NULL ? -1 : p_temp-newexpr;
 	}
 
 	return newexpr;

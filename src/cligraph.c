@@ -34,6 +34,14 @@
 #include "cligraph.h"
 #include "tui.h"
 
+//--LOGGING------------------------------
+//#define NLOG //uncomment to turn off logging 
+#include "dbg.h"
+
+#define __LOG_FILE_PATH "log.txt"
+#define __WRITE_MODE "w"
+//--END LOGGING---------------------------
+
 //--SEMI-INCLUDES------------------------------
 /*
  * In order for the functions in plugins.c to work we need to
@@ -44,6 +52,7 @@ void startplugins();
 void unloadplugins();
 //--END SEMI-INCLUDES---------------------------
 
+//mutexs for cli_ready() and __cli__wait
 static pthread_mutex_t wait_mutex;
 static pthread_cond_t wait_cond;
 static unsigned char wait_sig;
@@ -66,13 +75,7 @@ void __cli__wait()
 	return;
 }
 
-//--LOGGING------------------------------
-//#define NLOG //uncomment to turn off logging 
-#include "dbg.h"
 
-#define __LOG_FILE_PATH "log.txt"
-#define __WRITE_MODE "w"
-//--END LOGGING---------------------------
 
 int main(int argc, char const *argv[])
 {		

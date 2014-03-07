@@ -31,7 +31,7 @@
 #include <sys/time.h>
 #include <llist.h>
 
-#define keyboard_c
+#define keyboard_c 
 #include "cligraph.h"
 #include "keyboard.h"
 #include "tui.h"

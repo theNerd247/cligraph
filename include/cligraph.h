@@ -31,7 +31,20 @@
 #ifndef __CLIGRAPH
 #define __CLIGRAPH
 
-//--PLUGINS ------------------------------ 
+//--SPECIAL KEY CODES------------------------------
+#define ESC_KEY 27
+#define ENTER_KEY 10
+//--END SPECIAL KEY CODES---------------------------
+
+/** function type to use for cmd events */
+typedef int (*cmd_func_type)(WINDOW* win);
+
+/** function type for commands to be called through command bar */
+typedef void (*cmdbar_func)(char* text);
+
+/** function type to use for keyboard events */
+typedef int (*event_func_type)(int keycode);
+
 /**
  * returns a void pointer to the function in the given plugin. 
  *
@@ -61,20 +74,6 @@ void* getfuncref(char* plugname, char* funcname);
  * 
  */
 void cli_ready();
-
-//--END PLUGINS ---------------------------
-
-//--SPECIAL KEY CODES------------------------------
-#define ESC_KEY 27
-#define ENTER_KEY 10
-//--END SPECIAL KEY CODES---------------------------
-
-//--KEYBOARD------------------------------
-/** function type to use for keyboard events */
-typedef int (*event_func_type)(int keycode);
-
-/** function type to use for cmd events */
-typedef int (*cmd_func_type)(WINDOW* win);
 
 /**
  * @brief maps the given function to the specified key. 
@@ -128,14 +127,7 @@ int removekeyevent(int key);
  */
 int setkeywin(WINDOW* win);
 
-/** * @brief grabs the window the keyboard controller currently holds.  * * @return WINDOW* - window pointer. NULL is returned if an error occurs
- * 
- */
 WINDOW* getkeywin();
-
-//--END KEYBOARD---------------------------
-
-//--COMMANDS------------------------------
 
 /**
  * @brief maps the given function to the window for a command event.
@@ -152,10 +144,6 @@ WINDOW* getkeywin();
  */
 int addcmdevent(WINDOW* win, cmd_func_type func);
 
-//--END COMMANDS---------------------------
-
-//--WINDOWS------------------------------
-
 /**
  * @brief prints a buffer to the current display window.
  *
@@ -169,6 +157,35 @@ int addcmdevent(WINDOW* win, cmd_func_type func);
  */
 int printdispwin(char* buff);
 
-//--END WINDOWS---------------------------
+/**
+ * @brief adds a given function pointer to the set of functions that can be
+ * called via the command bar.
+ * 
+ * @param func -  the function pointer (see cmdbar_func)
+ * @param funcalias - the name (or alias) of the function. This is what will be
+ * called by the user in the command bar
+ *
+ * @return int - 0: no error; 1: error occured
+ * @see removecmdbarfunc()
+ * @see cmdbar_func
+ *
+ * @todo: rewrite with hasmap implementation
+ * 
+ */
+int addcmdbarfunc(cmdbar_func func, char* funcalias);
+
+/**
+ * @brief removes the function pointer with the given function alias from the
+ * stack of functions to be called by the command bar.
+ *
+ * @param funcalias - the name (or alias) given for the function. If no function
+ * by this name is found nothing happens
+ *
+ * @return void
+ * @see addcmdbarfunc()
+ * 
+ * @todo: rewrite with hashmap implementation
+ */
+void removecmdbarfunc(char* funcalias);
 
 #endif 
