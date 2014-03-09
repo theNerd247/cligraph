@@ -36,8 +36,9 @@
 #include <stdlib.h>
 #include <string.h> 
 #include <regex.h>
+#include <llist.h>
+#include <str.h>
 
-#define NDEBUG
 #include "dbg.h"
 #include "cligraph.h"
 #include "tui.h"
@@ -65,93 +66,16 @@ typedef struct
 {
 	char* funcname;
 	cmdbar_func funcref;
-} CBarFuncNode;
+} CMDBARFuncNode;
 
 int printdispwin(char* buff)
 {
-	mvwprintw(getdispwin(),0,0,"%s",buff);
+	mvwprintw(getdispwin(),0,1,"%s",buff);
 	wnoutrefresh(getdispwin());
 	return 0;
 }
 
 //--starttui()------------------------------
-
-/*the default action to take place when a printable key is pressed */
-int printable_event(int curr_key)
-{
-	//first write to the input buffer...
-	cmdbuff[cmdbuff_index++] = curr_key;
-
-	//...and then print to the output window if printable
-	WINDOW* curr_win = getcmdbar();
-	waddch(curr_win,curr_key); 
-	wnoutrefresh(curr_win);
-
-	return 0;
-}
-
-#define FUNCPAT "^([-_a-zA-Z0-9]*)\\(.*\\)"
-//helper function for cmbdbar_cmdevent
-/** 
- * @brief parses the function that is being called via the cmdbar 
- * 
- * @param raw - raw string from cmdbar
-
- * @return char*
- */
-char* parsefuncname(char* raw, char* buff)
-{
-	regex_t regt;
-	regoff_t match;
-	char temp[255];
-	regmatch_t matches[2];
-
-	match = regcomp(&regt,FUNCPAT,REG_EXTENDED);
-	check((match == 0), "failed to compile regex_t: %i",match);
-
-	match = regexec(&regt,raw,2,matches,0);
-	check((match == 0),"Failed to match expression error code: %i",match);
-	check((matches[1].rm_so != -1),"No valid index for substring");
-
-	check(strsub(raw,matches[1].rm_so,matches[1].rm_eo-1,buff),"could not make substring");
-	return buff;
-
-	error:
-		regerror(match,&regt,temp,255);
-		log_err("%s",temp);
-		return NULL;
-}
-
-/** this is the cmd_event_func for the command bar
- *
- * Its main job is to handle the interface actions (clearing the cmdbar,
- * fetching the input buffer, looking up and executing the function, etc..)
- */
-int cmdbar_cmdevent(WINDOW* cmdbar)
-{
-	//find the command and send it
-	char funcname[255];
-	parsefuncname(cmdbuff,funcname);	
-
-	//call the function if it exists
-	(void(*)(char*)) func = (void(*)(char*))runfunc(funcname);
-	if(func != NULL)
-		func(cmdbuff);
-
-	//clear the cmdbar and the cmdbuffer
-	size_t i;
-	for (i = 0; i <= cmdbuff_index; i++)
-		cmdbuff[i] = '\0';
-
-	cmdbuff_index = 0;
-
-	//clear the command bar
-	wmove(cmdbar,1,0);
-	wclrtoeol(cmdbar);
-	wnoutrefresh(cmdbar);
-
-	return 0;
-}
 
 int addcmdbarfunc(cmdbar_func func, char* funcalias)
 {
@@ -165,7 +89,7 @@ int addcmdbarfunc(cmdbar_func func, char* funcalias)
 void removecmdbarfunc(char* funcalias)
 {
 	CMDBARFuncNode* node;
-	size_t removefunc(void* data)
+	char removefunc(void* data)
 	{
 		//if the node matches a name free its memory and don't keep it
 		node = (CMDBARFuncNode*)data;
@@ -181,6 +105,134 @@ void removecmdbarfunc(char* funcalias)
 
 	LList* temp =  cmdbarfuncs;
 	cmdbarfuncs = llfilter(cmdbarfuncs,&removefunc);
+	lldestroy(temp);
+}
+
+cmdbar_func getcmdbarfunc(char* alias)
+{
+	CMDBARFuncNode* node;
+	cmdbar_func func = NULL;
+	size_t getfunc(void* data)
+	{
+		//if the node matches a name free its memory and don't keep it
+		node = (CMDBARFuncNode*)data;
+		if(!strcmp(alias,node->funcname))
+		{
+			func = node->funcref;
+			return 1;
+		}
+		return 0;
+	}	
+	
+	llapply(cmdbarfuncs,&getfunc);
+
+	return func;
+}
+
+#define FUNCPAT "^([-_a-zA-Z0-9]*)\\({0,1}(.*)\\){0,1}"
+//helper function for cmbdbar_cmdevent
+/** 
+ * @brief parses the function that is being called via the cmdbar 
+ * 
+ * @param raw - raw string from cmdbar
+
+ * @return char*
+ */
+
+void parsefuncname(char* raw, char* funcbuff, char* argbuff)
+{
+	regex_t regt;
+	regoff_t match;
+	char temp[255];
+	regmatch_t matches[3];
+
+	match = regcomp(&regt,FUNCPAT,REG_EXTENDED);
+	check((match == 0), "failed to compile regex_t: %i",match);
+
+	match = regexec(&regt,raw,3,matches,0);
+	check((match == 0),"Failed to match expression error code: %i",match);
+	check((matches[1].rm_so != -1),"No valid index for substring");
+
+	//grab the function name
+	check(strsub(raw,matches[1].rm_so,matches[1].rm_eo-1,funcbuff),"could not make substring");
+	//grab the arguments to function
+	//dont check for arguments to given function
+	strsub(raw,matches[2].rm_so,matches[2].rm_eo-2,argbuff);
+
+	return;
+
+	error:
+		regerror(match,&regt,temp,255);
+		log_err("%s",temp);
+}
+
+/** this is the cmd_event_func for the command bar
+ *
+ * Its main job is to handle the interface actions (clearing the cmdbar,
+ * fetching the input buffer, looking up and executing the function, etc..)
+ */
+int cmdbar_cmdevent(WINDOW* cmdbar)
+{
+	//find the command and send it
+	char funcname[255] = "\0";
+	char args[255] = "\0";
+	cmdbar_func func = NULL;
+	size_t i;
+
+	parsefuncname(cmdbuff,funcname,args);	
+	if(funcname[0] == '\0') goto clear;
+
+	//call the function if it exists
+	func = getcmdbarfunc(funcname);
+	if(func != NULL)
+		func(args);
+
+	clear: 
+		//clear the cmdbar and the cmdbuffer
+		for (i = 0; i <= cmdbuff_index; i++)
+			cmdbuff[i] = '\0';
+	
+		cmdbuff_index = 0;
+	
+		//clear the command bar
+		wmove(cmdbar,1,0);
+		wclrtoeol(cmdbar);
+		wnoutrefresh(cmdbar);
+
+	return 0;
+}
+
+/*the default action to take place when a printable key is pressed */
+int printable_event(int curr_key)
+{
+	//first write to the input buffer...
+	cmdbuff[cmdbuff_index++] = curr_key;
+
+	//...and then print to the output window if printable
+	WINDOW* curr_win = getcmdbar();
+	waddch(curr_win,curr_key); 
+	wnoutrefresh(curr_win);
+
+	return 0;
+}
+
+int delchar(int curr_key)
+{
+	if(cmdbuff_index != 0) cmdbuff_index--;
+
+	cmdbuff[cmdbuff_index] = ' ';
+
+	WINDOW* curr_win = getcmdbar();
+	mvwprintw(curr_win,1,0,"%s",cmdbuff);
+	wmove(curr_win,1,cmdbuff_index);
+	wnoutrefresh(curr_win);
+	return 0;
+}
+
+//quit alias command for command bar
+void quitcmd(char* nothing)
+{
+	stoptui();
 }
 
 //helper function for starttui
@@ -193,13 +245,16 @@ int __add_default_keys()
 		check_error(!addkeyevent(i,&printable_event));
 
 	//--other default events------------------------------
-	//ESC closes the tui
+	//ESC closes the tui -- and any alias
 	check_error(!addkeyevent(ESC_KEY, (event_func_type)stoptui)); 
+//	check_error(!addcmdbarfunc(&quitcmd,"quit"));
 
 	//sendcmd is defined in keyboard.c
 	check_error(!addkeyevent(ENTER_KEY, sendcmd));
 	check_error(!addcmdevent(getcmdbar(),cmdbar_cmdevent));
 
+	//backspace key
+	check_error(!addkeyevent(KEY_BACKSPACE,delchar));
 	//--END other default events---------------------------
 	return 0;
 
@@ -238,6 +293,10 @@ void* starttui(void* null)
 	cmdbuff[0] = '\0';
 	cmdbuff_index = 0;
 
+	//init the cmdbarfuncs list
+	cmdbarfuncs = llnew();
+	check(cmdbarfuncs != NULL, "failed to init cmdbarfuncs....aborting");
+	
 	//init thread mutexes and conditions
 	pthread_mutex_init(&wait_mutex, NULL);
 	pthread_cond_init(&wait_cond, NULL);
@@ -261,9 +320,7 @@ void* starttui(void* null)
 	//setup the default key and cmd events
 	check(!__add_default_keys(), "failed to add default keys....aborting");
 
-	//init the cmdbarfuncs list
-	cmdbarfuncs = llnew();
-	
+
 	//move the cursor to the CMDBAR
 	wmove(getcmdbar(),1,0);
 
@@ -276,6 +333,7 @@ void* starttui(void* null)
 
 	return NULL;
 	error: 
+		cli_ready();
 		stoptui();
 		return NULL;
 }

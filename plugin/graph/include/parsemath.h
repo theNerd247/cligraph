@@ -46,7 +46,7 @@
  *
  * NOTE: recursive function
  */
-char* expndcoef(char* expr);
+char* expndcoef(char* expr, char* buff);
 
 /*
  * FUNCTION: expndexpr
@@ -85,7 +85,7 @@ char*  expndexpr(char* expr);
  * to override order of operations
  *
  */
-char* inspare(char* expr);
+char* inspare(char* expr, char* buff);
 
 /*
  * FUNCTION: mtchpar
@@ -113,6 +113,6 @@ char* mtchpar(char* expr, short pcnt);
  *
  * EXAMPLE: parntrim("(2x") --> "2x"; parntrim("(2x)") --> "2x"; parntrim("2x)") --> "2x";
  */
-char* parntrim(char* expr);
+char* parntrim(char* expr,char* buff);
 
 #endif 

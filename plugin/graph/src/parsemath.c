@@ -29,51 +29,78 @@
 //from  std libraries
 #include <string.h>
 #include <stdlib.h>
+#include <str.h>
 
 
 //from project libraries
 #include "parsemath.h"
-#include "strlib.h"
-
-char* expndcoef(char* expr)
-{
-	if (expr == NULL || *expr == '\0')
-		return expr;
-
-	//find indep var	
-	char* tok1;
-	char* indeppos = (char*)memchr(expr, indep_var, strlen(expr));
-
-	if(indeppos == NULL)
-		return expr;
-
-	//check for coef where indep var is found and then add the rest. 
-	tok1 = strsub(expr,0,indeppos-expr);
-	if(strpbrk(tok1+strlen(tok1)-2,"0123456789") != NULL)
-		tok1 = strins(tok1, "*", indeppos-expr);
-
-	char* tok2 = expndcoef(indeppos+1);
-	strcat(tok1,tok2);
-
-	return tok1;
-}
 
 char* expndexpr(char* expr)
 {
-	char* newexpr;
+	
+	//get proper newexpr size
+	char* i;
+	int c = 0;
+	for (i = expr; *i != '\0' ; i++)
+	{
+		char t[2] = {*i,'\0'};
+		if(strpbrk(t,"()+-") != NULL) c+=3;
+		else if(strpbrk(t,"x")) c+=1;
+	}
 
-	newexpr = expndcoef(expr);
-	newexpr = inspare(newexpr);
+	char temp[strlen(expr)+c];
+	char* newexpr = (char*)malloc(sizeof(char)*strlen(expr)+c);
+
+	expndcoef(expr,temp);
+	inspare(temp,newexpr);
 
 	return newexpr;
 }
 
-char* inspare(char* expr)
+char* expndcoef(char* expr, char* buff)
+{
+	if (expr == NULL || *expr == '\0')
+		return "\0";
+
+	//find indep var	
+	char tok1[strlen(expr)+1];
+	char* indeppos = (char*)memchr(expr, indep_var, strlen(expr));
+
+	if(indeppos == NULL)
+	{
+		strcpy(buff,expr);
+		return buff;
+	}
+
+	//check for coef where indep var is found and then add the rest. 
+	strsub(expr,0,indeppos-expr,tok1);
+	if(strpbrk(tok1+strlen(tok1)-2,"0123456789") != NULL)
+	{
+		*(tok1+(strlen(tok1)-1)) = '*';
+		*(tok1+strlen(tok1)) = indep_var;
+	}
+
+	//get the rest of the expanded string
+	expndcoef(indeppos+1,buff);
+	char tok2[strlen(buff)];
+	strcpy(tok2,buff);
+
+	strcpy(buff,tok1);
+
+	if(tok2 != NULL)
+		strcat(buff,tok2);
+
+	return buff;
+}
+
+char* inspare(char* expr, char* buff)
 {	
+	char temp[strlen(buff)+3];
+	char newexpr[strlen(buff)+3];
+
 	//insert at begining and end of string	
-	char* newexpr;
-	newexpr = strins(expr,"(",0);
-	newexpr =	strins(newexpr,")",strlen(newexpr));
+	strins(expr,"(",0,temp);
+	strins(temp,")",strlen(temp),newexpr);
 
 	//insert around pre-existing parenthesis
 	char* para = strpbrk("(",newexpr+1);
@@ -83,13 +110,14 @@ char* inspare(char* expr)
 
 	while(para_flag >= 0)
 	{
-		newexpr = strins(newexpr,"(",para_flag);
+		strins(newexpr,"(",para_flag,temp);
 
-		char* epara = ((char*)memchr(newexpr+para_flag,')',strlen(newexpr+para_flag+1)));
-		epara_flag = epara == NULL ? -1 : epara-newexpr;
+		char* epara = ((char*)memchr(temp+para_flag,')',strlen(temp+para_flag+1)));
+		epara_flag = epara == NULL ? -1 : epara-temp;
 
-		if(epara_flag >= 0)
-			newexpr = strins(newexpr,")",epara_flag);
+		if(epara_flag == -1) return NULL;
+
+		strins(temp,")",epara_flag,newexpr);
 
 		para = strpbrk("(",newexpr+1);
 		para_flag = para == NULL ? -1 : para-newexpr;
@@ -101,14 +129,16 @@ char* inspare(char* expr)
 	
 	while(p_flag >= 0)
 	{
-		newexpr = strins(newexpr,")",p_flag);
-		newexpr = strins(newexpr,"(",p_flag+2);
+		strins(newexpr,")",p_flag,temp);
+		strins(temp,"(",p_flag+2,newexpr);
 
-		p_temp = strpbrk(newexpr,"+-");
+		p_temp = strpbrk(newexpr+p_flag+2,"+-");
 		p_flag = p_temp == NULL ? -1 : p_temp-newexpr;
 	}
 
-	return newexpr;
+	strcpy(buff,newexpr);
+	
+	return buff;
 }
 
 char* mtchpar(char* expr, short pcnt)
@@ -132,18 +162,23 @@ char* mtchpar(char* expr, short pcnt)
 	return pindex;
 }
 
-char* parntrim(char* expr)
+char* parntrim(char* expr, char* buff)
 {
-	char* newexpr = expr;
-	int len = strlen(newexpr);
+	char* temp = (char*)malloc(sizeof(char)*strlen(expr));
 
-	if(*newexpr == '(')
-		newexpr = strsub(newexpr,1,len-1);
+	int len = strlen(expr);
+	char lind, rind;
+	lind = rind = 0;
 
-	len = strlen(newexpr);
-	if(*(newexpr+len-1) == ')')
-		newexpr = strsub(newexpr,0,len-2);
+	if(*expr == '(')
+		lind=1;
+	if(*(expr+len-1) == ')')
+		rind=len-2;
 
-	return newexpr;
+	strsub(expr,lind,rind,temp);
+	strcpy(buff,temp);
+
+	free(temp);
+
+	return buff;
 }
-

@@ -25,8 +25,11 @@
  * along with cligraph.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+
 #include "graph.h"
 #include "stdio.h"
+#include "cligraph.h"
 
 char axischr = '|';
 char pntchr = '+';
@@ -53,15 +56,28 @@ int pgraph(struct table* tble)
 	int i,j;
 	int xsize = tble->x_size;
 	int ysize = tble->y_size;
+
+	char* buff = (char*)malloc(sizeof(char)*(xsize+1)*ysize);
+	if(!buff) return 1;
+
+	*buff = '\0';
+
+	int ind = 0;
+
 	for (i = ysize-1; i >= 0; i--)
 	{
 		for (j = 0; j < xsize; j++)
 		{
 			int cell = getcell(tble,j,i);
-			printf("%c",cell);
+			snprintf(buff+(ind),2,"%c",cell);
+			ind++;
 		}
-		printf("\n");
+		snprintf(buff+ind,2,"\n");
+		ind++;
 	}	
+
+	printdispwin(buff);
+	free(buff);
 	//--END Print Table---------------------------
 
 	return 0;

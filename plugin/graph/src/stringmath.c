@@ -29,10 +29,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <str.h>
 #include <math.h>
 
 //from project libs
-#include "strlib.h"
 #include "parsemath.h"
 #include "stringmath.h"
 
@@ -58,9 +58,9 @@ char chknum(char* expr)
 }
 
 char chknumc(char expr)
-{
-	char val[2] = {expr,'\0'};
-	return chknum(val);
+{	
+	char b[2] = {expr,'\0'};
+	return chknum(b);
 }
 
 double strtonum(char* expr)
@@ -89,90 +89,22 @@ double strtonum(char* expr)
 	return value;
 }
 
-char* numtostr(double num)
-{
-	char buff[500];
-	sprintf(buff,"%lf",num);
-
-	int i =0;
-	while(chknumc(*(buff+i))) i++;
-
-	char* expr = strsub(buff,0,i);
-	expr[i] = '\0';
-	return expr;
-}
-
-double ngetvalue(char* expr, double value)
-{
-	//check if expression is numbers only
-	if(chknum(expr) == 1)
-		return strtonum(expr);
-	else if(*expr == indep_var && strlen(expr) == 1)
-		return value;
-
-	//if not then check for operations
-	char* op = strpbrk(expr,"+-");
-	if(op == NULL)
-		op = strpbrk(expr,"*/");
-	if(op == NULL)
-		op = strpbrk(expr,"^");
-	//avoid case where expr == "(x)"
- 	if(op == NULL)
-		return getvalue(parntrim(expr),value);
-	
-	double val;
-	double lftval, rhtval;
-	if(op != NULL)
-	{
-		char* lftexpr = strsub(expr,0,op-expr-1);
-		char* rhtexpr = strsub(expr,op-expr+1,strlen(expr)-1);
-
-		//rm () on ends of str
-		if(strpbrk(lftexpr,"()") != NULL)
-			lftexpr = parntrim(lftexpr);
-
-		if(strpbrk(rhtexpr,"()") != NULL)
-			rhtexpr = parntrim(rhtexpr);
-
-		lftval = getvalue(lftexpr,value);
-		rhtval = getvalue(rhtexpr,value);
-
-		switch(*op)
-		{
-			case '+':
-				val = lftval+rhtval;
-				break;
-			case '-':
-				val = lftval-rhtval;
-				break;
-			case '*':
-				val = lftval*rhtval;
-				break;
-			case '/':
-				val = lftval/rhtval;
-				break;
-			case '^':
-				val = pow(lftval,rhtval);
-				break;
-			default:
-				val = lftval;
-				break;	
-		}
-	}
-
-	return val;
-}
-
 double getvalue(char* expr, double value)
 {
+	double val;
+	double lftval, rhtval;
+	char lftexpr[255], rhtexpr[255];
+	char rplbuff[255], trimmed[strlen(expr)];
+	parntrim(expr,trimmed);
+	
 	//check if expression is numbers only or is the indep_var
 	if(chknum(expr) == 1 )
 		return strtonum(expr);
-	else if(chknum(parntrim(expr)))
-		return strtonum(parntrim(expr));
+	else if(chknum(trimmed))
+		return strtonum(trimmed);
 	else if(*expr == indep_var && strlen(expr) == 1)
 		return value;
-
+	
 	//if not then check for operations
 	char* op = strpbrk(expr,"^");
 	if(op == NULL)
@@ -187,55 +119,58 @@ double getvalue(char* expr, double value)
 		if(op && *(op-1) == '(') op = NULL;
 	}
 	//avoid case where expr == "(x)"
- 	if(op == NULL)
-		return getvalue(parntrim(expr),value);
-	
-	double val;
-	double lftval, rhtval;
-	char* lftexpr;
-	char* rhtexpr;
+	 	if(op == NULL)
+		return getvalue(trimmed,value);
 	
 	if(op != NULL)
 	{
 		//get left and right expressions
-
+	
 		//get lftexpr 
 		if(*(op-1) == ')')
 		{
 			int pind = mtchpar(op-1,-1)-expr;
-			lftexpr = strsub(expr,pind,op-expr-1);
-			lftexpr = parntrim(lftexpr);
+			strsub(expr,pind,op-expr-1,lftexpr);
+			char lt[strlen(lftexpr)];
+			strcpy(lftexpr,parntrim(lftexpr,lt));
 		} 	
 		else if(chknumc(*(op-1)) == 1)
 		{
 			int i = 1;
 			while(chknumc(*(op-i))) i++;
 			i--;
-			lftexpr = strsub(expr,op-expr-i,op-expr-1);
+			strsub(expr,op-expr-i,op-expr-1,lftexpr);
 		}
 		else
-			lftexpr = "x";
-
+		{
+			lftexpr[0] = 'x';
+			lftexpr[1] = '\0';
+		}
+	
 		//get rhtexpr
 		if(*(op+1) == '(')
 		{
 			int pind = mtchpar(op+1,1)-expr;
-			rhtexpr = strsub(expr,op-expr+1,pind);
-			rhtexpr = parntrim(rhtexpr);
+			strsub(expr,op-expr+1,pind,rhtexpr);
+			char rt[strlen(rhtexpr)];
+			strcpy(rhtexpr,parntrim(rhtexpr,rt));
 		} 	
 		else if(chknumc(*(op+1)) == 1)
 		{
 			int i = 1;
 			while(chknumc(*(op+i))) i++;
 			i--;
-			rhtexpr = strsub(expr,op-expr+1,op-expr+i);
+			strsub(expr,op-expr+1,op-expr+i,rhtexpr);
 		}
 		else
-			rhtexpr = "x";	
-
-		double lftval = getvalue(lftexpr,value);
-		double rhtval = getvalue(rhtexpr,value);
-
+		{
+			rhtexpr[0] = 'x';
+			rhtexpr[1] = '\0';
+		}
+	
+		lftval = getvalue(lftexpr,value);
+		rhtval = getvalue(rhtexpr,value);
+	
 		switch(*op)
 		{
 			case '+':
@@ -259,17 +194,26 @@ double getvalue(char* expr, double value)
 		}
 	}
 	
-	//TODO: replace lftexpr+op+rhtexpr in expr with val (will need numtostr func)
-	char* vl = numtostr(val);	
-	expr = strrpl(expr, op-expr-1-strlen(lftexpr),op-expr+strlen(rhtexpr),vl);
-	double vall = getvalue(expr, value);
-	return vall;
+	char vl[12];
+	sprintf(vl,"%lf",val);
+	
+	int lind = op-expr-strlen(lftexpr);
+	int rind = op-expr+strlen(rhtexpr);
+	
+	if(*(op-1) == ')')
+		lind-=1;
+	if(*(op+1) == '(')
+		rind+=1;
+	
+	strrpl(expr,vl,lind,rind,rplbuff);
+	
+	return getvalue(rplbuff, value);
 }
 
 //warning: untested
 FuncValues* getfuncvalues(char* expr, double strt, double end, const double step)
 {
-	expr = expndexpr(expr);
+	char* f = expndexpr(expr);
 	int N = (int)((end-strt)/step);
 	FuncValues* values = llnew();
 
@@ -278,7 +222,7 @@ FuncValues* getfuncvalues(char* expr, double strt, double end, const double step
 	for (i = 0; i <= N; i++)
 	{
 		double ival = strt+(step*i);
-		val = getvalue(expr,ival);
+		val = getvalue(f,ival);
 		POINT* newpoint = newPOINT();
 		newpoint->x = ival;
 		newpoint->y = val;

@@ -74,8 +74,6 @@ struct table* makegraph(FuncValues* values)
 	range = getdy(values);
 	domain = ((POINT*)llgetvalue(values, values->length-1))->x;
 
-	printf("domain: %lf range: %lf\n", domain, range);
-
 	struct table* newtble = inittble(xsize,ysize);
 	VALIDPNTR(newtble, NULL);	
 	spacetbl(newtble);
@@ -92,29 +90,38 @@ struct table* makegraph(FuncValues* values)
 	return newtble;
 }
 
-int graphfunc(char* buff)
+void graphfunc(char* buff)
 {
-	xsize = COLS;
-	ysize = LINES; 
-	FuncValues* values = getfuncvalues(buff,-(COLS/2),COLS/2,1);
+	if(buff == '\0')
+		return;
+
+	xsize = COLS-4;
+	ysize = LINES-10; 
+	FuncValues* values = getfuncvalues(buff,.01,1,.01);
+
+/*
+ * 	char buffer[values->length*18];
+ * 	int ind = 0;
+ * 
+ * 	POINT* point = NULL;
+ * 	size_t pvalue(void* data)
+ * 	{
+ * 		point = (POINT*)data;
+ * 		sprintf(buffer+ind," x=%5.0f y=%5.0f\n",point->x,point->y);
+ * 		ind+=17;
+ * 		return 0;
+ * 	}
+ * 
+ * 	llapply(values,pvalue);
+ * 	printdispwin(buffer);
+ * 	 */
+
 	struct table* graph = makegraph(values);
 	pgraph(graph);
-	return 0;
-
-}
-
-int main(int argc, char const *argv[])
-{
-	char buff[100] = "2*(2x-2)/((x^2-2x)^(-2))";
-	
-	FuncValues* values = getfuncvalues(buff,0,50,1);
-	struct table* graph = makegraph(values);
-	pgraph(graph);
-
-	return 0;
 }
 
 void* startgraph(void* null)
 {
+	addcmdbarfunc(graphfunc,"graph");
 	return NULL;
 }

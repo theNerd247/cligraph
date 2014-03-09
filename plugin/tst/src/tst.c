@@ -5,14 +5,13 @@
 #include "dbg.h"
 #include "cligraph.h"
 
-int printmsg()
+void printmsg(char* cmd)
 {
-	debug("printmsg");
-	return 0;
+	printdispwin(cmd);
 }
 
 void* starttst(void* null)
 {
-	addkeyevent(10,printmsg);	
+	addcmdbarfunc(&printmsg,"print");
 	return NULL;
 }

@@ -28,7 +28,7 @@ REQUIRED_DIRS=$(BINDIR)
 ## FLAGS ##############################
 
 #libraries to link in
-LLIBS=cligraph ncurses m
+LLIBS=cligraph ncurses m str llist
 LLIBS:=$(patsubst %, -l%, $(LLIBS))
 LLIB_SDIR=-L../../lib/
 

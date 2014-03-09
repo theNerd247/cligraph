@@ -25,7 +25,6 @@
  * @author Noah Harvey (noah.harvey247@gmail.com)
  * @copyright GNU Public License 2
  */
-
 #include <ncurses.h>
 
 #ifndef __CLIGRAPH
@@ -187,5 +186,18 @@ int addcmdbarfunc(cmdbar_func func, char* funcalias);
  * @todo: rewrite with hashmap implementation
  */
 void removecmdbarfunc(char* funcalias);
+
+/**
+ * @brief fetches the cmdbar_func matching the given alias
+ * 
+ * if more than one function has the same alias then the first function that is
+ * found is returned.
+ *
+ * @param alias - the alias of the function
+ *
+ * @return cmdbar_func - command bar function reference
+ * 
+ */
+cmdbar_func getcmdbarfunc(char* alias);
 
 #endif 
