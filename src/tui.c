@@ -52,8 +52,7 @@ static pthread_t winthread;
 static pthread_mutex_t wait_mutex;
 static pthread_cond_t wait_cond;
 static unsigned char wait_sig;
-//--END THREADS---------------------------
-
+//--END THREADS--------------------------- 
 /* status of the tui manger */
 
 //the input buffer for the command bar
@@ -65,19 +64,25 @@ static LList* cmdbarfuncs;
 typedef struct 
 {
 	char* funcname;
-	cmdbar_func funcref;
+	cmdbarevent_func funcref;
 } CMDBARFuncNode;
+
+int resetdispwin()
+{
+	return wclear(getdispwin());
+}
 
 int printdispwin(char* buff)
 {
-	mvwprintw(getdispwin(),0,1,"%s",buff);
+	wprintw(getdispwin(),"\n");
+	wprintw(getdispwin(),"%s",buff);
 	wnoutrefresh(getdispwin());
 	return 0;
 }
 
 //--starttui()------------------------------
 
-int addcmdbarfunc(cmdbar_func func, char* funcalias)
+int addcmdbarfunc(cmdbarevent_func func, char* funcalias)
 {
 	CMDBARFuncNode* newNode = (CMDBARFuncNode*)malloc(sizeof(CMDBARFuncNode));
 	newNode->funcname = funcalias;
@@ -108,10 +113,10 @@ void removecmdbarfunc(char* funcalias)
 	lldestroy(temp);
 }
 
-cmdbar_func getcmdbarfunc(char* alias)
+cmdbarevent_func getcmdbarfunc(char* alias)
 {
 	CMDBARFuncNode* node;
-	cmdbar_func func = NULL;
+	cmdbarevent_func func = NULL;
 	size_t getfunc(void* data)
 	{
 		//if the node matches a name free its memory and don't keep it
@@ -138,7 +143,6 @@ cmdbar_func getcmdbarfunc(char* alias)
 
  * @return char*
  */
-
 void parsefuncname(char* raw, char* funcbuff, char* argbuff)
 {
 	regex_t regt;
@@ -176,7 +180,7 @@ int cmdbar_cmdevent(WINDOW* cmdbar)
 	//find the command and send it
 	char funcname[255] = "\0";
 	char args[255] = "\0";
-	cmdbar_func func = NULL;
+	cmdbarevent_func func = NULL;
 	size_t i;
 
 	parsefuncname(cmdbuff,funcname,args);	
@@ -235,6 +239,12 @@ void quitcmd(char* nothing)
 	stoptui();
 }
 
+int switchmenu(int key)
+{
+	resetdispwin();
+	return setdispwin(key-KEY_F0);
+}
+
 //helper function for starttui
 /* sets up the default key events */
 int __add_default_keys()
@@ -246,16 +256,23 @@ int __add_default_keys()
 
 	//--other default events------------------------------
 	//ESC closes the tui -- and any alias
-	check_error(!addkeyevent(ESC_KEY, (event_func_type)stoptui)); 
+	check_error(!addkeyevent(ESC_KEY, (keyevent_func)stoptui)); 
 //	check_error(!addcmdbarfunc(&quitcmd,"quit"));
 
-	//sendcmd is defined in keyboard.c
-	check_error(!addkeyevent(ENTER_KEY, sendcmd));
+	//__sendcmd is defined in keyboard.c
+	check_error(!addkeyevent(ENTER_KEY, __sendcmd));
 	check_error(!addcmdevent(getcmdbar(),cmdbar_cmdevent));
 
 	//backspace key
 	check_error(!addkeyevent(KEY_BACKSPACE,delchar));
 	//--END other default events---------------------------
+
+	//function keys
+	for (i = 1; i < NMENUS+1; i++)
+	{
+		check_error(!addkeyevent(KEY_F(i),switchmenu));
+	}
+
 	return 0;
 
 	error:

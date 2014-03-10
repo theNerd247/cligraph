@@ -59,11 +59,15 @@ char* expndexpr(char* expr)
 
 char* expndcoef(char* expr, char* buff)
 {
+	char tok1[strlen(expr)+1], tok2[strlen(expr)+1];
+
 	if (expr == NULL || *expr == '\0')
+	{
+		strcpy(buff,"\0");
 		return "\0";
+	}
 
 	//find indep var	
-	char tok1[strlen(expr)+1];
 	char* indeppos = (char*)memchr(expr, indep_var, strlen(expr));
 
 	if(indeppos == NULL)
@@ -82,12 +86,12 @@ char* expndcoef(char* expr, char* buff)
 
 	//get the rest of the expanded string
 	expndcoef(indeppos+1,buff);
-	char tok2[strlen(buff)];
 	strcpy(tok2,buff);
 
+	if(*buff == '\0') *buff = ' ';
 	strcpy(buff,tok1);
 
-	if(tok2 != NULL)
+	if(*tok2 != '\0')
 		strcat(buff,tok2);
 
 	return buff;
@@ -103,7 +107,7 @@ char* inspare(char* expr, char* buff)
 	strins(temp,")",strlen(temp),newexpr);
 
 	//insert around pre-existing parenthesis
-	char* para = strpbrk("(",newexpr+1);
+	char* para = strpbrk(newexpr+1,"(");
 	int para_flag = para == NULL ? -1 : para-newexpr;
 
 	int epara_flag = 0;
@@ -119,7 +123,7 @@ char* inspare(char* expr, char* buff)
 
 		strins(temp,")",epara_flag,newexpr);
 
-		para = strpbrk("(",newexpr+1);
+		para = strpbrk(newexpr+para_flag+2,"(");
 		para_flag = para == NULL ? -1 : para-newexpr;
 	}
 
@@ -168,7 +172,8 @@ char* parntrim(char* expr, char* buff)
 
 	int len = strlen(expr);
 	char lind, rind;
-	lind = rind = 0;
+	lind = 0;
+	rind = strlen(expr)-1;
 
 	if(*expr == '(')
 		lind=1;

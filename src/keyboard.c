@@ -40,13 +40,13 @@
 
 /* stores all keyboard events stored as an array*/
 pthread_mutex_t events_mutex;
-static event_func_type events[NEVENTS];
+static keyevent_func events[NEVENTS];
 
 /* structures for the cmdevents */
 typedef struct __cmd_event_st
 {
 	WINDOW* cmdwin;
-	cmd_func_type cmdfunc;
+	cmdevent_func cmdfunc;
 } CMDEVENT;
 
 /* stores the command windows and events */
@@ -66,7 +66,7 @@ int __do_nothing(int key)
 	return 0; //as the name indicates this function does nothing.
 }
 
-int addkeyevent(int key, event_func_type func)
+int addkeyevent(int key, keyevent_func func)
 {
 	check(func,"Could not set event for key: %i (function invalid)",key);
 	check(key >= 0 && key < NEVENTS, "Could not set event for key: %i (key invalid)",key);
@@ -113,7 +113,7 @@ int removekeyevent(int key)
 
 /*TODO: this function needs to be as fast as possible (maybe a redesign is
   needed for mapping of windows to functions */
-int sendcmd(int key)
+int __sendcmd(int key)
 {
 	WINDOW* win = getkeywin();
 
@@ -122,7 +122,8 @@ int sendcmd(int key)
 		CMDEVENT* event = (CMDEVENT*)data;
 		if(event->cmdwin == win)
 		{
-			event->cmdfunc(win);
+			if(event->cmdfunc != NULL)
+				event->cmdfunc(win);
 			return 1;
 		}
 
@@ -136,7 +137,7 @@ int sendcmd(int key)
 	return 0;
 }
 
-int addcmdevent(WINDOW* win, cmd_func_type func)
+int addcmdevent(WINDOW* win, cmdevent_func func)
 {
 	check(win, "win was null");
 	check(func, "func was null");
@@ -170,6 +171,29 @@ int addcmdevent(WINDOW* win, cmd_func_type func)
 
 	error:
 		return 1;
+}
+
+void removecmdevent(WINDOW* win)
+{
+	check(win,"window was null");
+	lock(cmdevent_mutex);
+	
+	size_t removeEvent(void* data)
+	{
+		CMDEVENT* event = (CMDEVENT*)data;
+		if(event->cmdwin == win)
+		{
+			event->cmdfunc = NULL;
+			return 1;
+		}
+		return 0;
+
+	}
+
+	unlock(cmdevent_mutex);
+
+	error:
+		return;
 }
 
 int setkeywin(WINDOW* win)

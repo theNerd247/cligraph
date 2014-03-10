@@ -40,7 +40,9 @@
 //--WINSTRUCTS------------------------------
 static MENU* menus[NMENUS];
 static WINDOW* CMDBAR;
+static WINDOW* DISPWINS[NMENUS];
 static WINDOW* DISPWIN;
+static WINDOW* DISPWIN_ORIG;
 
 static pthread_mutex_t cmdbar_mutex;
 static pthread_mutex_t dispwin_mutex;
@@ -56,17 +58,26 @@ static unsigned char running = 0;
 char __init_DISPWIN()
 {
 	lock(dispwin_mutex);
-	check(DISPWIN = newwin(DISP_YS,DISP_XS,DISP_YP,DISP_XP), "Failed to create DISPWIN");
+	DISPWIN_ORIG = newwin(DISP_YS,DISP_XS,DISP_YP,DISP_XP);
+	size_t i;
+	for (i = 0; i < NMENUS; i++)
+	{
+		check(DISPWINS[i] = subwin(DISPWIN_ORIG,DISP_YS-2,DISP_XS-2,DISP_YP+1,DISP_XP+1), "Failed to create DISPWIN");
 	
-	//keyboard config
-	keypad(DISPWIN, TRUE);
-
-	//cursor config
-	leaveok(DISPWIN, FALSE);
+		//keyboard config
+		keypad(DISPWINS[i], TRUE);
+	
+		//cursor config
+		leaveok(DISPWINS[i], FALSE);
+	}
 
 	//borders 
-	mvwvline(DISPWIN,0,0,ACS_VLINE,DISP_YS);
-	mvwvline(DISPWIN,0,DISP_XS-1,ACS_VLINE,DISP_YS);
+	mvwvline(DISPWIN_ORIG,0,0,ACS_VLINE,DISP_YS);
+	mvwvline(DISPWIN_ORIG,0,DISP_XS-1,ACS_VLINE,DISP_YS);
+	wnoutrefresh(DISPWIN_ORIG);
+
+	//init with the math dispwin
+	DISPWIN = DISPWINS[0];
 
 	//start cursor at the top of the window 
 	wmove(DISPWIN,0,1);
@@ -198,8 +209,11 @@ void __free_winstructs()
 		__free_menu(menus[i]);
 
 	//free the displays
-	wclear(DISPWIN);
-	delwin(DISPWIN);
+	for (i = 0; i < NMENUS; i++)
+	{
+		wclear(DISPWINS[i]);
+		delwin(DISPWINS[i]);
+	}
 
 	//free the CMDBAR
 	wclear(CMDBAR);
@@ -215,11 +229,11 @@ WINDOW* getcmdbar()
 	return win;
 }
 
-int setdispwin(WINDOW* win)
+int setdispwin(int menu)
 {
-	check(win, "win is null");
+	check(!(menu < 0 || menu > NMENUS-1), "invalid menu value");
 	lock(dispwin_mutex);
-	DISPWIN = win;
+	DISPWIN = DISPWINS[menu];
 	wnoutrefresh(DISPWIN);
 	unlock(dispwin_mutex);
 	return 0;

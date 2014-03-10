@@ -64,14 +64,22 @@
 //--END GLOBALS---------------------------
 
 /**
- * @brief sets the display window.
+ * @brief sets the display window according to the menu selected
+ * 
+ * selected menus are:
+ * * 0 - math
+ * * 1 - functions
+ * * 2 - tables
+ * * 3 - graphing
+ * * 4 - settings
+ * * 5 - plugin
  *
- * @param win - the window to use for the display window
+ * @param menu - one of the above values
  *
- * @return int - error code: 0 - no error; 1 - error
+ * @return int - 0: no error; 1: error occured
  * 
  */
-int setdispwin(WINDOW* win);
+int setdispwin(int menu);
 
 /**
  * @brief returns the current display window.

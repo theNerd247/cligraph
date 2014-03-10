@@ -75,8 +75,6 @@ void __cli__wait()
 	return;
 }
 
-
-
 int main(int argc, char const *argv[])
 {		
 	//init variables 

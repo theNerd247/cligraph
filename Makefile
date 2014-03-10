@@ -85,6 +85,7 @@ clean:
 	rm -rf $(CLEAN)
 
 doc:
-	doxygen $(DOXYGEN_CONFIG_FILE)
+	doxygen $(DOXYGEN_CONFIG_FILE) #-w latex header.tex footer.tex doxygen.sty $(DOXYGEN_CONFIG_FILE)
+	cd $(PREFIX)/doc/latex/; make 
 
 ## END TARGETS ############################

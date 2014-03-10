@@ -32,7 +32,7 @@
 #include <llist.h>
 
 //structure to contain function value pairs
-typedef struct funcpoint 
+typedef struct 
 {
 	double y;
 	double x;

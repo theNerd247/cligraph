@@ -128,18 +128,18 @@ void* starttui(void* null);
 void stoptui();
 
 /**
- * @brief attempts to execute the currently inputed command.
+ * @brief calls a cmdevent for a given window
  *
- * This is the function that is called when the ENTER_KEY is pressed (notice it
- * follows the event_func_type typedef). Never call this function directly as it
- * is already loaded at startup and cannot be removed or overridden. If you wish
- * to have a function called when the enter key is pressed see addcmdevent().
+ * This is the function that is called when the ENTER_KEY is pressed . Never
+ * call this function directly as it is already loaded at startup and cannot be
+ * removed or overridden. If you wish to have a function called when the enter
+ * key is pressed see addcmdevent().
  *
  * @param key - the ENTER_KEY
  *
  * @return int - allways 0
  * 
  */
-int sendcmd(int key);
+int __sendcmd(int key);
 
 #endif 
