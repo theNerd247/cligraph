@@ -29,7 +29,7 @@ DOXYGEN_CONFIG_FILE=$(PREFIX)/doxygen.conf
 #
 ## FLAGS ##############################
 
-LLIBS=dl llist pthread ncurses menu m str
+LLIBS=dl pthread ncurses menu m
 LLIBS:=$(patsubst %, -l%, $(LLIBS))
 
 export CC=gcc
